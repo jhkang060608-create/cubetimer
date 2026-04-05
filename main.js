@@ -1732,6 +1732,12 @@ if (progressChart) {
       if (chartDragging && chartActivePointerType === "touch") {
         tapped = endDrag(event, touch?.clientX, touch?.clientY);
       }
+      const tooltipTapped = chartTooltip && chartTooltip.contains(event.target);
+      if (tooltipTapped) {
+        const solve = chartTooltipSolve || activeChartPoint?.solve;
+        if (solve) openSolveModal(solve);
+        return;
+      }
       if (!tapped) {
         activeChartPoint = null;
         hideChartTooltip();
