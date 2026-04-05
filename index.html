@@ -40,19 +40,6 @@
         <aside class="sidebar">
           <section class="controls">
             <div class="panel">
-              <h2>세션</h2>
-              <div class="row session-row">
-                <select id="sessionSelect"></select>
-                <button id="newSessionBtn">새 세션</button>
-                <button id="renameSessionBtn">이름 변경</button>
-              </div>
-              <div class="row session-row">
-                <button id="exportBtn">내보내기</button>
-                <button id="deleteSessionBtn" class="danger session-delete">삭제</button>
-                <button id="resetSessionBtn" class="danger session-reset">세션 초기화</button>
-              </div>
-            </div>
-            <div class="panel">
               <h2>스크램블 옵션</h2>
               <label>
                 종목
@@ -79,6 +66,19 @@
               <div class="row scramble-row">
                 <button id="prevScrambleBtn">이전 스크램블</button>
                 <button id="nextScrambleBtn">다음 스크램블</button>
+              </div>
+            </div>
+            <div class="panel">
+              <h2>세션</h2>
+              <div class="row session-row">
+                <select id="sessionSelect"></select>
+                <button id="newSessionBtn">새 세션</button>
+                <button id="renameSessionBtn">이름 변경</button>
+              </div>
+              <div class="row session-row">
+                <button id="exportBtn">내보내기</button>
+                <button id="deleteSessionBtn" class="danger session-delete">삭제</button>
+                <button id="resetSessionBtn" class="danger session-reset">세션 초기화</button>
               </div>
             </div>
           </section>
@@ -257,7 +257,7 @@
     </div>
 
     <footer class="site-footer">
-      <div>© 2026 CubeTimer. Licensed under GPL-3.0. v1.4</div>
+      <div>© 2026 CubeTimer. Licensed under GPL-3.0. v1.5</div>
       <div>Made with OpenAI GPT-5.2 Codex</div>
     </footer>
     <script type="module" src="main.js"></script>
