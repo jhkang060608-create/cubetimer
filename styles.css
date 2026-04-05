@@ -68,6 +68,8 @@ body.theme-dark {
 .top h1 {
   margin: 0;
   font-size: 2.6rem;
+  font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
+  font-weight: 600;
   letter-spacing: 0.02em;
 }
 
@@ -818,6 +820,14 @@ body.hide-chart .visual-row {
   height: auto;
   aspect-ratio: 16 / 9;
   display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chart-card {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .chart-controls {
@@ -842,7 +852,7 @@ body.hide-chart .visual-row {
   color: #ffffff;
   font-size: 0.82rem;
   line-height: 1.2;
-  pointer-events: auto;
+  pointer-events: none;
   opacity: 0;
   transform: translate(-50%, -100%);
   transition: opacity 0.12s ease;
