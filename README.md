@@ -1,6 +1,5 @@
 # CubeTimer
 
-Made by "김다미" from 큐브매니아
 이 프로그램은 OpenAI의 GPT-5.2 Codex로 만들어졌습니다.
 
 ## 실행
