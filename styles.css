@@ -648,12 +648,6 @@ body.theme-dark .modal-actions .actions-right button.danger {
   color: #1e1b16;
 }
 
-@media (max-width: 960px) {
-  .visual-row {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 720px) {
   body {
     overflow-x: hidden;
@@ -716,8 +710,8 @@ body.theme-dark .modal-actions .actions-right button.danger {
 
   .visual-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 16px;
     min-width: 0;
     width: 100%;
     max-width: 100%;
@@ -757,7 +751,7 @@ body.theme-dark .modal-actions .actions-right button.danger {
 }
 .visual-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   align-items: stretch;
   margin-top: 8px;
