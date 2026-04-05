@@ -744,6 +744,10 @@ body.theme-dark .modal-actions .actions-right button.danger {
     width: 100%;
   }
 
+  .solve-item .solve-cards {
+    justify-content: center !important;
+  }
+
   .preview-side {
     width: 100%;
     height: 260px;
