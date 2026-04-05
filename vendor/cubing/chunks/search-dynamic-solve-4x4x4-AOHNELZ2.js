@@ -65,7 +65,7 @@ function set8Perm(arr, idx, n, even) {
 }
 
 // src/cubing/vendor/mit/cs0x7f/cstimer/src/js/scramble/444-solver.ts
-import { randomUIntBelow } from "/vendor/random-uint-below/index.js";
+import { randomUIntBelow } from "../../random-uint-below/index.js";
 function createArray(length1, length2) {
   const result = new Array(length1);
   if (length2 !== void 0) {

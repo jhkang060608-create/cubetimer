@@ -14,7 +14,7 @@ import {
 } from "./chunk-3MMNI5O2.js";
 
 // src/cubing/search/inside/solve/puzzles/3x3x3/index.ts
-import { randomChoice as randomChoice2 } from "/vendor/random-uint-below/index.js";
+import { randomChoice as randomChoice2 } from "../../random-uint-below/index.js";
 
 // src/cubing/search/inside/inside-worker.ts
 var isInsideWorker = false;
@@ -30,7 +30,7 @@ function mustBeInsideWorker() {
 }
 
 // src/cubing/search/inside/solve/addOrientationSuffix.ts
-import { randomChoice } from "/vendor/random-uint-below/index.js";
+import { randomChoice } from "../../random-uint-below/index.js";
 function addOrientationSuffix(alg, suffixSpec) {
   const algBuilder = new AlgBuilder();
   algBuilder.experimentalPushAlg(alg);

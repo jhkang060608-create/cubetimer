@@ -1,5 +1,5 @@
 // src/cubing/vendor/mpl/xyzzy/master_tetraminx-solver.js
-import { randomUIntBelow } from "/vendor/random-uint-below/index.js";
+import { randomUIntBelow } from "../../random-uint-below/index.js";
 function factorial(n) {
   if (n < 2) {
     return n;

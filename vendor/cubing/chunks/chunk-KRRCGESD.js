@@ -9,7 +9,7 @@ import {
 } from "./chunk-3MMNI5O2.js";
 
 // src/cubing/search/inside/solve/puzzles/clock.ts
-import { randomUIntBelow } from "/vendor/random-uint-below/index.js";
+import { randomUIntBelow } from "../../random-uint-below/index.js";
 var backMoves = ["U", "R", "D", "L", "ALL"];
 var frontMoves = ["UR", "DR", "DL", "UL"].concat(backMoves);
 function randomClockScrambleString() {
@@ -41,7 +41,7 @@ function randomClockScrambleString() {
 }
 
 // src/cubing/vendor/apache/comlink-everywhere/outside/index.ts
-import { wrap } from "/vendor/comlink/index.js";
+import { wrap } from "../../comlink/index.js";
 var useNodeWorkarounds = typeof globalThis.Worker === "undefined" && typeof globalThis.WorkerNavigator === "undefined";
 async function nodeWorker(source, options) {
   const { Worker: NodeWorker } = globalThis.process.getBuiltinModule(

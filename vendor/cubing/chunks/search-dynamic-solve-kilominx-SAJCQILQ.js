@@ -3,7 +3,7 @@ import {
 } from "./chunk-3MMNI5O2.js";
 
 // src/cubing/vendor/mpl/xyzzy/kilosolver.js
-import { randomUIntBelow } from "/vendor/random-uint-below/index.js";
+import { randomUIntBelow } from "../../random-uint-below/index.js";
 var PHASE4_THRESHOLD = 7;
 function factorial(n) {
   if (n < 2) {

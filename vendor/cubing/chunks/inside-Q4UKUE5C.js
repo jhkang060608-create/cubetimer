@@ -32,10 +32,10 @@ import {
 } from "./chunk-3MMNI5O2.js";
 
 // src/cubing/search/inside/solve/puzzles/2x2x2.ts
-import { randomPermuteInPlace, randomUIntBelow } from "/vendor/random-uint-below/index.js";
+import { randomPermuteInPlace, randomUIntBelow } from "../../random-uint-below/index.js";
 
 // src/cubing/search/inside/solve/tremble.ts
-import { randomChoice } from "/vendor/random-uint-below/index.js";
+import { randomChoice } from "../../random-uint-below/index.js";
 var DEFAULT_STAGE1_DEPTH_LIMIT = 2;
 var DOUBLECHECK_PLACED_PIECES = true;
 var DEBUG = false;

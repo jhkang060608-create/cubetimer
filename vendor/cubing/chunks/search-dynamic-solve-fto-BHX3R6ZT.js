@@ -3,7 +3,7 @@ import {
 } from "./chunk-3MMNI5O2.js";
 
 // src/cubing/vendor/mit/cs0x7f/fto/scramble_fto_standalone.js
-import { randomUIntBelow } from "/vendor/random-uint-below/index.js";
+import { randomUIntBelow } from "../../random-uint-below/index.js";
 var DEBUG = false;
 var mathlib = function() {
   var fact = [1];

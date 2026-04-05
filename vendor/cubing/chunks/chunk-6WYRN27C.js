@@ -3,7 +3,7 @@ import {
 } from "./chunk-RDSQRW3G.js";
 
 // src/cubing/vendor/apache/comlink-everywhere/inside/index.ts
-import { expose as comlinkExpose } from "/vendor/comlink/index.js";
+import { expose as comlinkExpose } from "../../comlink/index.js";
 var useNodeWorkarounds = typeof globalThis.Worker === "undefined" && typeof globalThis.WorkerNavigator === "undefined";
 async function nodeEndpointPort() {
   const { parentPort } = globalThis.process.getBuiltinModule(
