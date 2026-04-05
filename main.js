@@ -1611,7 +1611,7 @@ if (progressChart) {
   };
 
   const endDrag = (event, clientX, clientY) => {
-    if (!chartDragging) return;
+    if (!chartDragging) return false;
     chartDragging = false;
     const wasTouch = chartActivePointerType === "touch";
     const wasTap = wasTouch && !chartDragMoved;
@@ -1631,6 +1631,7 @@ if (progressChart) {
         progressChart.releasePointerCapture(event.pointerId);
       } catch {}
     }
+    return wasTap;
   };
 
   const handlePointerMove = (clientX, clientY) => {
@@ -1724,10 +1725,11 @@ if (progressChart) {
 
     dragSurface.addEventListener("touchend", (event) => {
       const touch = event.changedTouches[0];
+      let tapped = false;
       if (chartDragging && chartActivePointerType === "touch") {
-        endDrag(event, touch?.clientX, touch?.clientY);
+        tapped = endDrag(event, touch?.clientX, touch?.clientY);
       }
-      if (!chartDragging) {
+      if (!tapped) {
         activeChartPoint = null;
         hideChartTooltip();
       }
