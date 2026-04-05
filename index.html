@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CubeTimer</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "scramble-display": "/vendor/scramble-display/index.js",
+          "cubing/scramble": "/vendor/cubing/scramble/index.js",
+          "cubing/alg": "/vendor/cubing/alg/index.js",
+          "cubing/puzzles": "/vendor/cubing/puzzles/index.js",
+          "cubing/twisty": "/vendor/cubing/twisty/index.js",
+          "random-uint-below": "/vendor/random-uint-below/index.js",
+          "comlink": "/vendor/comlink/index.js"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
+        <div class="top-left">
+          <h1>CubeTimer</h1>
+          <div class="sub">스크램블 + 미리보기 + 세션 + 통계</div>
+        </div>
+        <button id="settingsBtn" class="ghost icon-btn" aria-label="설정">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 8.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm9 3.2a7.3 7.3 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.7 7.7 0 0 0-2-.9l-.4-2.5H8.9l-.4 2.5a7.7 7.7 0 0 0-2 .9l-2.4-1-2 3.4 2 1.6a7.3 7.3 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.7 7.7 0 0 0 2 .9l.4 2.5h6.2l.4-2.5a7.7 7.7 0 0 0 2-.9l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2Z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar">
+          <section class="controls">
+            <div class="panel">
+              <h2>세션</h2>
+              <div class="row">
+                <select id="sessionSelect"></select>
+                <button id="newSessionBtn">새 세션</button>
+                <button id="renameSessionBtn">이름 변경</button>
+              </div>
+              <div class="row">
+                <button id="exportBtn">내보내기</button>
+                <button id="deleteSessionBtn" class="danger">삭제</button>
+                <button id="resetSessionBtn" class="danger">세션 초기화</button>
+              </div>
+            </div>
+            <div class="panel">
+              <h2>스크램블 옵션</h2>
+              <label>
+                종목
+                <div class="row">
+                  <select id="eventSelect">
+                    <option value="222">2x2</option>
+                    <option value="333" selected>3x3</option>
+                    <option value="444">4x4</option>
+                    <option value="555">5x5</option>
+                    <option value="666">6x6</option>
+                    <option value="777">7x7</option>
+                    <option value="333oh">3x3 OH</option>
+                    <option value="333bf">3x3 BLD</option>
+                    <option value="333fm">3x3 FMC</option>
+                    <option value="333mbf">3x3 MBLD</option>
+                    <option value="clock">Clock</option>
+                    <option value="minx">Megaminx</option>
+                    <option value="pyram">Pyraminx</option>
+                    <option value="skewb">Skewb</option>
+                    <option value="sq1">Square-1</option>
+                    <option value="444bf">4x4 BLD</option>
+                    <option value="555bf">5x5 BLD</option>
+                  </select>
+                  <button id="newScrambleBtn">새 스크램블</button>
+                </div>
+              </label>
+            </div>
+          </section>
+          <section class="stats">
+            <h2>통계</h2>
+            <div class="stats-grid" id="statsGrid">
+              <div class="stat" data-export="best">
+                <div class="label">Best</div>
+                <div class="value" id="statBest">-</div>
+              </div>
+              <div class="stat" data-export="mean">
+                <div class="label">평균</div>
+                <div class="value" id="statMean">-</div>
+              </div>
+              <div class="stat" data-export="ao5">
+                <div class="label">ao5</div>
+                <div class="value" id="statAo5">-</div>
+              </div>
+              <div class="stat" data-export="ao12">
+                <div class="label">ao12</div>
+                <div class="value" id="statAo12">-</div>
+              </div>
+            </div>
+            <div class="note">각 항목을 클릭하면 내보내기 팝업이 열립니다.</div>
+          </section>
+
+          <section class="history">
+            <h2>기록</h2>
+            <ul id="historyList"></ul>
+            <div class="history-fade"></div>
+          </section>
+        </aside>
+
+        <div class="main-col">
+          <section class="main-stack">
+            <section class="scramble">
+              <div class="scramble-text" id="scrambleText">로딩 중...</div>
+            </section>
+
+          <section class="timer">
+            <div class="timer-display" id="timerDisplay">0.00</div>
+          </section>
+          </section>
+
+        <section class="visual-row">
+          <section class="preview preview-side">
+              <scramble-display
+                id="scramblePreview"
+                event="333"
+                visualization="2D"
+                hint-facelets="none"
+              ></scramble-display>
+          </section>
+
+            <section class="chart-card">
+              <h2>기록 변화</h2>
+              <canvas id="progressChart" width="480" height="240"></canvas>
+              <div class="chart-controls">
+                <button id="chartZoomOutBtn" class="ghost">-</button>
+                <div class="chart-hint">휠: 범위 조절 · 표시 <span id="chartWindowLabel">-</span></div>
+                <button id="chartZoomInBtn" class="ghost">+</button>
+              </div>
+            </section>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <div class="modal" id="exportModal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+        <h2 id="exportTitle">기록 내보내기</h2>
+        <textarea id="exportText" readonly></textarea>
+        <div class="modal-actions">
+          <button id="exportCopyBtn" class="secondary">복사</button>
+          <button id="exportCloseBtn" class="ghost">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="solveModal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="solveTitle">
+        <button class="modal-close" id="solveCloseBtn" aria-label="닫기">×</button>
+        <h2 id="solveTitle">기록 메뉴</h2>
+        <div class="solve-modal-meta" id="solveModalMeta"></div>
+        <div class="solve-modal-status" id="solveModalStatus"></div>
+        <div class="modal-actions split">
+          <div class="actions-left">
+            <button id="solveShareBtn" class="secondary">공유</button>
+            <button id="solveEditBtn">수정</button>
+            <button id="solveDeleteBtn" class="ghost">삭제</button>
+          </div>
+          <div class="actions-right">
+            <button id="solveOkBtn">OK</button>
+            <button id="solvePlus2Btn" class="danger">+2</button>
+            <button id="solveDnfBtn" class="danger">DNF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="settingsModal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <button class="modal-close" id="settingsCloseBtn" aria-label="닫기">×</button>
+        <h2 id="settingsTitle">설정</h2>
+        <div class="settings-group">
+          <div class="settings-label">테마</div>
+          <div class="settings-actions">
+            <button id="themeSystemBtn" class="theme-btn">시스템</button>
+            <button id="themeLightBtn" class="theme-btn ghost">라이트</button>
+            <button id="themeDarkBtn" class="theme-btn ghost">다크</button>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">버튼 컬러</div>
+          <div class="settings-actions">
+            <button class="swatch-btn" data-accent="ocean" title="Ocean"></button>
+            <button class="swatch-btn" data-accent="mint" title="Mint"></button>
+            <button class="swatch-btn" data-accent="amber" title="Amber"></button>
+            <button class="swatch-btn" data-accent="berry" title="Berry"></button>
+            <button class="swatch-btn" data-accent="coral" title="Coral"></button>
+            <button class="swatch-btn" data-accent="teal" title="Teal"></button>
+            <button class="swatch-btn" data-accent="violet" title="Violet"></button>
+            <button class="swatch-btn" data-accent="slate" title="Slate"></button>
+            <button class="swatch-btn" data-accent="lime" title="Lime"></button>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">표시</div>
+          <div class="settings-actions">
+            <label class="toggle">
+              <input type="checkbox" id="togglePreview" checked />
+              <span>스크램블 미리보기</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggleChart" checked />
+              <span>그래프</span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">타이머</div>
+          <div class="settings-actions">
+            <label class="toggle">
+              <input type="checkbox" id="toggleInspection" />
+              <span>15초 Inspection (WCA)</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggleHideLive" />
+              <span>진행 중 시간 숨김</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
