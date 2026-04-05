@@ -1371,12 +1371,12 @@ function attachTimerPointerControls() {
   };
 
   const onUp = (event) => {
-    event.preventDefault();
     // 터치를 떼면 잠금을 해제해서 다음 솔브를 시작할 수 있게 함.
     if (inputLock) {
       inputLock = false;
     }
     if (!pointerActive) return;
+    event.preventDefault();
     pointerActive = false;
     endHold();
   };
