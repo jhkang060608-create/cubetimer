@@ -141,6 +141,20 @@
                 <div class="chart-hint"></div>
                 <button id="chartZoomInBtn" class="ghost">+</button>
               </div>
+              <div class="chart-legend">
+                <span class="legend-item">
+                  <span class="legend-dot legend-time"></span>
+                  기록
+                </span>
+                <span class="legend-item">
+                  <span class="legend-line legend-ao5"></span>
+                  Ao5
+                </span>
+                <span class="legend-item">
+                  <span class="legend-line legend-ao12"></span>
+                  Ao12
+                </span>
+              </div>
             </section>
           </section>
         </div>
@@ -216,6 +230,14 @@
               <input type="checkbox" id="toggleChart" checked />
               <span>그래프</span>
             </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggleAo5" checked />
+              <span>Ao5 라인</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggleAo12" checked />
+              <span>Ao12 라인</span>
+            </label>
           </div>
         </div>
         <div class="settings-group">
@@ -235,7 +257,7 @@
     </div>
 
     <footer class="site-footer">
-      <div>© 2026 CubeTimer. Licensed under GPL-3.0. v1.3</div>
+      <div>© 2026 CubeTimer. Licensed under GPL-3.0. v1.4</div>
       <div>Made with OpenAI GPT-5.2 Codex</div>
     </footer>
     <script type="module" src="main.js"></script>

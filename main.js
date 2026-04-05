@@ -46,6 +46,8 @@ const themeLightBtn = document.getElementById("themeLightBtn");
 const themeDarkBtn = document.getElementById("themeDarkBtn");
 const togglePreview = document.getElementById("togglePreview");
 const toggleChart = document.getElementById("toggleChart");
+const toggleAo5 = document.getElementById("toggleAo5");
+const toggleAo12 = document.getElementById("toggleAo12");
 const toggleInspection = document.getElementById("toggleInspection");
 const toggleHideLive = document.getElementById("toggleHideLive");
 const accentButtons = document.querySelectorAll("[data-accent]");
@@ -78,6 +80,8 @@ const CHART_KEY = "cubeTimerShowChart";
 const CHART_USER_KEY = "cubeTimerChartUserSet";
 const INSPECTION_KEY = "cubeTimerInspection";
 const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
+const AO5_KEY = "cubeTimerShowAo5";
+const AO12_KEY = "cubeTimerShowAo12";
 
 const ACCENT_THEMES = {
   ocean: {
@@ -338,6 +342,7 @@ function stopTimer() {
   setDisplay(finalTime);
   pushSolve(finalTime, nextSolvePenalty);
   nextSolvePenalty = "OK";
+  // 입력이 눌린 상태면 바로 다음 솔브가 시작되지 않도록 잠금.
   inputLock = true;
   void generateScramble();
 }
@@ -368,6 +373,7 @@ function pushSolve(ms, penalty = "OK") {
 
 function beginHold() {
   if (timerState === "running") return;
+  // 이전 입력이 해제될 때까지 홀드 시작을 막음.
   if (inputLock) return;
   timerState = "holding";
   holdReady = false;
@@ -531,6 +537,17 @@ function windowSolvesAtIndex(solves, index, count) {
   return solves.slice(index, index + count);
 }
 
+function averageAtIndexChrono(solves, index, count) {
+  if (index < count - 1) return null;
+  const windowSolves = solves.slice(index - (count - 1), index + 1);
+  const values = windowSolves.map((s) => s.time);
+  if (values.some((v) => !Number.isFinite(v))) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const trimmed = sorted.slice(1, sorted.length - 1);
+  if (!trimmed.length) return null;
+  return trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+}
+
 function renderChart() {
   if (!progressChart) return;
   const session = activeSession();
@@ -551,6 +568,8 @@ function renderChart() {
   const accent2 = styles.getPropertyValue("--accent-2").trim() || "#2c6b5a";
   const chartBg = styles.getPropertyValue("--chart-bg").trim() || "#fffaf3";
   const chartGrid = styles.getPropertyValue("--chart-grid").trim() || "rgba(30, 27, 22, 0.08)";
+  const showAo5 = localStorage.getItem(AO5_KEY) !== "false";
+  const showAo12 = localStorage.getItem(AO12_KEY) !== "false";
   ctx.fillStyle = chartBg;
   ctx.fillRect(0, 0, width, height);
 
@@ -569,6 +588,7 @@ function renderChart() {
   }
   const windowSize = Math.min(chartWindowSize, total);
   const solves = allSolves.slice(-windowSize);
+  const windowStartIndex = Math.max(0, total - windowSize);
 
   if (chartWindowLabel) {
     chartWindowLabel.textContent = total === 0 ? "-" : `${windowSize}개`;
@@ -582,11 +602,20 @@ function renderChart() {
   }
 
   const times = solves.map((s) => s.time);
+  const ao5Values = showAo5
+    ? solves.map((_, idx) => averageAtIndexChrono(allSolves, windowStartIndex + idx, 5))
+    : [];
+  const ao12Values = showAo12
+    ? solves.map((_, idx) => averageAtIndexChrono(allSolves, windowStartIndex + idx, 12))
+    : [];
   const min = Math.min(...times);
   const max = Math.max(...times);
-  const padding = Math.max(1, (max - min) * 0.15);
-  const yMin = Math.max(0, min - padding);
-  const yMax = max + padding;
+  const extraValues = [...ao5Values, ...ao12Values].filter((v) => Number.isFinite(v));
+  const extendedMin = Math.min(min, ...(extraValues.length ? extraValues : [min]));
+  const extendedMax = Math.max(max, ...(extraValues.length ? extraValues : [max]));
+  const padding = Math.max(1, (extendedMax - extendedMin) * 0.15);
+  const yMin = Math.max(0, extendedMin - padding);
+  const yMax = extendedMax + padding;
 
   const chartPadding = { top: 12, right: 12, bottom: 20, left: 36 };
   const innerWidth = width - chartPadding.left - chartPadding.right;
@@ -614,6 +643,30 @@ function renderChart() {
   });
   ctx.stroke();
 
+  const drawSeries = (values, style, dash = []) => {
+    ctx.strokeStyle = style;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash(dash);
+    ctx.beginPath();
+    let started = false;
+    values.forEach((value, index) => {
+      if (!Number.isFinite(value)) {
+        started = false;
+        return;
+      }
+      const x = chartPadding.left + (innerWidth * index) / Math.max(1, values.length - 1);
+      const y = yScale(value);
+      if (!started) {
+        ctx.moveTo(x, y);
+        started = true;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  };
+
   ctx.fillStyle = accent2;
   solves.forEach((solve, index) => {
     const x = chartPadding.left + (innerWidth * index) / Math.max(1, solves.length - 1);
@@ -622,6 +675,13 @@ function renderChart() {
     ctx.arc(x, y, 2.5, 0, Math.PI * 2);
     ctx.fill();
   });
+
+  if (showAo5) {
+    drawSeries(ao5Values, accent2);
+  }
+  if (showAo12) {
+    drawSeries(ao12Values, "#6f7a8a", [6, 6]);
+  }
 
   ctx.fillStyle = "#6a5f54";
   ctx.font = "12px Space Grotesk, Noto Sans KR, sans-serif";
@@ -1050,6 +1110,14 @@ toggleChart.addEventListener("change", () => {
   localStorage.setItem(CHART_USER_KEY, "true");
   applyVisibilitySettings();
 });
+toggleAo5?.addEventListener("change", () => {
+  localStorage.setItem(AO5_KEY, toggleAo5.checked ? "true" : "false");
+  renderChart();
+});
+toggleAo12?.addEventListener("change", () => {
+  localStorage.setItem(AO12_KEY, toggleAo12.checked ? "true" : "false");
+  renderChart();
+});
 toggleInspection.addEventListener("change", () => {
   localStorage.setItem(INSPECTION_KEY, toggleInspection.checked ? "true" : "false");
 });
@@ -1219,6 +1287,7 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("keyup", (event) => {
   if (event.code === "Space") {
     event.preventDefault();
+    // 키를 떼면 잠금을 해제해서 다음 솔브를 시작할 수 있게 함.
     if (inputLock) {
       inputLock = false;
     }
@@ -1234,11 +1303,11 @@ function attachTimerPointerControls() {
   const onDown = (event) => {
     event.preventDefault();
     if (pointerActive) return;
+    // 이전 입력이 해제될 때까지 홀드 시작을 막음.
     if (inputLock) return;
     pointerActive = true;
     if (timerState === "running") {
       stopTimer();
-      pointerActive = false;
       return;
     }
     if ((timerState === "idle" || timerState === "stopped") && !inspectionActive) {
@@ -1254,12 +1323,13 @@ function attachTimerPointerControls() {
   };
 
   const onUp = (event) => {
-    if (!pointerActive) return;
     event.preventDefault();
-    pointerActive = false;
+    // 터치를 떼면 잠금을 해제해서 다음 솔브를 시작할 수 있게 함.
     if (inputLock) {
       inputLock = false;
     }
+    if (!pointerActive) return;
+    pointerActive = false;
     endHold();
   };
 
@@ -1327,12 +1397,20 @@ async function initApp() {
     if (hideLiveStored !== "true" && hideLiveStored !== "false") {
       localStorage.setItem(HIDE_LIVE_KEY, "false");
     }
+    if (localStorage.getItem(AO5_KEY) === null) {
+      localStorage.setItem(AO5_KEY, "true");
+    }
+    if (localStorage.getItem(AO12_KEY) === null) {
+      localStorage.setItem(AO12_KEY, "true");
+    }
     applyVisibilitySettings();
     toggleInspection.checked = localStorage.getItem(INSPECTION_KEY) === "true";
     if (toggleHideLive) {
       toggleHideLive.checked = localStorage.getItem(HIDE_LIVE_KEY) === "true";
       hideLiveUpdates = toggleHideLive.checked;
     }
+    if (toggleAo5) toggleAo5.checked = localStorage.getItem(AO5_KEY) !== "false";
+    if (toggleAo12) toggleAo12.checked = localStorage.getItem(AO12_KEY) !== "false";
     eventSelect.value = appState.settings.eventId;
     renderAll();
     await generateScramble();
