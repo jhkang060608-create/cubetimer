@@ -867,6 +867,8 @@ body.theme-dark .chart-tooltip {
 
 .chart-tooltip.visible {
   opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .chart-legend {
