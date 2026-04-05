@@ -76,6 +76,21 @@ let scrambleIndex = -1;
 let inputLock = false;
 let chartPoints = [];
 let activeChartPoint = null;
+let chartOffset = 0;
+let chartMaxOffset = 0;
+let chartStepPx = 1;
+let chartDragging = false;
+let chartDragStartX = 0;
+let chartDragStartOffset = 0;
+let chartDragMoved = false;
+let ignoreChartClick = false;
+let chartTargetOffset = 0;
+let chartSmoothRaf = 0;
+let chartVelocity = 0;
+let chartInertiaRaf = 0;
+let chartLastMoveX = 0;
+let chartLastMoveTime = 0;
+let chartMouseReverse = true;
 const THEME_KEY = "cubeTimerTheme";
 const ACCENT_KEY = "cubeTimerAccent";
 const PREVIEW_KEY = "cubeTimerShowPreview";
@@ -591,8 +606,16 @@ function renderChart() {
     chartWindowSize = Math.min(Math.max(1, chartWindowSize), total);
   }
   const windowSize = Math.min(chartWindowSize, total);
-  const solves = allSolves.slice(-windowSize);
-  const windowStartIndex = Math.max(0, total - windowSize);
+  chartMaxOffset = Math.max(0, total - windowSize);
+  if (chartTargetOffset > chartMaxOffset) chartTargetOffset = chartMaxOffset;
+  if (chartOffset > chartMaxOffset) chartOffset = chartMaxOffset;
+  if (chartTargetOffset < 0) chartTargetOffset = 0;
+  if (chartOffset < 0) chartOffset = 0;
+  const displayOffset = Math.floor(chartOffset);
+  const fracOffset = chartOffset - displayOffset;
+  const windowStartIndex = Math.max(0, total - windowSize - displayOffset);
+  const solves = allSolves.slice(windowStartIndex, windowStartIndex + windowSize);
+  const actualOffset = total - windowSize - windowStartIndex;
 
   if (chartWindowLabel) {
     chartWindowLabel.textContent = total === 0 ? "-" : `${windowSize}개`;
@@ -630,6 +653,8 @@ function renderChart() {
   const chartPadding = { top: 12, right: 12, bottom: 20, left: 36 };
   const innerWidth = width - chartPadding.left - chartPadding.right;
   const innerHeight = height - chartPadding.top - chartPadding.bottom;
+  chartStepPx = innerWidth / Math.max(1, solves.length - 1);
+  const xShift = fracOffset * chartStepPx;
 
   ctx.strokeStyle = chartGrid;
   ctx.lineWidth = 1;
@@ -646,7 +671,7 @@ function renderChart() {
   ctx.lineWidth = 2;
   ctx.beginPath();
   solves.forEach((solve, index) => {
-    const x = chartPadding.left + (innerWidth * index) / Math.max(1, solves.length - 1);
+    const x = chartPadding.left + (innerWidth * index) / Math.max(1, solves.length - 1) + xShift;
     const y = yScale(solve.time);
     if (index === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
@@ -664,7 +689,7 @@ function renderChart() {
         started = false;
         return;
       }
-      const x = chartPadding.left + (innerWidth * index) / Math.max(1, values.length - 1);
+      const x = chartPadding.left + (innerWidth * index) / Math.max(1, values.length - 1) + xShift;
       const y = yScale(value);
       if (!started) {
         ctx.moveTo(x, y);
@@ -679,7 +704,7 @@ function renderChart() {
 
   ctx.fillStyle = accent2;
   chartPoints = solves.map((solve, index) => {
-    const x = chartPadding.left + (innerWidth * index) / Math.max(1, solves.length - 1);
+    const x = chartPadding.left + (innerWidth * index) / Math.max(1, solves.length - 1) + xShift;
     const y = yScale(solve.time);
     ctx.beginPath();
     ctx.arc(x, y, 2.5, 0, Math.PI * 2);
@@ -707,6 +732,46 @@ function adjustChartWindow(delta) {
   if (total === 0) return;
   chartWindowSize = Math.min(Math.max(1, chartWindowSize + delta), total);
   renderChart();
+}
+
+function animateChartOffset() {
+  if (chartSmoothRaf) cancelAnimationFrame(chartSmoothRaf);
+  const step = () => {
+    const diff = chartTargetOffset - chartOffset;
+    if (Math.abs(diff) < 0.01) {
+      chartOffset = chartTargetOffset;
+      renderChart();
+      chartSmoothRaf = 0;
+      return;
+    }
+    chartOffset += diff * 0.25;
+    renderChart();
+    chartSmoothRaf = requestAnimationFrame(step);
+  };
+  chartSmoothRaf = requestAnimationFrame(step);
+}
+
+function startChartInertia() {
+  if (chartInertiaRaf) cancelAnimationFrame(chartInertiaRaf);
+  const step = () => {
+    if (Math.abs(chartVelocity) < 0.01) {
+      chartInertiaRaf = 0;
+      return;
+    }
+    chartOffset += chartVelocity;
+    chartVelocity *= 0.9;
+    if (chartOffset < 0) {
+      chartOffset = 0;
+      chartVelocity = 0;
+    }
+    if (chartOffset > chartMaxOffset) {
+      chartOffset = chartMaxOffset;
+      chartVelocity = 0;
+    }
+    renderChart();
+    chartInertiaRaf = requestAnimationFrame(step);
+  };
+  chartInertiaRaf = requestAnimationFrame(step);
 }
 
 function findNearestChartPoint(x, y) {
@@ -1330,6 +1395,16 @@ window.addEventListener("keydown", (event) => {
       beginHold();
     }
   }
+  if (event.code === "ArrowLeft") {
+    event.preventDefault();
+    chartTargetOffset = Math.min(chartMaxOffset, chartTargetOffset + 1);
+    animateChartOffset();
+  }
+  if (event.code === "ArrowRight") {
+    event.preventDefault();
+    chartTargetOffset = Math.max(0, chartTargetOffset - 1);
+    animateChartOffset();
+  }
 });
 
 window.addEventListener("keyup", (event) => {
@@ -1423,6 +1498,7 @@ chartZoomInBtn?.addEventListener("click", () => adjustChartWindow(-5));
 
 if (progressChart) {
   const handlePointerMove = (clientX, clientY) => {
+    if (chartDragging) return;
     const rect = progressChart.getBoundingClientRect();
     const x = clientX - rect.left;
     const y = clientY - rect.top;
@@ -1440,16 +1516,75 @@ if (progressChart) {
     handlePointerMove(event.clientX, event.clientY);
   });
 
+  progressChart.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    chartDragging = true;
+    chartDragMoved = false;
+    chartDragStartX = event.clientX;
+    chartDragStartOffset = chartTargetOffset;
+    chartLastMoveX = event.clientX;
+    chartLastMoveTime = performance.now();
+    chartVelocity = 0;
+    if (chartInertiaRaf) {
+      cancelAnimationFrame(chartInertiaRaf);
+      chartInertiaRaf = 0;
+    }
+    hideChartTooltip();
+  });
+
+  progressChart.addEventListener("pointermove", (event) => {
+    if (!chartDragging) return;
+    let deltaX = chartDragStartX - event.clientX;
+    if (event.pointerType === "mouse" && chartMouseReverse) {
+      deltaX = -deltaX;
+    }
+    if (Math.abs(deltaX) > 3) chartDragMoved = true;
+    const shift = deltaX / Math.max(1, chartStepPx);
+    const nextOffset = Math.max(0, Math.min(chartMaxOffset, chartDragStartOffset + shift));
+    if (nextOffset !== chartTargetOffset) {
+      chartTargetOffset = nextOffset;
+      animateChartOffset();
+    }
+    const now = performance.now();
+    const dt = Math.max(16, now - chartLastMoveTime);
+    const dx = event.clientX - chartLastMoveX;
+    let velocity = (-dx / Math.max(1, chartStepPx)) * (16 / dt);
+    if (event.pointerType === "mouse" && chartMouseReverse) {
+      velocity = -velocity;
+    }
+    chartVelocity = velocity;
+    chartLastMoveX = event.clientX;
+    chartLastMoveTime = now;
+  });
+
+  const endDrag = () => {
+    if (!chartDragging) return;
+    chartDragging = false;
+    if (chartDragMoved) {
+      ignoreChartClick = true;
+      chartDragMoved = false;
+    }
+    startChartInertia();
+  };
+
+  progressChart.addEventListener("pointerup", endDrag);
+  progressChart.addEventListener("pointerleave", endDrag);
+
   progressChart.addEventListener("mouseleave", () => {
     activeChartPoint = null;
     hideChartTooltip();
   });
 
   progressChart.addEventListener("touchmove", (event) => {
+    if (chartDragging) {
+      event.preventDefault();
+      return;
+    }
     const touch = event.touches[0];
     if (!touch) return;
     handlePointerMove(touch.clientX, touch.clientY);
-  });
+  }, { passive: false });
 
   progressChart.addEventListener("touchend", () => {
     activeChartPoint = null;
@@ -1457,6 +1592,10 @@ if (progressChart) {
   });
 
   progressChart.addEventListener("click", () => {
+    if (ignoreChartClick) {
+      ignoreChartClick = false;
+      return;
+    }
     if (activeChartPoint) {
       openSolveModal(activeChartPoint.solve);
     }
@@ -1464,6 +1603,14 @@ if (progressChart) {
 }
 
 chartTooltip?.addEventListener("click", () => {
+  if (activeChartPoint) {
+    openSolveModal(activeChartPoint.solve);
+  }
+});
+
+chartTooltip?.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
   if (activeChartPoint) {
     openSolveModal(activeChartPoint.solve);
   }
