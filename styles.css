@@ -344,6 +344,7 @@ body.timer-only .history,
 body.timer-only .stats,
 body.timer-only .controls,
 body.timer-only .note,
+body.timer-only .site-footer,
 body.timer-only .modal {
   display: none !important;
 }
