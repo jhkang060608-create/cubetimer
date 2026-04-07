@@ -1,5 +1,6 @@
 import "scramble-display";
 import { randomScrambleForEvent } from "cubing/scramble";
+import { proxy, wrap } from "comlink";
 
 const scrambleText = document.getElementById("scrambleText");
 const scramblePreview = document.getElementById("scramblePreview");
@@ -14,6 +15,9 @@ const renameSessionBtn = document.getElementById("renameSessionBtn");
 const deleteSessionBtn = document.getElementById("deleteSessionBtn");
 const resetSessionBtn = document.getElementById("resetSessionBtn");
 const eventSelect = document.getElementById("eventSelect");
+const crossColorSelect = document.getElementById("crossColorSelect");
+const solverModeSelect = document.getElementById("solverModeSelect");
+const f2lMethodSelect = document.getElementById("f2lMethodSelect");
 const statBest = document.getElementById("statBest");
 const statMean = document.getElementById("statMean");
 const statAo5 = document.getElementById("statAo5");
@@ -39,6 +43,11 @@ const chartZoomOutBtn = document.getElementById("chartZoomOutBtn");
 const chartZoomInBtn = document.getElementById("chartZoomInBtn");
 const chartWindowLabel = document.getElementById("chartWindowLabel");
 const chartTooltip = document.getElementById("chartTooltip");
+const findSolutionBtn = document.getElementById("findSolutionBtn");
+const solverStatus = document.getElementById("solverStatus");
+const solverSolution = document.getElementById("solverSolution");
+const solverMoveCount = document.getElementById("solverMoveCount");
+const solverCopyBtn = document.getElementById("solverCopyBtn");
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsModal = document.getElementById("settingsModal");
 const settingsCloseBtn = document.getElementById("settingsCloseBtn");
@@ -71,6 +80,16 @@ let nextSolvePenalty = "OK";
 let inspectionSpoken8 = false;
 let inspectionSpoken12 = false;
 let hideLiveUpdates = false;
+let solverBusy = false;
+let lastSolution = "";
+let lastSolutionDisplay = "";
+let solverWorker = null;
+let solverApi = null;
+let solverReady = false;
+let solverError = "";
+let solverProgressRunId = 0;
+const SOLVER_CALL_TIMEOUT_MS_222 = 30000;
+const SOLVER_CALL_TIMEOUT_MS_333 = 240000;
 let scrambleHistory = [];
 let scrambleIndex = -1;
 let inputLock = false;
@@ -172,6 +191,9 @@ const defaultState = () => {
     activeSessionId: session.id,
     settings: {
       eventId: "333",
+      crossColor: "D",
+      solverMode: "strict",
+      f2lMethod: "legacy",
     },
   };
 };
@@ -198,6 +220,15 @@ function loadState() {
       parsed.settings = { eventId: "333" };
     }
     if (!parsed.settings.eventId) parsed.settings.eventId = "333";
+    if (!parsed.settings.crossColor) parsed.settings.crossColor = "D";
+    if (!parsed.settings.solverMode) parsed.settings.solverMode = "strict";
+    if (!parsed.settings.f2lMethod) parsed.settings.f2lMethod = "legacy";
+    if (parsed.settings.solverMode !== "strict") {
+      parsed.settings.solverMode = "strict";
+    }
+    if (parsed.settings.f2lMethod !== "legacy") {
+      parsed.settings.f2lMethod = "legacy";
+    }
     if (!parsed.activeSessionId) parsed.activeSessionId = parsed.sessions[0].id;
     return parsed;
   } catch (error) {
@@ -1177,6 +1208,7 @@ function setCurrentScramble(scramble, eventId, options = {}) {
     scrambleIndex = scrambleHistory.length - 1;
   }
   updateScrambleNav();
+  resetSolverState();
 }
 
 function updateScrambleNav() {
@@ -1185,6 +1217,255 @@ function updateScrambleNav() {
   }
   if (nextScrambleBtn) {
     nextScrambleBtn.disabled = scrambleIndex === -1;
+  }
+}
+
+function updateSolverControls() {
+  if (!findSolutionBtn) return;
+  const supports2x2 = appState.settings.eventId === "222";
+  const supports3x3 = appState.settings.eventId === "333";
+  findSolutionBtn.disabled =
+    solverBusy || !currentScramble || !(supports2x2 || supports3x3);
+}
+
+function resetSolverState() {
+  lastSolution = "";
+  lastSolutionDisplay = "";
+  const supports2x2 = appState.settings.eventId === "222";
+  const supports3x3 = appState.settings.eventId === "333";
+  if (solverStatus) {
+    if (supports2x2 || supports3x3) {
+      if (solverError) {
+        solverStatus.textContent = `solver 로드 실패: ${solverError}`;
+      } else if (!solverReady) {
+        solverStatus.textContent = "solver 초기화 중...";
+      } else {
+        solverStatus.textContent = currentScramble
+          ? "새 스크램블이 준비되었습니다. 해를 다시 계산하세요."
+          : "스크램블을 기다리는 중입니다.";
+      }
+    } else {
+      solverStatus.textContent = "현재는 2x2, 3x3에서만 solver를 지원합니다.";
+    }
+  }
+  if (solverSolution) {
+    solverSolution.textContent = "-";
+  }
+  if (solverMoveCount) {
+    solverMoveCount.textContent = "0 수";
+  }
+  if (solverCopyBtn) {
+    solverCopyBtn.disabled = true;
+  }
+  updateSolverControls();
+}
+
+async function solveCurrentScramble() {
+  await ensureSolverWorker();
+  if (!currentScramble || solverBusy) return;
+  if (!solverApi) {
+    if (solverStatus) solverStatus.textContent = `solver를 불러오지 못했습니다: ${solverError || "알 수 없음"}`;
+    return;
+  }
+  solverBusy = true;
+  const runId = ++solverProgressRunId;
+  if (solverStatus) {
+    const solverMode = appState.settings.solverMode || "strict";
+    const f2lMethod = appState.settings.f2lMethod || "legacy";
+    solverStatus.textContent =
+      appState.settings.eventId === "333"
+        ? `계산 중... (3x3 CFOP 4단계, ${solverMode}, F2L: ${f2lMethod})`
+        : "계산 중...";
+  }
+  if (solverSolution) solverSolution.textContent = "";
+  if (solverMoveCount) solverMoveCount.textContent = "0 수";
+  if (solverCopyBtn) solverCopyBtn.disabled = true;
+  updateSolverControls();
+
+  try {
+    const startTime = performance.now();
+    const stageStartTimes = new Map();
+    const stageElapsedTimes = new Map();
+    const stageNames = new Map();
+    const eventId = appState.settings.eventId;
+    const timeoutMs = eventId === "333" ? SOLVER_CALL_TIMEOUT_MS_333 : SOLVER_CALL_TIMEOUT_MS_222;
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`SOLVER_TIMEOUT_${timeoutMs}MS`)), timeoutMs),
+    );
+    const onProgress =
+      eventId === "333"
+        ? proxy((progress) => {
+            if (runId !== solverProgressRunId || !solverBusy || !solverStatus) return;
+            if (!progress || typeof progress !== "object") return;
+            const stageName = progress.stageName || "";
+            const index = Number.isFinite(progress.stageIndex) ? progress.stageIndex + 1 : null;
+            const total = Number.isFinite(progress.totalStages) ? progress.totalStages : 4;
+            if (progress.type === "stage_start" && index) {
+              stageStartTimes.set(index, performance.now());
+              if (stageName) stageNames.set(index, stageName);
+              solverStatus.textContent = `계산 중... [${index}/${total}] ${stageName}`;
+              return;
+            }
+            if (progress.type === "stage_done" && index) {
+              const stageStart = stageStartTimes.get(index);
+              if (typeof stageStart === "number") {
+                const elapsed = Math.max(1, Math.round(performance.now() - stageStart));
+                stageElapsedTimes.set(index, elapsed);
+              }
+              if (stageName) stageNames.set(index, stageName);
+              const moves = Number.isFinite(progress.moveCount) ? progress.moveCount : 0;
+              solverStatus.textContent = `진행 중... [${index}/${total}] ${stageName} 완료 (${moves}수)`;
+              return;
+            }
+            if (progress.type === "stage_fail" && index) {
+              solverStatus.textContent = `실패 [${index}/${total}] ${stageName}`;
+              return;
+            }
+            if (progress.type === "fallback_start") {
+              const target = progress.stageName ? ` ${progress.stageName}` : "";
+              const reason = progress.reason ? ` (${progress.reason})` : "";
+              solverStatus.textContent = `복구 탐색 시작${target}...${reason}`;
+              return;
+            }
+            if (progress.type === "fallback_done") {
+              const target = progress.stageName ? ` (${progress.stageName})` : "";
+              solverStatus.textContent = `복구 탐색 완료${target}`;
+              return;
+            }
+            if (progress.type === "fallback_fail") {
+              const target = progress.stageName ? ` (${progress.stageName})` : "";
+              solverStatus.textContent = `복구 탐색 실패${target}`;
+            }
+          })
+        : undefined;
+    const crossColor = appState.settings.crossColor || "D";
+    const solverMode = appState.settings.solverMode || "strict";
+    const f2lMethod = appState.settings.f2lMethod || "legacy";
+    const result = await Promise.race([
+      solverApi.solve(currentScramble, eventId, onProgress, crossColor, solverMode, f2lMethod),
+      timeout,
+    ]);
+    const duration = Math.max(1, Math.round(performance.now() - startTime));
+    if (result?.ok) {
+      const rawSolutionText = result.solution?.trim() || "";
+      const stageLines =
+        Array.isArray(result.stages) && result.stages.length
+          ? result.stages.map((stage) => `${stage.name}: ${stage.solution || "-"}`)
+          : null;
+      const timingLines =
+        stageElapsedTimes.size > 0
+          ? Array.from(stageElapsedTimes.entries())
+              .sort((a, b) => a[0] - b[0])
+              .map(([idx, ms]) => {
+                const label = stageNames.get(idx) || `Stage ${idx}`;
+                return `${label}: ${ms}ms`;
+              })
+          : null;
+      const sections = [];
+      if (stageLines?.length) sections.push(stageLines.join("\n"));
+      else if (result.solutionDisplay?.trim()) sections.push(result.solutionDisplay.trim());
+      else if (rawSolutionText) sections.push(rawSolutionText);
+      if (timingLines?.length) {
+        sections.push(["시간", ...timingLines].join("\n"));
+      }
+      const solutionText = sections.join("\n\n").trim() || "-";
+      if (solverSolution) {
+        solverSolution.textContent = solutionText || "-";
+      }
+      if (solverMoveCount) {
+        const moveCount =
+          typeof result.moveCount === "number"
+            ? result.moveCount
+            : rawSolutionText.split(/\s+/).filter(Boolean).length;
+        solverMoveCount.textContent = `${moveCount} 수`;
+      }
+      lastSolution = rawSolutionText;
+      lastSolutionDisplay = solutionText || rawSolutionText;
+      if (solverStatus) {
+        const nodesText =
+          typeof result.nodes === "number" && Number.isFinite(result.nodes)
+            ? `, ${result.nodes.toLocaleString()} 노드`
+            : "";
+        let fallbackText = "";
+        if (result.source === "EXTERNAL_CUBING_SEARCH_FALLBACK") fallbackText = ", 외부 복구";
+        else if (result.fallbackFrom) fallbackText = ", 내부 복구";
+        solverStatus.textContent = `완료 (${duration}ms${nodesText}${fallbackText})`;
+      }
+      if (solverCopyBtn) {
+        solverCopyBtn.disabled = !rawSolutionText;
+      }
+    } else {
+      lastSolution = "";
+      lastSolutionDisplay = "";
+      const reason = result?.reason || "해를 찾지 못했습니다.";
+      if (solverStatus) solverStatus.textContent = reason;
+      if (solverSolution) solverSolution.textContent = "-";
+      if (solverMoveCount) solverMoveCount.textContent = "0 수";
+      if (solverCopyBtn) solverCopyBtn.disabled = true;
+    }
+  } catch (error) {
+    console.error("해 찾기 실패", error);
+    if (String(error?.message || "").startsWith("SOLVER_TIMEOUT_")) {
+      // Worker can be stuck in heavy sync search; hard-reset it so UI can recover.
+      try {
+        solverWorker?.terminate();
+      } catch (_) {}
+      solverWorker = null;
+      solverApi = null;
+      solverReady = false;
+      const eventId = appState.settings.eventId;
+      const timeoutMs = eventId === "333" ? SOLVER_CALL_TIMEOUT_MS_333 : SOLVER_CALL_TIMEOUT_MS_222;
+      solverError = `solver 시간 초과 (${Math.round(timeoutMs / 1000)}초)`;
+    }
+    lastSolution = "";
+    lastSolutionDisplay = "";
+    if (solverStatus) {
+      const errorMessage = error?.message ? String(error.message) : "알 수 없는 오류";
+      solverStatus.textContent = String(error?.message || "").startsWith("SOLVER_TIMEOUT_")
+        ? `시간 초과: 계산이 제한 시간 내에 끝나지 않았습니다.`
+        : `해를 계산하는 중 오류가 발생했습니다. (${errorMessage})`;
+    }
+    if (solverSolution) solverSolution.textContent = "-";
+    if (solverMoveCount) solverMoveCount.textContent = "0 수";
+    if (solverCopyBtn) solverCopyBtn.disabled = true;
+  } finally {
+    solverBusy = false;
+    updateSolverControls();
+  }
+}
+
+async function copySolutionToClipboard() {
+  const textToCopy = (lastSolutionDisplay || lastSolution || "").trim();
+  if (!textToCopy) return;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(textToCopy);
+    } else {
+      fallbackCopyText(textToCopy);
+    }
+    if (solverStatus) solverStatus.textContent = "복사되었습니다.";
+  } catch (error) {
+    console.error("복사 실패", error);
+    if (solverStatus) solverStatus.textContent = "복사에 실패했습니다.";
+  }
+}
+
+function fallbackCopyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    if (typeof document.execCommand === "function") {
+      document.execCommand("copy");
+    } else {
+      throw new Error("복사 기능을 지원하지 않습니다.");
+    }
+  } finally {
+    document.body.removeChild(textarea);
   }
 }
 
@@ -1214,6 +1495,32 @@ nextScrambleBtn?.addEventListener("click", async () => {
   }
   await generateScramble();
   resetTimer();
+});
+
+findSolutionBtn?.addEventListener("click", () => {
+  void solveCurrentScramble();
+});
+
+crossColorSelect?.addEventListener("change", () => {
+  if (!crossColorSelect) return;
+  appState.settings.crossColor = crossColorSelect.value;
+  saveState();
+});
+
+solverModeSelect?.addEventListener("change", () => {
+  if (!solverModeSelect) return;
+  appState.settings.solverMode = "strict";
+  saveState();
+});
+
+f2lMethodSelect?.addEventListener("change", () => {
+  if (!f2lMethodSelect) return;
+  appState.settings.f2lMethod = "legacy";
+  saveState();
+});
+
+solverCopyBtn?.addEventListener("click", () => {
+  void copySolutionToClipboard();
 });
 
 sessionSelect.addEventListener("change", () => {
@@ -1357,6 +1664,7 @@ eventSelect.addEventListener("change", async () => {
   scrambleHistory = [];
   scrambleIndex = -1;
   saveState();
+  resetSolverState();
   await generateScramble();
   resetTimer();
 });
@@ -1846,7 +2154,18 @@ async function initApp() {
     if (toggleAo5) toggleAo5.checked = localStorage.getItem(AO5_KEY) !== "false";
     if (toggleAo12) toggleAo12.checked = localStorage.getItem(AO12_KEY) !== "false";
     eventSelect.value = appState.settings.eventId;
+    if (crossColorSelect) {
+      crossColorSelect.value = appState.settings.crossColor || "D";
+    }
+    if (solverModeSelect) {
+      solverModeSelect.value = appState.settings.solverMode || "strict";
+    }
+    if (f2lMethodSelect) {
+      f2lMethodSelect.value = appState.settings.f2lMethod || "legacy";
+    }
     renderAll();
+    resetSolverState();
+    await ensureSolverWorker();
     await generateScramble();
     resetTimer();
     attachTimerPointerControls();
@@ -1860,3 +2179,30 @@ async function initApp() {
 }
 
 void initApp();
+async function ensureSolverWorker() {
+  if (solverApi) return;
+  try {
+    solverError = "";
+    solverReady = false;
+    updateSolverControls();
+    solverWorker = new Worker(new URL("./solver/solverWorker.js", import.meta.url), { type: "module" });
+    solverApi = wrap(solverWorker);
+    // Prefer ping() to trigger solver warmup; fallback keeps compatibility with stale cached workers.
+    const ping = solverApi
+      .ping()
+      .catch(() => solverApi.solve({ scramble: "", eventId: "222" }))
+      .catch(() => {});
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("worker init timeout")), 12000),
+    );
+    await Promise.race([ping, timeout]);
+    solverReady = true;
+  } catch (error) {
+    console.error("Solver worker init failed", error);
+    solverError = error?.message || "unknown";
+    solverApi = null;
+    solverWorker = null;
+  } finally {
+    resetSolverState();
+  }
+}

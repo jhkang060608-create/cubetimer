@@ -118,20 +118,20 @@
               <div class="scramble-text" id="scrambleText">로딩 중...</div>
             </section>
 
-          <section class="timer">
-            <div class="timer-display" id="timerDisplay">0.00</div>
-          </section>
+            <section class="timer">
+              <div class="timer-display" id="timerDisplay">0.00</div>
+            </section>
           </section>
 
-        <section class="visual-row">
-          <section class="preview preview-side">
+          <section class="visual-row">
+            <section class="preview preview-side">
               <scramble-display
                 id="scramblePreview"
                 event="333"
                 visualization="2D"
                 hint-facelets="none"
               ></scramble-display>
-          </section>
+            </section>
 
             <section class="chart-card">
               <h2>기록 변화</h2>
@@ -157,6 +157,36 @@
                 </span>
               </div>
             </section>
+          </section>
+
+          <section class="panel solver-panel">
+            <div class="solver-header">
+              <h2>해 찾기</h2>
+              <button id="findSolutionBtn" class="ghost" type="button">해 찾기</button>
+            </div>
+            <div class="solver-body">
+              <div id="solverStatus" class="solver-status">
+                스크램블이 준비되면 해를 구할 수 있습니다.
+              </div>
+              <div class="row cross-color-row">
+                <label for="crossColorSelect">
+                  Cross 색상
+                  <select id="crossColorSelect">
+                    <option value="D">Yellow (D)</option>
+                    <option value="U">White (U)</option>
+                    <option value="F">Green (F)</option>
+                    <option value="B">Blue (B)</option>
+                    <option value="R">Red (R)</option>
+                    <option value="L">Orange (L)</option>
+                  </select>
+                </label>
+              </div>
+              <pre id="solverSolution" class="solver-solution">-</pre>
+              <div class="solver-footer">
+                <span id="solverMoveCount">0 수</span>
+                <button id="solverCopyBtn" class="ghost" type="button" disabled>복사</button>
+              </div>
+            </div>
           </section>
         </div>
       </div>

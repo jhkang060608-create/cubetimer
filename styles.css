@@ -149,11 +149,68 @@ body.theme-dark {
   font-size: 1.1rem;
 }
 
+.solver-panel {
+  border-radius: 18px;
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 12px;
+  background: var(--panel);
+}
+
+.solver-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.solver-body {
+  display: grid;
+  gap: 10px;
+}
+
+.solver-status {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.solver-solution {
+  margin: 0;
+  background: var(--card-soft);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 64px;
+  font-family: "Space Grotesk", "Noto Sans KR", "IBM Plex Mono", monospace;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.solver-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--muted);
+  gap: 12px;
+}
+
 .row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+.cross-color-row {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.cross-color-row label {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .scramble-row {
