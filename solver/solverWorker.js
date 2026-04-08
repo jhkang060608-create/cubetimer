@@ -282,10 +282,18 @@ const api = {
           const isOptimalMode = mode === "optimal";
           const fmcResult = await withTimeout(
             solveWithFMCSearch(scramble, onProgress, {
-              maxPremoveSets: isOptimalMode ? 8 : 3,
-              timeBudgetMs: isOptimalMode ? 65000 : 25000,
+              maxPremoveSets: isOptimalMode ? 8 : 2,
+              timeBudgetMs: isOptimalMode ? 65000 : 15000,
               targetMoveCount: isOptimalMode ? 19 : 24,
+              allowCfopFallback: true,
               premoveAllowCfopFallback: isOptimalMode,
+              preferNonCfop: !isOptimalMode,
+              directProfileLevel: isOptimalMode ? "deep" : "light",
+              directPhaseAttemptTimeoutMs: isOptimalMode ? 9000 : 3000,
+              directCfopPerColorTimeoutMs: isOptimalMode ? 2200 : 1200,
+              sweepProfileLevel: "micro",
+              sweepPhaseAttemptTimeoutMs: isOptimalMode ? 1400 : 900,
+              sweepCfopPerColorTimeoutMs: isOptimalMode ? 1200 : 900,
               crossColors: isOptimalMode ? ["D", "U", "F", "B", "R", "L"] : ["D"],
             }),
             FMC_333_TIMEOUT_MS,

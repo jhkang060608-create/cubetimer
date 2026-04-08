@@ -21,25 +21,32 @@ const FMC_PREMOVE_SETS = [
 ];
 const FMC_PHASE_PROFILES = [
   {
+    id: "phase-micro",
+    phase1MaxDepth: 11,
+    phase2MaxDepth: 16,
+    phase1NodeLimit: 60000,
+    phase2NodeLimit: 90000,
+  },
+  {
     id: "phase-light",
     phase1MaxDepth: 12,
     phase2MaxDepth: 18,
-    phase1NodeLimit: 350000,
-    phase2NodeLimit: 450000,
+    phase1NodeLimit: 180000,
+    phase2NodeLimit: 260000,
   },
   {
     id: "phase-mid",
     phase1MaxDepth: 13,
     phase2MaxDepth: 19,
-    phase1NodeLimit: 1200000,
-    phase2NodeLimit: 1800000,
+    phase1NodeLimit: 700000,
+    phase2NodeLimit: 1100000,
   },
   {
     id: "phase-deep",
     phase1MaxDepth: 13,
     phase2MaxDepth: 20,
-    phase1NodeLimit: 2500000,
-    phase2NodeLimit: 4000000,
+    phase1NodeLimit: 1600000,
+    phase2NodeLimit: 2600000,
   },
 ];
 
@@ -161,9 +168,12 @@ function normalizeCandidateMoves(moves) {
 function createCandidate(source, strategy, moves) {
   const normalized = normalizeCandidateMoves(moves);
   if (!normalized.length) return null;
+  const metadata = strategy && typeof strategy === "object" ? strategy : { tag: strategy };
   return {
     source,
-    strategy,
+    strategy: metadata.tag || "",
+    usesCfop: !!metadata.usesCfop,
+    innerSource: metadata.innerSource || "",
     moves: normalized,
     solution: joinMoves(normalized),
     moveCount: normalized.length,
@@ -193,9 +203,10 @@ function pushUniqueCandidate(list, candidate) {
 }
 
 function selectPhaseProfiles(profileLevel) {
-  if (profileLevel === "light") return FMC_PHASE_PROFILES.slice(0, 1);
-  if (profileLevel === "medium") return FMC_PHASE_PROFILES.slice(0, 2);
-  return FMC_PHASE_PROFILES.slice();
+  if (profileLevel === "micro") return FMC_PHASE_PROFILES.slice(0, 1);
+  if (profileLevel === "light") return FMC_PHASE_PROFILES.slice(1, 2);
+  if (profileLevel === "medium") return FMC_PHASE_PROFILES.slice(1, 3);
+  return FMC_PHASE_PROFILES.slice(1);
 }
 
 async function solveInternal333(scrambleText, options = {}) {
@@ -278,6 +289,20 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     : 24;
   const startedAt = Date.now();
   const deadlineTs = startedAt + timeBudgetMs;
+  const directProfileLevel = options.directProfileLevel || "medium";
+  const directPhaseAttemptTimeoutMs = Number.isFinite(options.directPhaseAttemptTimeoutMs)
+    ? Math.max(800, Math.floor(options.directPhaseAttemptTimeoutMs))
+    : 6000;
+  const directCfopPerColorTimeoutMs = Number.isFinite(options.directCfopPerColorTimeoutMs)
+    ? Math.max(700, Math.floor(options.directCfopPerColorTimeoutMs))
+    : 2500;
+  const sweepProfileLevel = options.sweepProfileLevel || "micro";
+  const sweepPhaseAttemptTimeoutMs = Number.isFinite(options.sweepPhaseAttemptTimeoutMs)
+    ? Math.max(700, Math.floor(options.sweepPhaseAttemptTimeoutMs))
+    : 900;
+  const sweepCfopPerColorTimeoutMs = Number.isFinite(options.sweepCfopPerColorTimeoutMs)
+    ? Math.max(700, Math.floor(options.sweepCfopPerColorTimeoutMs))
+    : 900;
   const inverseScramble = invertAlg(scramble);
   const candidates = [];
   let attempts = 0;
@@ -303,16 +328,26 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
 
   notify({ type: "stage_start", stageIndex: 0, totalStages, stageName: "FMC Direct" });
   const direct = await solveInternal333(scramble, {
-    profileLevel: "medium",
-    phaseAttemptTimeoutMs: 6000,
-    cfopPerColorTimeoutMs: 2500,
-    allowCfopFallback: true,
+    profileLevel: directProfileLevel,
+    phaseAttemptTimeoutMs: directPhaseAttemptTimeoutMs,
+    cfopPerColorTimeoutMs: directCfopPerColorTimeoutMs,
+    allowCfopFallback: options.allowCfopFallback === true,
     crossColors: options.crossColors || ["D"],
     deadlineTs,
   });
   attempts += 1;
   if (direct?.solution) {
-    trackCandidate(createCandidate("FMC_DIRECT", "direct", splitMoves(direct.solution)));
+    trackCandidate(
+      createCandidate(
+        "FMC_DIRECT",
+        {
+          tag: "direct",
+          usesCfop: direct.source === "INTERNAL_FMC_CFOP_FALLBACK",
+          innerSource: direct.source,
+        },
+        splitMoves(direct.solution),
+      ),
+    );
   }
   notify({
     type: "stage_done",
@@ -326,17 +361,27 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const inverse =
     remainingMs(deadlineTs) > 1000
       ? await solveInternal333(inverseScramble, {
-          profileLevel: "medium",
-          phaseAttemptTimeoutMs: 6000,
-          cfopPerColorTimeoutMs: 2500,
-          allowCfopFallback: true,
+          profileLevel: directProfileLevel,
+          phaseAttemptTimeoutMs: directPhaseAttemptTimeoutMs,
+          cfopPerColorTimeoutMs: directCfopPerColorTimeoutMs,
+          allowCfopFallback: options.allowCfopFallback === true,
           crossColors: options.crossColors || ["D"],
           deadlineTs,
         })
       : null;
   attempts += 1;
   if (inverse?.solution) {
-    trackCandidate(createCandidate("FMC_NISS", "inverse", invertMoves(splitMoves(inverse.solution))));
+    trackCandidate(
+      createCandidate(
+        "FMC_NISS",
+        {
+          tag: "inverse",
+          usesCfop: inverse.source === "INTERNAL_FMC_CFOP_FALLBACK",
+          innerSource: inverse.source,
+        },
+        invertMoves(splitMoves(inverse.solution)),
+      ),
+    );
   }
   notify({
     type: "stage_done",
@@ -355,9 +400,9 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
 
     const directScrambleWithPremove = joinMoves([scramble, ...premove]);
     const directWithPremove = await solveInternal333(directScrambleWithPremove, {
-      profileLevel: "light",
-      phaseAttemptTimeoutMs: 2500,
-      cfopPerColorTimeoutMs: 1600,
+      profileLevel: sweepProfileLevel,
+      phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
+      cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
       allowCfopFallback: options.premoveAllowCfopFallback === true,
       crossColors: options.crossColors || ["D"],
       deadlineTs,
@@ -365,7 +410,17 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     attempts += 1;
     if (directWithPremove?.solution) {
       const moves = premove.concat(splitMoves(directWithPremove.solution));
-      trackCandidate(createCandidate("FMC_PREMOVE_DIRECT", `premove:${joinMoves(premove)}`, moves));
+      trackCandidate(
+        createCandidate(
+          "FMC_PREMOVE_DIRECT",
+          {
+            tag: `premove:${joinMoves(premove)}`,
+            usesCfop: directWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
+            innerSource: directWithPremove.source,
+          },
+          moves,
+        ),
+      );
     }
 
     if (Date.now() - startedAt >= timeBudgetMs) break;
@@ -374,9 +429,9 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
 
     const inverseScrambleWithPremove = joinMoves([inverseScramble, ...premove]);
     const inverseWithPremove = await solveInternal333(inverseScrambleWithPremove, {
-      profileLevel: "light",
-      phaseAttemptTimeoutMs: 2500,
-      cfopPerColorTimeoutMs: 1600,
+      profileLevel: sweepProfileLevel,
+      phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
+      cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
       allowCfopFallback: options.premoveAllowCfopFallback === true,
       crossColors: options.crossColors || ["D"],
       deadlineTs,
@@ -384,7 +439,17 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     attempts += 1;
     if (inverseWithPremove?.solution) {
       const moves = invertMoves(splitMoves(inverseWithPremove.solution)).concat(invertMoves(premove));
-      trackCandidate(createCandidate("FMC_PREMOVE_NISS", `niss:${joinMoves(premove)}`, moves));
+      trackCandidate(
+        createCandidate(
+          "FMC_PREMOVE_NISS",
+          {
+            tag: `niss:${joinMoves(premove)}`,
+            usesCfop: inverseWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
+            innerSource: inverseWithPremove.source,
+          },
+          moves,
+        ),
+      );
     }
   }
   notify({
@@ -416,7 +481,13 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     };
   }
 
-  const best = validCandidates[0];
+  const preferNonCfop = options.preferNonCfop === true;
+  const nonCfopCandidates = preferNonCfop ? validCandidates.filter((candidate) => !candidate.usesCfop) : [];
+  const rankedCandidates = (nonCfopCandidates.length ? nonCfopCandidates : validCandidates).slice().sort((a, b) => {
+    if (a.moveCount !== b.moveCount) return a.moveCount - b.moveCount;
+    return a.solution.localeCompare(b.solution);
+  });
+  const best = rankedCandidates[0];
   const candidateLines = validCandidates
     .slice(0, 3)
     .map((candidate, index) => `${index + 1}. ${candidate.moveCount}수 [${candidate.source}] ${candidate.solution}`);
