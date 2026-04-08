@@ -21,12 +21,12 @@ for (let i = 1; i < POPCOUNT_12.length; i++) {
 const STRICT_CFOP_PROFILE = {
   crossMaxDepth: 8,
   f2lMaxDepth: 42,
-  f2lFormulaMaxSteps: 14,
-  f2lFormulaBeamWidth: 8,
-  f2lFormulaExpansionLimit: 14,
-  f2lFormulaMaxAttempts: 300000,
-  f2lSearchMaxDepth: 12,
-  f2lNodeLimit: 250000,
+  f2lFormulaMaxSteps: 12,
+  f2lFormulaBeamWidth: 7,
+  f2lFormulaExpansionLimit: 12,
+  f2lFormulaMaxAttempts: 240000,
+  f2lSearchMaxDepth: 11,
+  f2lNodeLimit: 220000,
   ollMaxDepth: 14,
   pllMaxDepth: 20,
 };
@@ -272,10 +272,9 @@ function getF2LPairTableMetrics(data, ctx) {
   if (!ctx.f2lPairDefs || !ctx.f2lPairDefs.length) {
     return { penalty: 0, lowerBound: 0 };
   }
-  const cornerPosByPiece = new Int8Array(8);
-  const edgePosByPiece = new Int8Array(12);
-  cornerPosByPiece.fill(-1);
-  edgePosByPiece.fill(-1);
+  const cornerPosByPiece =
+    ctx.f2lCornerPosScratch || (ctx.f2lCornerPosScratch = new Int8Array(8));
+  const edgePosByPiece = ctx.f2lEdgePosScratch || (ctx.f2lEdgePosScratch = new Int8Array(12));
   for (let pos = 0; pos < 8; pos++) {
     cornerPosByPiece[data.CORNERS.pieces[pos]] = pos;
   }
