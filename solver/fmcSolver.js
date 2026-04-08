@@ -287,8 +287,13 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const targetMoveCount = Number.isFinite(options.targetMoveCount)
     ? Math.max(1, Math.floor(options.targetMoveCount))
     : 24;
+  const sweepBudgetMs = Number.isFinite(options.sweepBudgetMs)
+    ? Math.max(500, Math.floor(options.sweepBudgetMs))
+    : Math.max(1500, Math.min(8000, Math.floor(timeBudgetMs * 0.35)));
+  const sweepIncludeInverse = options.sweepIncludeInverse !== false;
   const startedAt = Date.now();
   const deadlineTs = startedAt + timeBudgetMs;
+  const sweepDeadlineTs = startedAt + sweepBudgetMs;
   const directProfileLevel = options.directProfileLevel || "medium";
   const directPhaseAttemptTimeoutMs = Number.isFinite(options.directPhaseAttemptTimeoutMs)
     ? Math.max(800, Math.floor(options.directPhaseAttemptTimeoutMs))
@@ -306,7 +311,8 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const inverseScramble = invertAlg(scramble);
   const candidates = [];
   let attempts = 0;
-  const totalStages = 3;
+  const hasSweep = maxPremoveSets > 0;
+  const totalStages = hasSweep ? 3 : 2;
   let bestMoveCount = Infinity;
 
   const notify = (progress) => {
@@ -391,74 +397,91 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     moveCount: Number.isFinite(bestMoveCount) ? bestMoveCount : 0,
   });
 
-  notify({ type: "stage_start", stageIndex: 2, totalStages, stageName: "FMC Premove Sweep" });
-  for (let i = 0; i < FMC_PREMOVE_SETS.length && i < maxPremoveSets; i += 1) {
-    if (Date.now() - startedAt >= timeBudgetMs) break;
-    if (remainingMs(deadlineTs) <= 1200) break;
-    if (bestMoveCount <= targetMoveCount) break;
-    const premove = FMC_PREMOVE_SETS[i];
+  if (hasSweep) {
+    notify({ type: "stage_start", stageIndex: 2, totalStages, stageName: "FMC Premove Sweep" });
+    for (let i = 0; i < FMC_PREMOVE_SETS.length && i < maxPremoveSets; i += 1) {
+      if (Date.now() - startedAt >= timeBudgetMs) break;
+      if (remainingMs(deadlineTs) <= 1200) break;
+      if (remainingMs(sweepDeadlineTs) <= 500) break;
+      if (bestMoveCount <= targetMoveCount) break;
+      const premove = FMC_PREMOVE_SETS[i];
+      const iterationDeadlineTs = Math.min(deadlineTs, sweepDeadlineTs);
+      if (typeof onProgress === "function") {
+        try {
+          void onProgress({
+            type: "fallback_start",
+            stageName: `FMC Sweep ${i + 1}/${Math.min(maxPremoveSets, FMC_PREMOVE_SETS.length)}`,
+            reason: "PREMOVE",
+          });
+        } catch (_) {}
+      }
 
-    const directScrambleWithPremove = joinMoves([scramble, ...premove]);
-    const directWithPremove = await solveInternal333(directScrambleWithPremove, {
-      profileLevel: sweepProfileLevel,
-      phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
-      cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
-      allowCfopFallback: options.premoveAllowCfopFallback === true,
-      crossColors: options.crossColors || ["D"],
-      deadlineTs,
-    });
-    attempts += 1;
-    if (directWithPremove?.solution) {
-      const moves = premove.concat(splitMoves(directWithPremove.solution));
-      trackCandidate(
-        createCandidate(
-          "FMC_PREMOVE_DIRECT",
-          {
-            tag: `premove:${joinMoves(premove)}`,
-            usesCfop: directWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
-            innerSource: directWithPremove.source,
-          },
-          moves,
-        ),
-      );
+      const directScrambleWithPremove = joinMoves([scramble, ...premove]);
+      const directWithPremove = await solveInternal333(directScrambleWithPremove, {
+        profileLevel: sweepProfileLevel,
+        phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
+        cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
+        allowCfopFallback: options.premoveAllowCfopFallback === true,
+        crossColors: options.crossColors || ["D"],
+        deadlineTs: iterationDeadlineTs,
+      });
+      attempts += 1;
+      if (directWithPremove?.solution) {
+        const moves = premove.concat(splitMoves(directWithPremove.solution));
+        trackCandidate(
+          createCandidate(
+            "FMC_PREMOVE_DIRECT",
+            {
+              tag: `premove:${joinMoves(premove)}`,
+              usesCfop: directWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
+              innerSource: directWithPremove.source,
+            },
+            moves,
+          ),
+        );
+      }
+
+      if (!sweepIncludeInverse) {
+        continue;
+      }
+      if (Date.now() - startedAt >= timeBudgetMs) break;
+      if (remainingMs(deadlineTs) <= 1200) break;
+      if (remainingMs(sweepDeadlineTs) <= 500) break;
+      if (bestMoveCount <= targetMoveCount) break;
+
+      const inverseScrambleWithPremove = joinMoves([inverseScramble, ...premove]);
+      const inverseWithPremove = await solveInternal333(inverseScrambleWithPremove, {
+        profileLevel: sweepProfileLevel,
+        phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
+        cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
+        allowCfopFallback: options.premoveAllowCfopFallback === true,
+        crossColors: options.crossColors || ["D"],
+        deadlineTs: iterationDeadlineTs,
+      });
+      attempts += 1;
+      if (inverseWithPremove?.solution) {
+        const moves = invertMoves(splitMoves(inverseWithPremove.solution)).concat(invertMoves(premove));
+        trackCandidate(
+          createCandidate(
+            "FMC_PREMOVE_NISS",
+            {
+              tag: `niss:${joinMoves(premove)}`,
+              usesCfop: inverseWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
+              innerSource: inverseWithPremove.source,
+            },
+            moves,
+          ),
+        );
+      }
     }
-
-    if (Date.now() - startedAt >= timeBudgetMs) break;
-    if (remainingMs(deadlineTs) <= 1200) break;
-    if (bestMoveCount <= targetMoveCount) break;
-
-    const inverseScrambleWithPremove = joinMoves([inverseScramble, ...premove]);
-    const inverseWithPremove = await solveInternal333(inverseScrambleWithPremove, {
-      profileLevel: sweepProfileLevel,
-      phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
-      cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
-      allowCfopFallback: options.premoveAllowCfopFallback === true,
-      crossColors: options.crossColors || ["D"],
-      deadlineTs,
+    notify({
+      type: "stage_done",
+      stageIndex: 2,
+      totalStages,
+      stageName: "FMC Premove Sweep",
+      moveCount: Number.isFinite(bestMoveCount) ? bestMoveCount : 0,
     });
-    attempts += 1;
-    if (inverseWithPremove?.solution) {
-      const moves = invertMoves(splitMoves(inverseWithPremove.solution)).concat(invertMoves(premove));
-      trackCandidate(
-        createCandidate(
-          "FMC_PREMOVE_NISS",
-          {
-            tag: `niss:${joinMoves(premove)}`,
-            usesCfop: inverseWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
-            innerSource: inverseWithPremove.source,
-          },
-          moves,
-        ),
-      );
-    }
   }
-  notify({
-    type: "stage_done",
-    stageIndex: 2,
-    totalStages,
-    stageName: "FMC Premove Sweep",
-    moveCount: Number.isFinite(bestMoveCount) ? bestMoveCount : 0,
-  });
 
   candidates.sort((a, b) => {
     if (a.moveCount !== b.moveCount) return a.moveCount - b.moveCount;

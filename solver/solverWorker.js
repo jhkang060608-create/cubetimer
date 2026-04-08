@@ -282,10 +282,12 @@ const api = {
           const isOptimalMode = mode === "optimal";
           const fmcResult = await withTimeout(
             solveWithFMCSearch(scramble, onProgress, {
-              maxPremoveSets: isOptimalMode ? 8 : 1,
+              maxPremoveSets: isOptimalMode ? 8 : 0,
               timeBudgetMs: isOptimalMode ? 65000 : 9000,
+              sweepBudgetMs: isOptimalMode ? 22000 : 2200,
+              sweepIncludeInverse: isOptimalMode,
               targetMoveCount: isOptimalMode ? 19 : 26,
-              allowCfopFallback: isOptimalMode,
+              allowCfopFallback: true,
               premoveAllowCfopFallback: isOptimalMode,
               preferNonCfop: !isOptimalMode,
               directProfileLevel: isOptimalMode ? "deep" : "micro",
