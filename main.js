@@ -153,7 +153,7 @@ const INSPECTION_KEY = "cubeTimerInspection";
 const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
 const AO5_KEY = "cubeTimerShowAo5";
 const AO12_KEY = "cubeTimerShowAo12";
-const VALID_SOLVER_MODES = new Set(["strict", "fmc", "optimal"]);
+const VALID_SOLVER_MODES = new Set(["strict", "zb", "fmc", "optimal"]);
 
 const ACCENT_THEMES = {
   ocean: {

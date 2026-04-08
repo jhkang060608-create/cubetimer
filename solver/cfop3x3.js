@@ -1,6 +1,7 @@
 import { getDefaultPattern } from "./context.js";
 import { MOVE_NAMES } from "./moves.js";
 import { SCDB_CFOP_ALGS } from "./scdbCfopAlgs.js";
+import { ZB_FORMULAS } from "./zbDataset.js";
 
 const FACE_TO_INDEX = { U: 0, R: 1, F: 2, D: 3, L: 4, B: 5 };
 const OPPOSITE_FACE = [3, 4, 5, 0, 1, 2];
@@ -620,6 +621,15 @@ function getF2LPairProgress(data, ctx) {
   return Math.min(cornerSolved, edgeSolved);
 }
 
+function getF2LPairDeficit(data, ctx, targetPairs) {
+  return Math.max(0, targetPairs - getF2LPairProgress(data, ctx));
+}
+
+function isCrossWithF2LPairTarget(data, ctx, targetPairs) {
+  if (!isCrossSolved(data, ctx)) return false;
+  return getF2LPairProgress(data, ctx) >= targetPairs;
+}
+
 function splitF2LMovesIntoPairs(startPattern, moves, ctx) {
   const segments = [];
   if (!moves || !moves.length) return segments;
@@ -653,6 +663,15 @@ function getCrossStageLabel(color) {
   return `Cross (${colorLabel} | ${targets.join(" ")})`;
 }
 
+function getCrossLikeStageLabel(stageName, crossStageLabel) {
+  if (String(stageName || "").startsWith("XCross")) {
+    return crossStageLabel.startsWith("Cross")
+      ? `X${crossStageLabel}`
+      : `XCross (${crossStageLabel})`;
+  }
+  return crossStageLabel;
+}
+
 function normalizeCrossColor(color) {
   const normalized = (String(color || "D") || "D").toUpperCase();
   return CROSS_COLOR_ROTATION_CANDIDATES[normalized] !== undefined ? normalized : "D";
@@ -665,6 +684,8 @@ function getCrossRotationCandidates(color) {
 }
 
 function normalizeSolveMode(mode) {
+  const normalized = String(mode || "strict").toLowerCase();
+  if (normalized === "zb") return "zb";
   return "strict";
 }
 
@@ -705,11 +726,19 @@ function transformPatternForCrossColor(pattern, solvedPattern, rotationAlg) {
 function relabelCrossProgress(progress, crossStageLabel) {
   if (!progress || typeof progress !== "object") return progress;
   if (progress.stageIndex !== 0) return progress;
-  if (typeof progress.stageName === "string" && progress.stageName.startsWith("Cross")) {
-    return {
-      ...progress,
-      stageName: crossStageLabel,
-    };
+  if (typeof progress.stageName === "string") {
+    if (progress.stageName.startsWith("Cross")) {
+      return {
+        ...progress,
+        stageName: crossStageLabel,
+      };
+    }
+    if (progress.stageName.startsWith("XCross")) {
+      return {
+        ...progress,
+        stageName: getCrossLikeStageLabel("XCross", crossStageLabel),
+      };
+    }
   }
   return progress;
 }
@@ -1012,15 +1041,67 @@ function isPLLSolved(data, ctx) {
   return e.pieceMismatch === 0 && e.orientationMismatch === 0;
 }
 
-function getStageDefinitions(options, ctx, profile) {
+function getStageDefinitions(options, ctx, profile, solveMode) {
+  const useZbStages = solveMode === "zb";
+  const crossStageName = useZbStages ? "XCross" : "Cross";
+  const crossTargetPairs = useZbStages ? 1 : 0;
+  const f2lStageName = useZbStages ? "F2L2" : "F2L";
+  const f2lStageDisplayName = useZbStages ? "F2L (2 Slots)" : "F2L";
+  const f2lTargetPairs = useZbStages ? 3 : 4;
+  const stage3Name = useZbStages ? "ZBLS" : "OLL";
+  const stage3FormulaKeys = useZbStages ? ["ZBLS", "OLL"] : ["OLL"];
+  const stage4Name = useZbStages ? "ZBLL" : "PLL";
+  const stage4FormulaKeys = useZbStages ? ["ZBLL", "PLL"] : ["PLL"];
+
+  function getF2LMismatch(data) {
+    const c = countOrbitMismatches(
+      data.CORNERS,
+      ctx.solvedData.CORNERS,
+      ctx.f2lCornerPositions,
+      true,
+      true,
+    );
+    const e = countOrbitMismatches(
+      data.EDGES,
+      ctx.solvedData.EDGES,
+      ctx.f2lEdgePositions,
+      true,
+      true,
+    );
+    return {
+      pieceMismatch: c.pieceMismatch + e.pieceMismatch,
+      orientationMismatch: c.orientationMismatch + e.orientationMismatch,
+    };
+  }
+
   return [
     {
-      name: "Cross",
-      maxDepth: normalizeDepth(options.crossMaxDepth, profile.crossMaxDepth),
+      name: crossStageName,
+      displayName: crossStageName,
+      isCrossLike: true,
+      maxDepth: normalizeDepth(
+        options.crossMaxDepth,
+        useZbStages ? profile.crossMaxDepth + 2 : profile.crossMaxDepth,
+      ),
       moveIndices: ctx.allMoveIndices,
-      isSolved: isCrossSolved,
+      isSolved(data) {
+        return isCrossWithF2LPairTarget(data, ctx, crossTargetPairs);
+      },
       heuristic(data) {
-        return getCrossPruneHeuristic(data, ctx);
+        const crossBound = getCrossPruneHeuristic(data, ctx);
+        const pairNeed = getF2LPairDeficit(data, ctx, crossTargetPairs);
+        if (Number.isFinite(crossBound) && crossBound >= 0) {
+          return Math.max(crossBound, pairNeed);
+        }
+        const e = countOrbitMismatches(
+          data.EDGES,
+          ctx.solvedData.EDGES,
+          ctx.bottomEdgePositions,
+          true,
+          true,
+        );
+        const crossFallback = stageHeuristicFromMismatch(e.pieceMismatch, e.orientationMismatch);
+        return Math.max(crossFallback, pairNeed);
       },
       mismatch(data) {
         const e = countOrbitMismatches(
@@ -1030,14 +1111,23 @@ function getStageDefinitions(options, ctx, profile) {
           true,
           true,
         );
-        return { pieceMismatch: e.pieceMismatch, orientationMismatch: e.orientationMismatch };
+        const pairNeed = getF2LPairDeficit(data, ctx, crossTargetPairs);
+        return {
+          pieceMismatch: e.pieceMismatch + pairNeed * 2,
+          orientationMismatch: e.orientationMismatch,
+        };
       },
       key(data) {
+        if (crossTargetPairs > 0) {
+          return `XF:${getF2LStateKey(data, ctx)}`;
+        }
         return `E:${buildKeyForOrbit(data.EDGES, ctx.bottomEdgePositions, true, true)}`;
       },
     },
     {
-      name: "F2L",
+      name: f2lStageName,
+      displayName: f2lStageDisplayName,
+      formulaKeys: ["F2L"],
       // Formula-driven F2L commonly exceeds 16 moves; keep a larger cap here.
       maxDepth: normalizeDepth(options.f2lMaxDepth, profile.f2lMaxDepth),
       formulaMaxSteps: normalizeDepth(options.f2lFormulaMaxSteps, profile.f2lFormulaMaxSteps),
@@ -1052,48 +1142,31 @@ function getStageDefinitions(options, ctx, profile) {
       nodeLimit: normalizeDepth(options.f2lNodeLimit, profile.f2lNodeLimit),
       // Keep D fixed after cross to reduce branching and match CFOP move habits.
       moveIndices: ctx.noDMoveIndices,
-      isSolved: isF2LSolved,
-      usePairTable: true,
+      isSolved(data) {
+        return isCrossWithF2LPairTarget(data, ctx, f2lTargetPairs);
+      },
+      usePairTable: !useZbStages,
       heuristic(data) {
-        const c = countOrbitMismatches(
-          data.CORNERS,
-          ctx.solvedData.CORNERS,
-          ctx.f2lCornerPositions,
-          true,
-          true,
-        );
-        const e = countOrbitMismatches(
-          data.EDGES,
-          ctx.solvedData.EDGES,
-          ctx.f2lEdgePositions,
-          true,
-          true,
-        );
+        const mismatch = getF2LMismatch(data);
         const mismatchBound = stageHeuristicFromMismatch(
-          c.pieceMismatch + e.pieceMismatch,
-          c.orientationMismatch + e.orientationMismatch,
+          mismatch.pieceMismatch,
+          mismatch.orientationMismatch,
         );
+        const pairNeed = getF2LPairDeficit(data, ctx, f2lTargetPairs);
+        if (useZbStages) {
+          if (pairNeed === 0) return 0;
+          return Math.max(pairNeed, Math.min(mismatchBound, pairNeed + 2));
+        }
         const pairTableBound = getF2LPairTableLowerBound(data, ctx);
         return Math.max(mismatchBound, pairTableBound);
       },
       mismatch(data) {
-        const c = countOrbitMismatches(
-          data.CORNERS,
-          ctx.solvedData.CORNERS,
-          ctx.f2lCornerPositions,
-          true,
-          true,
-        );
-        const e = countOrbitMismatches(
-          data.EDGES,
-          ctx.solvedData.EDGES,
-          ctx.f2lEdgePositions,
-          true,
-          true,
-        );
+        const mismatch = getF2LMismatch(data);
+        if (!useZbStages) return mismatch;
+        const pairNeed = getF2LPairDeficit(data, ctx, f2lTargetPairs);
         return {
-          pieceMismatch: c.pieceMismatch + e.pieceMismatch,
-          orientationMismatch: c.orientationMismatch + e.orientationMismatch,
+          pieceMismatch: mismatch.pieceMismatch + pairNeed,
+          orientationMismatch: mismatch.orientationMismatch,
         };
       },
       key(data) {
@@ -1101,7 +1174,8 @@ function getStageDefinitions(options, ctx, profile) {
       },
     },
     {
-      name: "OLL",
+      name: stage3Name,
+      formulaKeys: stage3FormulaKeys,
       maxDepth: normalizeDepth(options.ollMaxDepth, profile.ollMaxDepth),
       moveIndices: ctx.noDMoveIndices,
       isSolved: isOLLSolved,
@@ -1152,7 +1226,8 @@ function getStageDefinitions(options, ctx, profile) {
       },
     },
     {
-      name: "PLL",
+      name: stage4Name,
+      formulaKeys: stage4FormulaKeys,
       maxDepth: normalizeDepth(options.pllMaxDepth, profile.pllMaxDepth),
       moveIndices: ctx.noDMoveIndices,
       isSolved: isPLLSolved,
@@ -1185,19 +1260,42 @@ function getStageDefinitions(options, ctx, profile) {
   ];
 }
 
-function getFormulaListForStage(stageName) {
-  if (stageName === "F2L") return SCDB_CFOP_ALGS.F2L || [];
-  if (stageName === "OLL") return SCDB_CFOP_ALGS.OLL || [];
-  if (stageName === "PLL") return SCDB_CFOP_ALGS.PLL || [];
+function getFormulaListByKey(key) {
+  if (key === "F2L") return SCDB_CFOP_ALGS.F2L || [];
+  if (key === "OLL") return SCDB_CFOP_ALGS.OLL || [];
+  if (key === "PLL") return SCDB_CFOP_ALGS.PLL || [];
+  if (key === "ZBLS") return ZB_FORMULAS.ZBLS || [];
+  if (key === "ZBLL") return ZB_FORMULAS.ZBLL || [];
   return [];
 }
 
+function getFormulaListForStage(stageOrName) {
+  const stageName =
+    typeof stageOrName === "string" ? stageOrName : stageOrName?.name || "";
+  const keys =
+    stageOrName && typeof stageOrName === "object" && Array.isArray(stageOrName.formulaKeys)
+      ? stageOrName.formulaKeys
+      : [stageName];
+  const seen = new Set();
+  const merged = [];
+  for (let i = 0; i < keys.length; i++) {
+    const formulas = getFormulaListByKey(keys[i]);
+    for (let j = 0; j < formulas.length; j++) {
+      const alg = String(formulas[j] || "").trim();
+      if (!alg || seen.has(alg)) continue;
+      seen.add(alg);
+      merged.push(alg);
+    }
+  }
+  return merged;
+}
+
 function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
-  const formulas = getFormulaListForStage(stage.name);
+  const formulas = getFormulaListForStage(stage);
   if (!formulas.length) return null;
 
   let attempts = 0;
-  const postAufList = stage.name === "PLL" ? FORMULA_AUF : [""];
+  const postAufList = stage.name === "PLL" || stage.name === "ZBLL" ? FORMULA_AUF : [""];
   for (let r = 0; r < FORMULA_ROTATIONS.length; r++) {
     const rot = FORMULA_ROTATIONS[r];
     for (let a = 0; a < FORMULA_AUF.length; a++) {
@@ -1229,7 +1327,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
 }
 
 function solveWithFormulaDbF2L(startPattern, stage, ctx) {
-  const formulas = getFormulaListForStage("F2L");
+  const formulas = getFormulaListForStage(stage);
   if (!formulas.length) return null;
   const metricsCache = new Map();
   const solvedCorners = ctx.solvedData.CORNERS;
@@ -1557,10 +1655,18 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
 }
 
 function solveStageByFormulaDb(startPattern, stage, ctx) {
-  if (stage.name === "F2L") {
+  if (
+    stage.name === "F2L" ||
+    (Array.isArray(stage.formulaKeys) && stage.formulaKeys.includes("F2L"))
+  ) {
     return solveWithFormulaDbF2L(startPattern, stage, ctx);
   }
-  if (stage.name === "OLL" || stage.name === "PLL") {
+  if (
+    stage.name === "OLL" ||
+    stage.name === "PLL" ||
+    stage.name === "ZBLS" ||
+    stage.name === "ZBLL"
+  ) {
     return solveWithFormulaDbSingleStage(startPattern, stage, ctx);
   }
   return null;
@@ -1685,6 +1791,7 @@ function solveStage(startPattern, stage, ctx) {
 export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   const ctx = await getCfopContext();
   const solveMode = normalizeSolveMode(options.mode);
+  const crossFailureStageName = solveMode === "zb" ? "XCross" : "Cross";
   const modeProfile = getCfopProfile(solveMode);
   const crossColorRaw = normalizeCrossColor(options.crossColor);
   const crossStageLabel = getCrossStageLabel(crossColorRaw);
@@ -1702,7 +1809,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
           firstFailResult = {
             ok: false,
             reason: "CROSS_COLOR_TRANSFORM_FAILED",
-            stage: "Cross",
+            stage: crossFailureStageName,
             nodes: 0,
           };
         }
@@ -1737,7 +1844,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       return firstFailResult || {
         ok: false,
         reason: "CROSS_COLOR_TRANSFORM_FAILED",
-        stage: "Cross",
+        stage: crossFailureStageName,
         nodes: 0,
       };
     }
@@ -1752,7 +1859,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       : [];
 
     if (stages.length) {
-      stages[0].name = crossStageLabel;
+      stages[0].name = getCrossLikeStageLabel(stages[0].name, crossStageLabel);
       if (setupMoves.length) {
         const firstMoves = simplifyMoves(setupMoves.concat(splitMoves(stages[0].solution || "")));
         stages[0].solution = joinMoves(firstMoves);
@@ -1773,7 +1880,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       return {
         ok: false,
         reason: "FINAL_STATE_NOT_SOLVED",
-        stage: "PLL",
+        stage: solveMode === "zb" ? "ZBLL" : "PLL",
         nodes: childResult.nodes || 0,
       };
     }
@@ -1787,9 +1894,9 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     };
   }
 
-  const stages = getStageDefinitions(options, ctx, modeProfile);
+  const stages = getStageDefinitions(options, ctx, modeProfile, solveMode);
   for (let i = 0; i < stages.length; i++) {
-    if (stages[i].name === "F2L") {
+    if (Array.isArray(stages[i].formulaKeys) && stages[i].formulaKeys.includes("F2L")) {
       stages[i].f2lCaseLibrary = await getF2LCaseLibrary(ctx);
     }
   }
@@ -1810,7 +1917,10 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   for (let i = 0; i < stages.length; i++) {
     const stage = stages[i];
     const stageStartPattern = currentPattern;
-    const stageLabel = stage.name === "Cross" ? crossStageLabel : stage.name;
+    const stageDisplayName = stage.displayName || stage.name;
+    const stageLabel = stage.isCrossLike
+      ? getCrossLikeStageLabel(stage.name, crossStageLabel)
+      : stageDisplayName;
     if (onStageUpdate) {
       onStageUpdate({
         type: "stage_start",
@@ -1910,7 +2020,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     moveCount: fullMoves.length,
     nodes: totalNodes,
     bound: totalBound,
-    source: "INTERNAL_3X3_CFOP_STRICT",
+    source: solveMode === "zb" ? "INTERNAL_3X3_CFOP_ZB_HYBRID" : "INTERNAL_3X3_CFOP_STRICT",
     stages: solvedStages,
   };
 }

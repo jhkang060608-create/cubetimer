@@ -42,6 +42,9 @@ function normalizeMode(mode) {
   if (mode === "optimal") {
     return "optimal";
   }
+  if (mode === "zb") {
+    return "zb";
+  }
   return "strict";
 }
 
@@ -53,7 +56,11 @@ function shouldFallbackToExternal3x3(result) {
   if (!result || result.ok) return false;
   const reason = String(result.reason || "");
   return (
+    reason.startsWith("XCROSS_") ||
     reason.startsWith("F2L_") ||
+    reason.startsWith("F2L2_") ||
+    reason.startsWith("ZBLS_") ||
+    reason.startsWith("ZBLL_") ||
     reason === "FINAL_STATE_NOT_SOLVED" ||
     reason === "INTERNAL_3X3_CFOP_TIMEOUT"
   );
@@ -420,7 +427,7 @@ const api = {
         }
 
         if (mode !== "strict") {
-          // Do not use external library fallback in optimal/fmc mode.
+          // Do not use external library fallback in non-strict modes (optimal/fmc/zb).
           return phaseResult?.reason ? phaseResult : strictResult;
         }
 
