@@ -33,28 +33,76 @@ function normalizeVariant(raw) {
   text = text.replace(/^\((U2|U'|U)\)\s*/i, "");
   text = text.replace(/^\((U2|U'|U)\)\s*/i, "");
 
-  // Some entries carry trailing slash delimiters.
+  // Flatten grouping notation and trailing separators.
+  text = text.replace(/[()]/g, " ");
   text = text.replace(/^\/+|\/+$/g, "").trim();
+  text = text.replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  if (!/^[URFDLBMESXYZurfdlbmesxyzw'2\s]+$/.test(text)) return "";
   return text;
 }
 
-function flattenAlgorithms(caseMap) {
-  const result = [];
+function splitAndNormalizeVariants(rawAlg) {
+  const out = [];
   const seen = new Set();
+  const variants = String(rawAlg || "").split("/");
+  for (const variant of variants) {
+    const normalized = normalizeVariant(variant);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    out.push(normalized);
+  }
+  return out;
+}
+
+function countMoves(alg) {
+  return String(alg || "")
+    .split(/\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean).length;
+}
+
+function pickPreferredVariant(rawAlg) {
+  const variants = splitAndNormalizeVariants(rawAlg);
+  if (!variants.length) return "";
+  variants.sort((a, b) => {
+    const moveDiff = countMoves(a) - countMoves(b);
+    if (moveDiff !== 0) return moveDiff;
+    return a.length - b.length;
+  });
+  return variants[0];
+}
+
+function flattenAlgorithms(caseMap, options = {}) {
+  const keepOnePerRaw = !!options.keepOnePerRaw;
+  const result = [];
   for (const value of Object.values(caseMap || {})) {
     if (!Array.isArray(value)) continue;
     for (const rawAlg of value) {
-      const variants = String(rawAlg || "").split("/");
-      for (const variant of variants) {
-        const normalized = normalizeVariant(variant);
-        if (!normalized) continue;
-        if (seen.has(normalized)) continue;
-        seen.add(normalized);
-        result.push(normalized);
+      if (keepOnePerRaw) {
+        const picked = pickPreferredVariant(rawAlg);
+        if (picked) result.push(picked);
+        continue;
+      }
+      const variants = splitAndNormalizeVariants(rawAlg);
+      for (let i = 0; i < variants.length; i++) {
+        result.push(variants[i]);
       }
     }
   }
   return result;
+}
+
+function dedupePreserveOrder(list) {
+  const seen = new Set();
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const alg = list[i];
+    if (!alg || seen.has(alg)) continue;
+    seen.add(alg);
+    out.push(alg);
+  }
+  return out;
 }
 
 function buildOutput(zblsList, zbllList) {
@@ -80,12 +128,18 @@ function buildOutput(zblsList, zbllList) {
 function main() {
   const sourceCode = readSourceFile(sourcePath);
   const { zbls, zbll } = loadDatasetObjects(sourceCode);
-  const zblsList = flattenAlgorithms(zbls);
-  const zbllList = flattenAlgorithms(zbll);
+  // ZBLS: keep one preferred variant per raw case entry (302 entries in source).
+  const zblsRawCaseList = flattenAlgorithms(zbls, { keepOnePerRaw: true });
+  const zblsList = dedupePreserveOrder(zblsRawCaseList);
+
+  // ZBLL: preserve all listed variants, then dedupe.
+  const zbllList = dedupePreserveOrder(flattenAlgorithms(zbll));
   const outputCode = buildOutput(zblsList, zbllList);
   fs.writeFileSync(outputPath, outputCode, "utf8");
   console.log(`Wrote ${outputPath}`);
-  console.log(`ZBLS: ${zblsList.length} formulas, ZBLL: ${zbllList.length} formulas`);
+  console.log(
+    `ZBLS raw-case entries: ${zblsRawCaseList.length}, unique formulas: ${zblsList.length}, ZBLL formulas: ${zbllList.length}`,
+  );
 }
 
 main();

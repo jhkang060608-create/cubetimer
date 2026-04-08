@@ -70,6 +70,7 @@ const CROSS_EDGE_TARGETS = {
   L: ["LU", "LF", "LD", "LB"],
 };
 let f2lCaseLibraryPromise = null;
+const formulaValidityCache = new Map();
 
 let contextPromise = null;
 
@@ -526,6 +527,35 @@ function tryApplyAlg(pattern, algText) {
   }
 }
 
+function sanitizeFormulaAlg(rawAlg) {
+  let text = String(rawAlg || "").replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  // Strip common AUF wrappers used in imported datasets.
+  text = text.replace(/^\((U2|U'|U)\)\s*/i, "");
+  text = text.replace(/^\((U2|U'|U)\)\s*/i, "");
+  // Flatten grouping notation to plain move sequence.
+  text = text.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  if (!/^[URFDLBMESXYZurfdlbmesxyzw'2\s]+$/.test(text)) return "";
+  return text;
+}
+
+function filterValidFormulas(formulas, ctx) {
+  if (!Array.isArray(formulas) || !formulas.length) return [];
+  if (!ctx?.solvedPattern) return formulas;
+  const valid = [];
+  for (let i = 0; i < formulas.length; i++) {
+    const alg = formulas[i];
+    let ok = formulaValidityCache.get(alg);
+    if (ok === undefined) {
+      ok = !!tryApplyAlg(ctx.solvedPattern, alg);
+      formulaValidityCache.set(alg, ok);
+    }
+    if (ok) valid.push(alg);
+  }
+  return valid;
+}
+
 function tryApplyMoves(pattern, moves) {
   if (!moves || !moves.length) return null;
   try {
@@ -604,21 +634,38 @@ function simplifyMoves(moves) {
 }
 
 function getF2LPairProgress(data, ctx) {
-  const cornerSolved = countSolvedAtPositions(
-    data.CORNERS,
-    ctx.solvedData.CORNERS,
-    ctx.f2lCornerPositions,
-    true,
-    true,
-  );
-  const edgeSolved = countSolvedAtPositions(
-    data.EDGES,
-    ctx.solvedData.EDGES,
-    ctx.f2lEdgePositions,
-    true,
-    true,
-  );
-  return Math.min(cornerSolved, edgeSolved);
+  if (!ctx?.f2lPairDefs || !ctx.f2lPairDefs.length) {
+    const cornerSolved = countSolvedAtPositions(
+      data.CORNERS,
+      ctx.solvedData.CORNERS,
+      ctx.f2lCornerPositions,
+      true,
+      true,
+    );
+    const edgeSolved = countSolvedAtPositions(
+      data.EDGES,
+      ctx.solvedData.EDGES,
+      ctx.f2lEdgePositions,
+      true,
+      true,
+    );
+    return Math.min(cornerSolved, edgeSolved);
+  }
+  let solvedPairs = 0;
+  for (let i = 0; i < ctx.f2lPairDefs.length; i++) {
+    const def = ctx.f2lPairDefs[i];
+    const cPos = def.cornerTargetPos;
+    const ePos = def.edgeTargetPos;
+    const cornerSolved =
+      data.CORNERS.pieces[cPos] === def.cornerPieceId &&
+      (data.CORNERS.orientation[cPos] % 3) === def.cornerTargetOri;
+    if (!cornerSolved) continue;
+    const edgeSolved =
+      data.EDGES.pieces[ePos] === def.edgePieceId &&
+      (data.EDGES.orientation[ePos] & 1) === def.edgeTargetOri;
+    if (edgeSolved) solvedPairs += 1;
+  }
+  return solvedPairs;
 }
 
 function getF2LPairDeficit(data, ctx, targetPairs) {
@@ -1022,6 +1069,17 @@ function isOLLSolved(data, ctx) {
   );
 }
 
+function isZBLSSolved(data, ctx) {
+  if (!isF2LSolved(data, ctx)) return false;
+  return orbitMatches(
+    data.EDGES,
+    ctx.solvedData.EDGES,
+    ctx.topEdgePositions,
+    false,
+    true,
+  );
+}
+
 function isPLLSolved(data, ctx) {
   const c = countOrbitMismatches(
     data.CORNERS,
@@ -1176,9 +1234,16 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
     {
       name: stage3Name,
       formulaKeys: stage3FormulaKeys,
+      formulaPreAufList: FORMULA_AUF,
+      formulaAttemptLimit: useZbStages ? 15000 : 0,
       maxDepth: normalizeDepth(options.ollMaxDepth, profile.ollMaxDepth),
+      searchMaxDepth: normalizeDepth(
+        options.zblsSearchMaxDepth,
+        useZbStages ? 9 : profile.ollMaxDepth,
+      ),
+      nodeLimit: normalizeDepth(options.zblsNodeLimit, useZbStages ? 160000 : 0),
       moveIndices: ctx.noDMoveIndices,
-      isSolved: isOLLSolved,
+      isSolved: useZbStages ? isZBLSSolved : isOLLSolved,
       mismatch(data) {
         const f2lC = countOrbitMismatches(
           data.CORNERS,
@@ -1194,17 +1259,24 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
           true,
           true,
         );
-        const ollC = countOrbitMismatches(
-          data.CORNERS,
-          ctx.solvedData.CORNERS,
-          ctx.topCornerPositions,
-          false,
-          true,
-        );
         const ollE = countOrbitMismatches(
           data.EDGES,
           ctx.solvedData.EDGES,
           ctx.topEdgePositions,
+          false,
+          true,
+        );
+        if (useZbStages) {
+          return {
+            pieceMismatch: f2lC.pieceMismatch + f2lE.pieceMismatch,
+            orientationMismatch:
+              f2lC.orientationMismatch + f2lE.orientationMismatch + ollE.orientationMismatch,
+          };
+        }
+        const ollC = countOrbitMismatches(
+          data.CORNERS,
+          ctx.solvedData.CORNERS,
+          ctx.topCornerPositions,
           false,
           true,
         );
@@ -1220,15 +1292,26 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       key(data) {
         const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
         const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-        const ollC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, false, true);
         const ollE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true);
+        if (useZbStages) {
+          return `FC:${f2lC}|FE:${f2lE}|OE:${ollE}`;
+        }
+        const ollC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, false, true);
         return `FC:${f2lC}|FE:${f2lE}|OC:${ollC}|OE:${ollE}`;
       },
     },
     {
       name: stage4Name,
       formulaKeys: stage4FormulaKeys,
+      formulaPreAufList: FORMULA_AUF,
+      formulaPostAufList: FORMULA_AUF,
+      formulaAttemptLimit: useZbStages ? 40000 : 0,
       maxDepth: normalizeDepth(options.pllMaxDepth, profile.pllMaxDepth),
+      searchMaxDepth: normalizeDepth(
+        options.zbllSearchMaxDepth,
+        useZbStages ? 11 : profile.pllMaxDepth,
+      ),
+      nodeLimit: normalizeDepth(options.zbllNodeLimit, useZbStages ? 220000 : 0),
       moveIndices: ctx.noDMoveIndices,
       isSolved: isPLLSolved,
       mismatch(data) {
@@ -1281,7 +1364,7 @@ function getFormulaListForStage(stageOrName) {
   for (let i = 0; i < keys.length; i++) {
     const formulas = getFormulaListByKey(keys[i]);
     for (let j = 0; j < formulas.length; j++) {
-      const alg = String(formulas[j] || "").trim();
+      const alg = sanitizeFormulaAlg(formulas[j]);
       if (!alg || seen.has(alg)) continue;
       seen.add(alg);
       merged.push(alg);
@@ -1291,15 +1374,27 @@ function getFormulaListForStage(stageOrName) {
 }
 
 function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
-  const formulas = getFormulaListForStage(stage);
+  const formulas = filterValidFormulas(getFormulaListForStage(stage), ctx);
   if (!formulas.length) return null;
 
   let attempts = 0;
-  const postAufList = stage.name === "PLL" || stage.name === "ZBLL" ? FORMULA_AUF : [""];
+  const preAufList =
+    Array.isArray(stage.formulaPreAufList) && stage.formulaPreAufList.length
+      ? stage.formulaPreAufList
+      : FORMULA_AUF;
+  const postAufList =
+    Array.isArray(stage.formulaPostAufList) && stage.formulaPostAufList.length
+      ? stage.formulaPostAufList
+      : stage.name === "PLL" || stage.name === "ZBLL"
+        ? FORMULA_AUF
+        : [""];
+  const formulaAttemptLimit = Number.isFinite(stage.formulaAttemptLimit)
+    ? Math.max(0, Math.floor(stage.formulaAttemptLimit))
+    : 0;
   for (let r = 0; r < FORMULA_ROTATIONS.length; r++) {
     const rot = FORMULA_ROTATIONS[r];
-    for (let a = 0; a < FORMULA_AUF.length; a++) {
-      const preAuf = FORMULA_AUF[a];
+    for (let a = 0; a < preAufList.length; a++) {
+      const preAuf = preAufList[a];
       for (let i = 0; i < formulas.length; i++) {
         const alg = formulas[i];
         for (let p = 0; p < postAufList.length; p++) {
@@ -1307,6 +1402,9 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
           const candidate = buildFormulaCandidate(rot, preAuf, alg, postAuf);
           const nextPattern = tryApplyAlg(startPattern, candidate);
           attempts += 1;
+          if (formulaAttemptLimit > 0 && attempts >= formulaAttemptLimit) {
+            return null;
+          }
           if (!nextPattern) continue;
           if (stage.isSolved(nextPattern.patternData, ctx)) {
             const moves = splitMoves(candidate);
@@ -1327,7 +1425,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
 }
 
 function solveWithFormulaDbF2L(startPattern, stage, ctx) {
-  const formulas = getFormulaListForStage(stage);
+  const formulas = filterValidFormulas(getFormulaListForStage(stage), ctx);
   if (!formulas.length) return null;
   const metricsCache = new Map();
   const solvedCorners = ctx.solvedData.CORNERS;
@@ -1681,6 +1779,14 @@ function solveStage(startPattern, stage, ctx) {
   const formulaResult = solveStageByFormulaDb(startPattern, stage, ctx);
   if (formulaResult?.ok) {
     return formulaResult;
+  }
+  if (stage.disableSearchFallback) {
+    return {
+      ok: false,
+      reason: `${stage.name.toUpperCase()}_NOT_FOUND`,
+      nodes: formulaResult?.nodes || 0,
+      bound: STAGE_NOT_SET,
+    };
   }
 
   const heuristicCache = new Map();
