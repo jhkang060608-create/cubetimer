@@ -317,7 +317,7 @@ const api = {
     // 222 uses in-repo solver implementation.
     try {
       if (normalizedEventId === "222") {
-        if (mode === "optimal" || mode === "fmc") {
+        if (mode === "optimal") {
           const optimalResult = await solveWithOptimalExternalSearch(scramble, "222", onProgress);
           if (optimalResult?.ok) {
             return optimalResult;
