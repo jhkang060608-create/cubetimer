@@ -2165,8 +2165,8 @@ async function initApp() {
     }
     renderAll();
     resetSolverState();
-    await ensureSolverWorker();
     await generateScramble();
+    void ensureSolverWorker();
     resetTimer();
     attachTimerPointerControls();
     requestAnimationFrame(() => {
@@ -2181,12 +2181,34 @@ async function initApp() {
 void initApp();
 async function ensureSolverWorker() {
   if (solverApi) return;
+  let cleanupWorkerInitListeners = null;
   try {
     solverError = "";
     solverReady = false;
     updateSolverControls();
-    solverWorker = new Worker(new URL("./solver/solverWorker.js", import.meta.url), { type: "module" });
-    solverApi = wrap(solverWorker);
+    const worker = new Worker(new URL("./solver/solverWorker.js", import.meta.url), { type: "module" });
+    solverWorker = worker;
+    solverApi = wrap(worker);
+    const workerInitError = new Promise((_, reject) => {
+      const cleanup = () => {
+        worker.removeEventListener("error", onError);
+        worker.removeEventListener("messageerror", onMessageError);
+      };
+      const onError = (event) => {
+        cleanup();
+        const message = String(event?.message || "").trim();
+        const filename = String(event?.filename || "").trim();
+        const detail = message || filename || "worker module load failed";
+        reject(new Error(`worker module load failed: ${detail}`));
+      };
+      const onMessageError = () => {
+        cleanup();
+        reject(new Error("worker message channel error"));
+      };
+      cleanupWorkerInitListeners = cleanup;
+      worker.addEventListener("error", onError, { once: true });
+      worker.addEventListener("messageerror", onMessageError, { once: true });
+    });
     // Prefer ping() to trigger solver warmup; fallback keeps compatibility with stale cached workers.
     const ping = solverApi
       .ping()
@@ -2195,14 +2217,24 @@ async function ensureSolverWorker() {
     const timeout = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("worker init timeout")), 12000),
     );
-    await Promise.race([ping, timeout]);
+    await Promise.race([ping, workerInitError, timeout]);
+    cleanupWorkerInitListeners?.();
+    cleanupWorkerInitListeners = null;
     solverReady = true;
   } catch (error) {
     console.error("Solver worker init failed", error);
     solverError = error?.message || "unknown";
+    cleanupWorkerInitListeners?.();
+    cleanupWorkerInitListeners = null;
+    try {
+      solverWorker?.terminate();
+    } catch (_) {
+      // Ignore worker terminate errors during init failure recovery.
+    }
     solverApi = null;
     solverWorker = null;
   } finally {
+    cleanupWorkerInitListeners?.();
     resetSolverState();
   }
 }
