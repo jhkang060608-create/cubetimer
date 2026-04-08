@@ -102,6 +102,8 @@ let solverPlaybackScramble = "";
 let solverPlaybackMoves = [];
 let solverPlaybackIndex = 0;
 let solverPlaybackTimerId = 0;
+let solverPlaybackAutoTimerId = 0;
+let solverPlaybackAnimating = false;
 const SOLVER_CALL_TIMEOUT_MS_222 = 30000;
 const SOLVER_CALL_TIMEOUT_MS_333 = 240000;
 let scrambleHistory = [];
@@ -1268,8 +1270,16 @@ function joinAlgTokens(tokens) {
 
 function stopSolverPlayback() {
   if (solverPlaybackTimerId) {
-    clearInterval(solverPlaybackTimerId);
+    clearTimeout(solverPlaybackTimerId);
     solverPlaybackTimerId = 0;
+  }
+  if (solverPlaybackAutoTimerId) {
+    clearTimeout(solverPlaybackAutoTimerId);
+    solverPlaybackAutoTimerId = 0;
+  }
+  solverPlaybackAnimating = false;
+  if (solverTwistyPlayer) {
+    solverTwistyPlayer.pause();
   }
 }
 
@@ -1307,7 +1317,7 @@ function updateSolverPlaybackControls() {
   }
   if (solverPlayBtn) {
     solverPlayBtn.disabled = !hasMoves;
-    solverPlayBtn.textContent = solverPlaybackTimerId ? "정지" : "자동 재생";
+    solverPlayBtn.textContent = solverPlaybackTimerId || solverPlaybackAutoTimerId ? "정지" : "자동 재생";
   }
 }
 
@@ -1347,6 +1357,7 @@ function updateSolverTwistyFrame() {
   player.experimentalSetupAlg = solverPlaybackScramble || "";
   player.alg = joinAlgTokens(solverPlaybackMoves.slice(0, solverPlaybackIndex));
   player.timestamp = "end";
+  player.pause();
   updateSolverPlaybackControls();
 }
 
@@ -1354,6 +1365,36 @@ function setSolverPlaybackIndex(nextIndex) {
   const clamped = Math.max(0, Math.min(solverPlaybackMoves.length, Math.floor(nextIndex)));
   solverPlaybackIndex = clamped;
   updateSolverTwistyFrame();
+}
+
+function estimateMoveAnimationMs(move) {
+  if (!move) return 560;
+  return move.includes("2") ? 760 : 560;
+}
+
+function playSingleForwardStep() {
+  if (solverPlaybackAnimating) return;
+  if (solverPlaybackIndex >= solverPlaybackMoves.length) return;
+  const player = ensureSolverTwistyPlayer();
+  if (!player) {
+    setSolverPlaybackIndex(solverPlaybackIndex + 1);
+    return;
+  }
+  const move = solverPlaybackMoves[solverPlaybackIndex];
+  const setup = joinAlgTokens([solverPlaybackScramble, ...solverPlaybackMoves.slice(0, solverPlaybackIndex)]);
+  solverPlaybackAnimating = true;
+  player.experimentalSetupAlg = setup;
+  player.alg = move;
+  player.timestamp = "start";
+  player.tempoScale = 1.15;
+  player.play();
+  updateSolverPlaybackControls();
+  solverPlaybackTimerId = window.setTimeout(() => {
+    player.pause();
+    solverPlaybackAnimating = false;
+    solverPlaybackTimerId = 0;
+    setSolverPlaybackIndex(solverPlaybackIndex + 1);
+  }, estimateMoveAnimationMs(move));
 }
 
 function showSolverVisualResult(scramble, solution, stages) {
@@ -1381,13 +1422,14 @@ function clearSolverVisualResult() {
   if (solverTwistyPlayer) {
     solverTwistyPlayer.experimentalSetupAlg = "";
     solverTwistyPlayer.alg = "";
+    solverTwistyPlayer.timestamp = "start";
   }
   updateSolverPlaybackControls();
 }
 
 function toggleSolverPlayback() {
   if (!solverPlaybackMoves.length) return;
-  if (solverPlaybackTimerId) {
+  if (solverPlaybackTimerId || solverPlaybackAutoTimerId) {
     stopSolverPlayback();
     updateSolverPlaybackControls();
     return;
@@ -1395,18 +1437,20 @@ function toggleSolverPlayback() {
   if (solverPlaybackIndex >= solverPlaybackMoves.length) {
     solverPlaybackIndex = 0;
   }
-  solverPlaybackTimerId = window.setInterval(() => {
+  const runStep = () => {
     if (solverPlaybackIndex >= solverPlaybackMoves.length) {
       stopSolverPlayback();
       updateSolverPlaybackControls();
       return;
     }
-    setSolverPlaybackIndex(solverPlaybackIndex + 1);
-    if (solverPlaybackIndex >= solverPlaybackMoves.length) {
-      stopSolverPlayback();
-      updateSolverPlaybackControls();
-    }
-  }, 520);
+    playSingleForwardStep();
+    const delay = estimateMoveAnimationMs(solverPlaybackMoves[solverPlaybackIndex]) + 40;
+    solverPlaybackAutoTimerId = window.setTimeout(() => {
+      solverPlaybackAutoTimerId = 0;
+      runStep();
+    }, delay);
+  };
+  runStep();
   updateSolverPlaybackControls();
 }
 
@@ -1749,7 +1793,7 @@ solverStepPrevBtn?.addEventListener("click", () => {
 
 solverStepNextBtn?.addEventListener("click", () => {
   stopSolverPlayback();
-  setSolverPlaybackIndex(solverPlaybackIndex + 1);
+  playSingleForwardStep();
 });
 
 solverPlayBtn?.addEventListener("click", () => {
