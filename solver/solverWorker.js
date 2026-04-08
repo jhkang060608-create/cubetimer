@@ -9,6 +9,9 @@ const STRICT_CFOP_TIMEOUT_MS = 45000;
 const STRICT_CFOP_RETRY_TIMEOUT_MS = 25000;
 const INTERNAL_333_PHASE_TIMEOUT_MS = 20000;
 const EXTERNAL_333_FALLBACK_TIMEOUT_MS = 20000;
+const ROUX_PARALLEL_ROTATIONS = Object.freeze(["", "x", "x'", "z", "z'", "x2"]);
+const ROUX_PARALLEL_MAX_WORKERS = 4;
+const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 35000;
 const STRICT_F2L_RETRY_OPTIONS = [
   {
     f2lFormulaMaxSteps: 16,
@@ -42,6 +45,9 @@ function normalizeMode(mode) {
   if (mode === "optimal") {
     return "optimal";
   }
+  if (mode === "roux") {
+    return "roux";
+  }
   if (mode === "zb") {
     return "zb";
   }
@@ -56,6 +62,10 @@ function shouldFallbackToExternal3x3(result) {
   if (!result || result.ok) return false;
   const reason = String(result.reason || "");
   return (
+    reason.startsWith("FB_") ||
+    reason.startsWith("SB_") ||
+    reason.startsWith("CMLL_") ||
+    reason.startsWith("LSE_") ||
     reason.startsWith("XCROSS_") ||
     reason.startsWith("F2L_") ||
     reason.startsWith("F2L2_") ||
@@ -107,6 +117,7 @@ async function solveWithInternal3x3StrictCfop(scramble, onProgress, options = {}
   const solved = await getDefaultPattern("333");
   const pattern = solved.applyAlg(scramble);
   return solve3x3StrictCfopFromPattern(pattern, {
+    ...options,
     onStageUpdate(progress) {
       if (typeof onProgress === "function") {
         try {
@@ -116,9 +127,6 @@ async function solveWithInternal3x3StrictCfop(scramble, onProgress, options = {}
         }
       }
     },
-    crossColor: options.crossColor,
-    mode: options.mode,
-    f2lMethod: options.f2lMethod,
   });
 }
 
@@ -133,6 +141,217 @@ async function solveWithInternal3x3Phase(scramble, options = {}) {
   const solved = await getDefaultPattern("333");
   const pattern = solved.applyAlg(scramble);
   return solve3x3InternalPhase(pattern, options);
+}
+
+function normalizePositiveInt(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  const intN = Math.floor(n);
+  return intN > 0 ? intN : fallback;
+}
+
+function normalizeNonNegativeInt(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  const intN = Math.floor(n);
+  return intN >= 0 ? intN : fallback;
+}
+
+async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeoutMs) {
+  if (typeof Worker !== "function") {
+    return { ok: false, reason: "WORKER_UNAVAILABLE" };
+  }
+
+  return await new Promise((resolve) => {
+    let finished = false;
+    let worker = null;
+    let timer = 0;
+
+    function done(result) {
+      if (finished) return;
+      finished = true;
+      if (timer) clearTimeout(timer);
+      if (worker) {
+        try {
+          worker.terminate();
+        } catch (_) {}
+      }
+      resolve(result || { ok: false, reason: "ROUX_SUBWORKER_EMPTY_RESULT" });
+    }
+
+    try {
+      worker = new Worker(new URL("./rouxCandidateWorker.js", import.meta.url), { type: "module" });
+    } catch (_) {
+      done({ ok: false, reason: "ROUX_SUBWORKER_SPAWN_FAILED" });
+      return;
+    }
+
+    worker.addEventListener("message", (event) => {
+      done(event?.data || { ok: false, reason: "ROUX_SUBWORKER_NO_DATA" });
+    });
+    worker.addEventListener("error", () => {
+      done({ ok: false, reason: "ROUX_SUBWORKER_RUNTIME_ERROR" });
+    });
+    worker.addEventListener("messageerror", () => {
+      done({ ok: false, reason: "ROUX_SUBWORKER_MESSAGE_ERROR" });
+    });
+
+    timer = setTimeout(() => {
+      done({ ok: false, reason: "ROUX_SUBWORKER_TIMEOUT" });
+    }, timeoutMs);
+
+    try {
+      worker.postMessage({
+        scramble,
+        rotationAlg,
+        options,
+      });
+    } catch (_) {
+      done({ ok: false, reason: "ROUX_SUBWORKER_POST_FAILED" });
+    }
+  });
+}
+
+async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = {}) {
+  if (options.rouxParallelEnabled === false) return null;
+  if (typeof Worker !== "function") return null;
+
+  const requested = Array.isArray(options.rouxOrientationCandidates)
+    ? options.rouxOrientationCandidates
+    : ROUX_PARALLEL_ROTATIONS;
+  const rotations = [];
+  const seen = new Set();
+  if (!seen.has("")) {
+    seen.add("");
+    rotations.push("");
+  }
+  for (let i = 0; i < requested.length; i++) {
+    const value = String(requested[i] || "").trim();
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    rotations.push(value);
+  }
+
+  const maxWorkers = Math.min(
+    normalizePositiveInt(options.rouxParallelWorkers, ROUX_PARALLEL_MAX_WORKERS),
+    ROUX_PARALLEL_MAX_WORKERS,
+    rotations.length,
+  );
+  const candidateTimeoutMs = normalizePositiveInt(
+    options.rouxParallelCandidateTimeoutMs,
+    ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS,
+  );
+  const scoutChecks = normalizeNonNegativeInt(options.rouxParallelScoutChecks, rotations.length);
+  const candidateCount = Math.max(1, Math.min(rotations.length, scoutChecks));
+  const candidateRotations = rotations.slice(0, candidateCount);
+  const subWorkerOptions = {
+    ...options,
+    mode: "roux",
+    crossColor: "D",
+    __colorNeutralApplied: true,
+    __rouxOrientationApplied: true,
+    rouxSweepMaxChecks: 0,
+  };
+
+  if (typeof onProgress === "function") {
+    try {
+      void onProgress({
+        type: "fallback_start",
+        stageName: `Roux Parallel Sweep (${candidateCount})`,
+        reason: `${maxWorkers} workers`,
+      });
+    } catch (_) {}
+  }
+
+  let nextIndex = 0;
+  let running = 0;
+  let best = null;
+  const failures = [];
+
+  return await new Promise((resolve) => {
+    const maybeFinish = () => {
+      if (running > 0 || nextIndex < candidateRotations.length) return;
+      if (typeof onProgress === "function") {
+        try {
+          void onProgress({
+            type: best?.ok ? "fallback_done" : "fallback_fail",
+            stageName: "Roux Parallel Sweep",
+          });
+        } catch (_) {}
+      }
+      if (best?.ok) {
+        resolve(best);
+      } else {
+        resolve({
+          ok: false,
+          reason: failures[0] || "ROUX_PARALLEL_ALL_FAILED",
+        });
+      }
+    };
+
+    const launch = () => {
+      while (running < maxWorkers && nextIndex < candidateRotations.length) {
+        const idx = nextIndex++;
+        const rotation = candidateRotations[idx];
+        running += 1;
+        if (typeof onProgress === "function") {
+          try {
+            void onProgress({
+              type: "fallback_start",
+              stageName: `Roux Candidate ${idx + 1}/${candidateRotations.length}`,
+              reason: rotation || "identity",
+            });
+          } catch (_) {}
+        }
+
+        void runRouxCandidateInSubWorker(scramble, rotation, subWorkerOptions, candidateTimeoutMs)
+          .then((result) => {
+            if (result?.ok) {
+              if (!best || result.moveCount < best.moveCount) {
+                best = result;
+              }
+              if (typeof onProgress === "function") {
+                try {
+                  void onProgress({
+                    type: "fallback_done",
+                    stageName: `Roux Candidate ${idx + 1}/${candidateRotations.length}`,
+                  });
+                } catch (_) {}
+              }
+            } else {
+              failures.push(String(result?.reason || "ROUX_CANDIDATE_FAILED"));
+              if (typeof onProgress === "function") {
+                try {
+                  void onProgress({
+                    type: "fallback_fail",
+                    stageName: `Roux Candidate ${idx + 1}/${candidateRotations.length}`,
+                  });
+                } catch (_) {}
+              }
+            }
+          })
+          .catch((error) => {
+            failures.push(String(error?.message || "ROUX_CANDIDATE_ERROR"));
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_fail",
+                  stageName: `Roux Candidate ${idx + 1}/${candidateRotations.length}`,
+                });
+              } catch (_) {}
+            }
+          })
+          .finally(() => {
+            running -= 1;
+            launch();
+            maybeFinish();
+          });
+      }
+      maybeFinish();
+    };
+
+    launch();
+  });
 }
 
 async function solveWithInternal3x3StrictRetries(scramble, onProgress, options = {}) {
@@ -230,12 +449,37 @@ async function prewarmInternal3x3Phase() {
   }
 }
 
+async function prewarmRouxParallel() {
+  try {
+    await runRouxCandidateInSubWorker(
+      "R U R' U' F R U R' U' F'",
+      "",
+      {
+        mode: "roux",
+        crossColor: "D",
+        __colorNeutralApplied: true,
+        __rouxOrientationApplied: true,
+        rouxSweepMaxChecks: 0,
+        enablePostInsertionOptimization: false,
+        fbMaxDepth: 6,
+        sbMaxDepth: 10,
+        cmllSearchMaxDepth: 7,
+        lseSearchMaxDepth: 8,
+      },
+      12000,
+    );
+  } catch (_) {
+    // Warmup failure should not block solving.
+  }
+}
+
 const api = {
   async ping() {
     // Start async warmups early; don't block ping response.
     void prewarmInternal2x2();
     void prewarmInternal3x3StrictCfop();
     void prewarmInternal3x3Phase();
+    void prewarmRouxParallel();
     return { ok: true };
   },
   async solve(arg1, arg2, arg3, arg4, arg5, arg6) {
@@ -382,6 +626,23 @@ const api = {
             void onProgress({ type: "queue", eventId: "333" });
           } catch (_) {}
         }
+        if (mode === "roux") {
+          const parallelRouxResult = await withTimeout(
+            solveWithInternal3x3RouxParallel(scramble, onProgress, {
+              crossColor,
+              mode,
+              f2lMethod,
+            }),
+            STRICT_CFOP_TIMEOUT_MS,
+          ).catch(() => null);
+          if (parallelRouxResult?.ok) {
+            return {
+              ...parallelRouxResult,
+              source: "INTERNAL_3X3_ROUX_PARALLEL",
+            };
+          }
+        }
+
         const strictResult = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
           crossColor,
           mode,
@@ -427,7 +688,7 @@ const api = {
         }
 
         if (mode !== "strict") {
-          // Do not use external library fallback in non-strict modes (optimal/fmc/zb).
+          // Do not use external library fallback in non-strict modes (optimal/fmc/roux/zb).
           return phaseResult?.reason ? phaseResult : strictResult;
         }
 

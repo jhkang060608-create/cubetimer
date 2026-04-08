@@ -2,6 +2,7 @@ import { getDefaultPattern } from "./context.js";
 import { MOVE_NAMES } from "./moves.js";
 import { SCDB_CFOP_ALGS } from "./scdbCfopAlgs.js";
 import { ZB_FORMULAS } from "./zbDataset.js";
+import { ROUX_FORMULAS } from "./rouxDataset.js";
 
 const FACE_TO_INDEX = { U: 0, R: 1, F: 2, D: 3, L: 4, B: 5 };
 const OPPOSITE_FACE = [3, 4, 5, 0, 1, 2];
@@ -43,6 +44,20 @@ const FAST_CFOP_PROFILE = {
   ollMaxDepth: 12,
   pllMaxDepth: 18,
 };
+const ROUX_PROFILE = {
+  crossMaxDepth: 10,
+  f2lMaxDepth: 38,
+  f2lFormulaMaxSteps: 12,
+  f2lFormulaBeamWidth: 7,
+  f2lFormulaExpansionLimit: 12,
+  f2lFormulaMaxAttempts: 240000,
+  f2lSearchMaxDepth: 10,
+  f2lNodeLimit: 200000,
+  ollMaxDepth: 18,
+  pllMaxDepth: 24,
+};
+const ROUX_ORIENTATION_SWEEP_CANDIDATES = Object.freeze(["", "x", "x'", "z", "z'", "x2"]);
+const POST_OPT_MOVE_NAMES = MOVE_NAMES.slice();
 const CROSS_STATE_COUNT = 190080; // 12P4 * 2^4
 const CROSS_RANK_FACTORS = [990, 90, 9, 1];
 const CROSS_COLOR_ROTATION_CANDIDATES = {
@@ -71,6 +86,8 @@ const CROSS_EDGE_TARGETS = {
 };
 let f2lCaseLibraryPromise = null;
 const formulaValidityCache = new Map();
+const singleStageFormulaCaseLibraryCache = new Map();
+const SINGLE_STAGE_LIBRARY_CACHE_LIMIT = 12;
 
 let contextPromise = null;
 
@@ -633,6 +650,147 @@ function simplifyMoves(moves) {
     .filter(Boolean);
 }
 
+function orbitStateKey(orbit) {
+  if (!orbit) return "";
+  const pieces = orbit.pieces;
+  const orientation = orbit.orientation;
+  if (!pieces || !orientation) return "";
+  return `${pieces.join(",")}/${orientation.join(",")}`;
+}
+
+function patternStateKey(pattern) {
+  const data = pattern?.patternData;
+  if (!data) return "";
+  return `C:${orbitStateKey(data.CORNERS)}|E:${orbitStateKey(data.EDGES)}|N:${orbitStateKey(data.CENTERS)}`;
+}
+
+function buildPatternFrontier(rootPattern, depthLimit, deadlineTs, direction = "forward") {
+  const map = new Map();
+  const rootKey = patternStateKey(rootPattern);
+  map.set(rootKey, []);
+  if (!Number.isFinite(depthLimit) || depthLimit <= 0) return map;
+
+  const queue = [{ pattern: rootPattern, path: [], depth: 0, lastFace: "" }];
+  let head = 0;
+
+  while (head < queue.length) {
+    if (Number.isFinite(deadlineTs) && Date.now() >= deadlineTs) break;
+    const node = queue[head++];
+    if (node.depth >= depthLimit) continue;
+
+    for (let i = 0; i < POST_OPT_MOVE_NAMES.length; i++) {
+      if (Number.isFinite(deadlineTs) && Date.now() >= deadlineTs) break;
+      const move = POST_OPT_MOVE_NAMES[i];
+      const face = move[0];
+      if (face === node.lastFace) continue;
+
+      const stepMove = direction === "forward" ? move : invertToken(move);
+      const nextPattern = node.pattern.applyMove(stepMove);
+      const nextPath = direction === "forward" ? node.path.concat(move) : [move].concat(node.path);
+      const key = patternStateKey(nextPattern);
+      const existing = map.get(key);
+      if (existing && existing.length <= nextPath.length) continue;
+      map.set(key, nextPath);
+      queue.push({
+        pattern: nextPattern,
+        path: nextPath,
+        depth: node.depth + 1,
+        lastFace: face,
+      });
+    }
+  }
+
+  return map;
+}
+
+function findShorterEquivalentSegment(startPattern, targetPattern, maxDepth, currentLength, deadlineTs) {
+  if (!Number.isFinite(maxDepth) || maxDepth <= 0 || currentLength <= 1) return null;
+  if (Number.isFinite(deadlineTs) && Date.now() >= deadlineTs) return null;
+  const startKey = patternStateKey(startPattern);
+  const targetKey = patternStateKey(targetPattern);
+  if (!startKey || !targetKey) return null;
+  if (startKey === targetKey) return [];
+
+  const searchDepth = Math.max(1, Math.min(Math.floor(maxDepth), currentLength - 1));
+  const forwardDepth = Math.floor(searchDepth / 2);
+  const backwardDepth = searchDepth - forwardDepth;
+  const forwardMap = buildPatternFrontier(startPattern, forwardDepth, deadlineTs, "forward");
+  const backwardMap = buildPatternFrontier(targetPattern, backwardDepth, deadlineTs, "backward");
+
+  let best = null;
+  let bestText = "";
+
+  for (const [key, leftPath] of forwardMap.entries()) {
+    if (Number.isFinite(deadlineTs) && Date.now() >= deadlineTs) break;
+    const rightPath = backwardMap.get(key);
+    if (!rightPath) continue;
+    const merged = leftPath.concat(rightPath);
+    if (merged.length >= currentLength || merged.length > searchDepth) continue;
+    const mergedText = joinMoves(merged);
+    if (!best || merged.length < best.length || (merged.length === best.length && mergedText < bestText)) {
+      best = merged;
+      bestText = mergedText;
+    }
+  }
+
+  return best;
+}
+
+function buildPatternStates(startPattern, moves) {
+  const states = new Array(moves.length + 1);
+  states[0] = startPattern;
+  for (let i = 0; i < moves.length; i++) {
+    states[i + 1] = states[i].applyMove(moves[i]);
+  }
+  return states;
+}
+
+function optimizeMovesByInsertions(startPattern, moves, options = {}) {
+  let current = simplifyMoves(Array.isArray(moves) ? moves : []);
+  if (!current.length) return current;
+
+  const maxPasses = Number.isFinite(options.maxPasses) ? Math.max(1, Math.floor(options.maxPasses)) : 2;
+  const minWindow = Number.isFinite(options.minWindow) ? Math.max(2, Math.floor(options.minWindow)) : 3;
+  const maxWindow = Number.isFinite(options.maxWindow)
+    ? Math.max(minWindow, Math.floor(options.maxWindow))
+    : 7;
+  const maxDepth = Number.isFinite(options.maxDepth) ? Math.max(1, Math.floor(options.maxDepth)) : 5;
+  const timeBudgetMs = Number.isFinite(options.timeBudgetMs) ? Math.max(100, Math.floor(options.timeBudgetMs)) : 800;
+  const deadlineTs = Date.now() + timeBudgetMs;
+
+  for (let pass = 0; pass < maxPasses; pass++) {
+    if (Date.now() >= deadlineTs) break;
+    let improved = false;
+    const states = buildPatternStates(startPattern, current);
+    const windowCap = Math.min(maxWindow, current.length);
+
+    outer: for (let window = windowCap; window >= minWindow; window--) {
+      for (let start = 0; start + window <= current.length; start++) {
+        if (Date.now() >= deadlineTs) break outer;
+        const end = start + window;
+        const depthCap = Math.min(maxDepth, window - 1);
+        const replacement = findShorterEquivalentSegment(
+          states[start],
+          states[end],
+          depthCap,
+          window,
+          deadlineTs,
+        );
+        if (!replacement) continue;
+        const next = simplifyMoves(current.slice(0, start).concat(replacement, current.slice(end)));
+        if (next.length >= current.length) continue;
+        current = next;
+        improved = true;
+        break outer;
+      }
+    }
+
+    if (!improved) break;
+  }
+
+  return current;
+}
+
 function getF2LPairProgress(data, ctx) {
   if (!ctx?.f2lPairDefs || !ctx.f2lPairDefs.length) {
     const cornerSolved = countSolvedAtPositions(
@@ -732,6 +890,7 @@ function getCrossRotationCandidates(color) {
 
 function normalizeSolveMode(mode) {
   const normalized = String(mode || "strict").toLowerCase();
+  if (normalized === "roux") return "roux";
   if (normalized === "zb") return "zb";
   return "strict";
 }
@@ -741,6 +900,7 @@ function normalizeF2LMethod(method) {
 }
 
 function getCfopProfile(mode) {
+  if (mode === "roux") return ROUX_PROFILE;
   return STRICT_CFOP_PROFILE;
 }
 
@@ -825,6 +985,37 @@ function normalizeDepth(value, fallback) {
   if (!Number.isFinite(n)) return fallback;
   const intN = Math.floor(n);
   return intN > 0 ? intN : fallback;
+}
+
+function normalizeNonNegativeDepth(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  const intN = Math.floor(n);
+  return intN >= 0 ? intN : fallback;
+}
+
+function maybePostOptimizeMoves(startPattern, moves, solveMode, options, ctx) {
+  const enabledByMode = solveMode === "roux";
+  const enabled =
+    options?.enablePostInsertionOptimization === true ||
+    (enabledByMode && options?.enablePostInsertionOptimization !== false);
+  if (!enabled) return simplifyMoves(moves);
+
+  const input = simplifyMoves(moves);
+  if (input.length < 10) return input;
+
+  const optimized = optimizeMovesByInsertions(startPattern, input, {
+    maxPasses: normalizeDepth(options?.postInsertionMaxPasses, enabledByMode ? 2 : 1),
+    minWindow: normalizeDepth(options?.postInsertionMinWindow, 3),
+    maxWindow: normalizeDepth(options?.postInsertionMaxWindow, enabledByMode ? 7 : 6),
+    maxDepth: normalizeDepth(options?.postInsertionMaxDepth, enabledByMode ? 5 : 4),
+    timeBudgetMs: normalizeDepth(options?.postInsertionTimeMs, enabledByMode ? 900 : 500),
+  });
+  if (optimized.length >= input.length) return input;
+  const maybeSolvedPattern = tryApplyMoves(startPattern, optimized);
+  if (!maybeSolvedPattern) return input;
+  if (!isStrictSolvedPattern(maybeSolvedPattern, maybeSolvedPattern.patternData, ctx)) return input;
+  return optimized;
 }
 
 async function getCfopContext() {
@@ -1080,6 +1271,16 @@ function isZBLSSolved(data, ctx) {
   );
 }
 
+function isCMLLSolved(data, ctx) {
+  return orbitMatches(
+    data.CORNERS,
+    ctx.solvedData.CORNERS,
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    true,
+    true,
+  );
+}
+
 function isPLLSolved(data, ctx) {
   const c = countOrbitMismatches(
     data.CORNERS,
@@ -1100,6 +1301,7 @@ function isPLLSolved(data, ctx) {
 }
 
 function getStageDefinitions(options, ctx, profile, solveMode) {
+  const useRouxStages = solveMode === "roux";
   const useZbStages = solveMode === "zb";
   const crossStageName = useZbStages ? "XCross" : "Cross";
   const crossTargetPairs = useZbStages ? 1 : 0;
@@ -1130,6 +1332,164 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       pieceMismatch: c.pieceMismatch + e.pieceMismatch,
       orientationMismatch: c.orientationMismatch + e.orientationMismatch,
     };
+  }
+
+  if (useRouxStages) {
+    const fbTargetPairs = 1;
+    const sbTargetPairs = 4;
+    return [
+      {
+        name: "FB",
+        displayName: "FB",
+        maxDepth: normalizeDepth(options.fbMaxDepth, profile.crossMaxDepth),
+        moveIndices: ctx.allMoveIndices,
+        isSolved(data) {
+          return isCrossWithF2LPairTarget(data, ctx, fbTargetPairs);
+        },
+        heuristic(data) {
+          const crossBound = getCrossPruneHeuristic(data, ctx);
+          const pairNeed = getF2LPairDeficit(data, ctx, fbTargetPairs);
+          if (Number.isFinite(crossBound) && crossBound >= 0) {
+            return Math.max(crossBound, pairNeed);
+          }
+          const e = countOrbitMismatches(
+            data.EDGES,
+            ctx.solvedData.EDGES,
+            ctx.bottomEdgePositions,
+            true,
+            true,
+          );
+          const crossFallback = stageHeuristicFromMismatch(e.pieceMismatch, e.orientationMismatch);
+          return Math.max(crossFallback, pairNeed);
+        },
+        mismatch(data) {
+          const e = countOrbitMismatches(
+            data.EDGES,
+            ctx.solvedData.EDGES,
+            ctx.bottomEdgePositions,
+            true,
+            true,
+          );
+          const pairNeed = getF2LPairDeficit(data, ctx, fbTargetPairs);
+          return {
+            pieceMismatch: e.pieceMismatch + pairNeed * 2,
+            orientationMismatch: e.orientationMismatch,
+          };
+        },
+        key(data) {
+          return `FB:${getF2LStateKey(data, ctx)}`;
+        },
+      },
+      {
+        name: "SB",
+        displayName: "SB",
+        formulaKeys: ["F2L"],
+        maxDepth: normalizeDepth(options.sbMaxDepth, profile.f2lMaxDepth),
+        formulaMaxSteps: normalizeDepth(options.f2lFormulaMaxSteps, profile.f2lFormulaMaxSteps),
+        formulaBeamWidth: normalizeDepth(options.f2lFormulaBeamWidth, profile.f2lFormulaBeamWidth),
+        formulaExpansionLimit: normalizeDepth(
+          options.f2lFormulaExpansionLimit,
+          profile.f2lFormulaExpansionLimit,
+        ),
+        formulaMaxAttempts: normalizeDepth(options.f2lFormulaMaxAttempts, profile.f2lFormulaMaxAttempts),
+        searchMaxDepth: normalizeDepth(options.sbSearchMaxDepth, 9),
+        nodeLimit: normalizeDepth(options.sbNodeLimit, 180000),
+        moveIndices: ctx.noDMoveIndices,
+        isSolved(data) {
+          return isCrossWithF2LPairTarget(data, ctx, sbTargetPairs);
+        },
+        usePairTable: false,
+        heuristic(data) {
+          const mismatch = getF2LMismatch(data);
+          const mismatchBound = stageHeuristicFromMismatch(
+            mismatch.pieceMismatch,
+            mismatch.orientationMismatch,
+          );
+          const pairNeed = getF2LPairDeficit(data, ctx, sbTargetPairs);
+          if (pairNeed === 0) return 0;
+          return Math.max(pairNeed, Math.min(mismatchBound, pairNeed + 2));
+        },
+        mismatch(data) {
+          const mismatch = getF2LMismatch(data);
+          const pairNeed = getF2LPairDeficit(data, ctx, sbTargetPairs);
+          return {
+            pieceMismatch: mismatch.pieceMismatch + pairNeed,
+            orientationMismatch: mismatch.orientationMismatch,
+          };
+        },
+        key(data) {
+          return `SB:${getF2LStateKey(data, ctx)}`;
+        },
+      },
+      {
+        name: "CMLL",
+        displayName: "CMLL",
+        formulaKeys: ["CMLL", "OLL", "PLL"],
+        formulaPreAufList: FORMULA_AUF,
+        formulaPostAufList: [""],
+        formulaAttemptLimit: normalizeDepth(options.cmllFormulaAttemptLimit, 80000),
+        maxDepth: normalizeDepth(options.cmllMaxDepth, profile.ollMaxDepth),
+        searchMaxDepth: normalizeDepth(options.cmllSearchMaxDepth, 11),
+        nodeLimit: normalizeDepth(options.cmllNodeLimit, 320000),
+        moveIndices: ctx.noDMoveIndices,
+        isSolved: isCMLLSolved,
+        mismatch(data) {
+          const c = countOrbitMismatches(
+            data.CORNERS,
+            ctx.solvedData.CORNERS,
+            [0, 1, 2, 3, 4, 5, 6, 7],
+            true,
+            true,
+          );
+          return {
+            pieceMismatch: c.pieceMismatch,
+            orientationMismatch: c.orientationMismatch,
+          };
+        },
+        key(data) {
+          const c = buildKeyForOrbit(data.CORNERS, [0, 1, 2, 3, 4, 5, 6, 7], true, true);
+          return `CMLL:C:${c}`;
+        },
+      },
+      {
+        name: "LSE",
+        displayName: "LSE",
+        formulaKeys: ["LSE", "PLL"],
+        formulaPreAufList: FORMULA_AUF,
+        formulaPostAufList: FORMULA_AUF,
+        formulaAttemptLimit: normalizeDepth(options.lseFormulaAttemptLimit, 65000),
+        maxDepth: normalizeDepth(options.lseMaxDepth, profile.pllMaxDepth),
+        searchMaxDepth: normalizeDepth(options.lseSearchMaxDepth, 12),
+        nodeLimit: normalizeDepth(options.lseNodeLimit, 320000),
+        moveIndices: ctx.allMoveIndices,
+        isSolved: isPLLSolved,
+        mismatch(data) {
+          const c = countOrbitMismatches(
+            data.CORNERS,
+            ctx.solvedData.CORNERS,
+            [0, 1, 2, 3, 4, 5, 6, 7],
+            true,
+            true,
+          );
+          const e = countOrbitMismatches(
+            data.EDGES,
+            ctx.solvedData.EDGES,
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            true,
+            true,
+          );
+          return {
+            pieceMismatch: c.pieceMismatch + e.pieceMismatch,
+            orientationMismatch: c.orientationMismatch + e.orientationMismatch,
+          };
+        },
+        key(data) {
+          const c = buildKeyForOrbit(data.CORNERS, [0, 1, 2, 3, 4, 5, 6, 7], true, true);
+          const e = buildKeyForOrbit(data.EDGES, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], true, true);
+          return `LSE:C:${c}|E:${e}`;
+        },
+      },
+    ];
   }
 
   return [
@@ -1349,6 +1709,8 @@ function getFormulaListByKey(key) {
   if (key === "PLL") return SCDB_CFOP_ALGS.PLL || [];
   if (key === "ZBLS") return ZB_FORMULAS.ZBLS || [];
   if (key === "ZBLL") return ZB_FORMULAS.ZBLL || [];
+  if (key === "CMLL") return ROUX_FORMULAS.CMLL || [];
+  if (key === "LSE") return ROUX_FORMULAS.LSE || [];
   return [];
 }
 
@@ -1373,6 +1735,77 @@ function getFormulaListForStage(stageOrName) {
   return merged;
 }
 
+function shouldUseSingleStageCaseLibrary(stage, formulas) {
+  if (!stage || !Array.isArray(formulas) || !formulas.length) return false;
+  if (stage.name === "CMLL" || stage.name === "LSE") return true;
+  return formulas.length >= 160;
+}
+
+function getSingleStageCaseLibraryKey(stage, formulas, preAufList, postAufList) {
+  const keySig =
+    Array.isArray(stage?.formulaKeys) && stage.formulaKeys.length
+      ? stage.formulaKeys.join(",")
+      : stage?.name || "";
+  return [
+    stage?.name || "",
+    keySig,
+    formulas.length,
+    preAufList.join("|"),
+    postAufList.join("|"),
+  ].join("::");
+}
+
+function getSingleStageFormulaCaseLibrary(stage, ctx, formulas, preAufList, postAufList) {
+  if (!shouldUseSingleStageCaseLibrary(stage, formulas)) return null;
+  const cacheKey = getSingleStageCaseLibraryKey(stage, formulas, preAufList, postAufList);
+  const cached = singleStageFormulaCaseLibraryCache.get(cacheKey);
+  if (cached) return cached;
+
+  const caseMap = new Map();
+  const solved = ctx?.solvedPattern;
+  if (!solved) return null;
+
+  for (let r = 0; r < FORMULA_ROTATIONS.length; r++) {
+    const rot = FORMULA_ROTATIONS[r];
+    for (let a = 0; a < preAufList.length; a++) {
+      const preAuf = preAufList[a];
+      for (let i = 0; i < formulas.length; i++) {
+        const alg = formulas[i];
+        for (let p = 0; p < postAufList.length; p++) {
+          const postAuf = postAufList[p];
+          const candidate = buildFormulaCandidate(rot, preAuf, alg, postAuf);
+          const inverse = invertAlg(candidate);
+          const casePattern = tryApplyAlg(solved, inverse);
+          if (!casePattern) continue;
+          const candidateMoves = splitMoves(candidate);
+          if (!candidateMoves.length) continue;
+          if (candidateMoves.length > stage.maxDepth) continue;
+          const caseKey = stage.key(casePattern.patternData);
+          const existing = caseMap.get(caseKey);
+          if (
+            !existing ||
+            candidateMoves.length < existing.moves.length ||
+            (candidateMoves.length === existing.moves.length && candidate < existing.text)
+          ) {
+            caseMap.set(caseKey, {
+              text: candidate,
+              moves: candidateMoves,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  const library = { caseMap };
+  singleStageFormulaCaseLibraryCache.set(cacheKey, library);
+  if (singleStageFormulaCaseLibraryCache.size > SINGLE_STAGE_LIBRARY_CACHE_LIMIT) {
+    const oldest = singleStageFormulaCaseLibraryCache.keys().next().value;
+    if (oldest !== undefined) singleStageFormulaCaseLibraryCache.delete(oldest);
+  }
+  return library;
+}
+
 function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
   const formulas = filterValidFormulas(getFormulaListForStage(stage), ctx);
   if (!formulas.length) return null;
@@ -1391,6 +1824,25 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
   const formulaAttemptLimit = Number.isFinite(stage.formulaAttemptLimit)
     ? Math.max(0, Math.floor(stage.formulaAttemptLimit))
     : 0;
+
+  const library = getSingleStageFormulaCaseLibrary(stage, ctx, formulas, preAufList, postAufList);
+  if (library?.caseMap?.size) {
+    const startKey = stage.key(startPattern.patternData);
+    const direct = library.caseMap.get(startKey);
+    if (direct && Array.isArray(direct.moves) && direct.moves.length <= stage.maxDepth) {
+      const nextPattern = tryApplyMoves(startPattern, direct.moves);
+      if (nextPattern && stage.isSolved(nextPattern.patternData, ctx)) {
+        return {
+          ok: true,
+          moves: direct.moves.slice(),
+          depth: direct.moves.length,
+          nodes: 1,
+          bound: direct.moves.length,
+        };
+      }
+    }
+  }
+
   for (let r = 0; r < FORMULA_ROTATIONS.length; r++) {
     const rot = FORMULA_ROTATIONS[r];
     for (let a = 0; a < preAufList.length; a++) {
@@ -1763,7 +2215,9 @@ function solveStageByFormulaDb(startPattern, stage, ctx) {
     stage.name === "OLL" ||
     stage.name === "PLL" ||
     stage.name === "ZBLS" ||
-    stage.name === "ZBLL"
+    stage.name === "ZBLL" ||
+    stage.name === "CMLL" ||
+    stage.name === "LSE"
   ) {
     return solveWithFormulaDbSingleStage(startPattern, stage, ctx);
   }
@@ -1897,12 +2351,147 @@ function solveStage(startPattern, stage, ctx) {
 export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   const ctx = await getCfopContext();
   const solveMode = normalizeSolveMode(options.mode);
-  const crossFailureStageName = solveMode === "zb" ? "XCross" : "Cross";
+  const crossFailureStageName =
+    solveMode === "roux" ? "FB" : solveMode === "zb" ? "XCross" : "Cross";
   const modeProfile = getCfopProfile(solveMode);
   const crossColorRaw = normalizeCrossColor(options.crossColor);
   const crossStageLabel = getCrossStageLabel(crossColorRaw);
   const crossRotationCandidates = getCrossRotationCandidates(crossColorRaw).filter(Boolean);
-  if (!options.__colorNeutralApplied && crossRotationCandidates.length) {
+  if (solveMode === "roux" && !options.__rouxOrientationApplied) {
+    const onStageUpdate = typeof options.onStageUpdate === "function" ? options.onStageUpdate : null;
+    const sweepTriggerMoveCount = normalizeDepth(options.rouxSweepTriggerMoveCount, 50);
+    const sweepStopMoveCount = normalizeDepth(options.rouxSweepStopMoveCount, 44);
+    const sweepMaxChecks = normalizeNonNegativeDepth(options.rouxSweepMaxChecks, 5);
+    const customCandidates =
+      Array.isArray(options.rouxOrientationCandidates) && options.rouxOrientationCandidates.length
+        ? options.rouxOrientationCandidates
+        : ROUX_ORIENTATION_SWEEP_CANDIDATES;
+    const extraRotationCandidates = [];
+    const seenRotation = new Set();
+    for (let i = 0; i < customCandidates.length; i++) {
+      const rotationAlg = String(customCandidates[i] || "").trim();
+      if (!rotationAlg || seenRotation.has(rotationAlg)) continue;
+      seenRotation.add(rotationAlg);
+      extraRotationCandidates.push(rotationAlg);
+    }
+
+    async function runRouxCandidate(rotationAlg, emitProgress) {
+      const transformedPattern = rotationAlg
+        ? transformPatternForCrossColor(pattern, ctx.solvedPattern, rotationAlg)
+        : pattern;
+      if (!transformedPattern) {
+        return {
+          ok: false,
+          reason: "CROSS_COLOR_TRANSFORM_FAILED",
+          stage: "FB",
+          nodes: 0,
+        };
+      }
+      const candidateResult = await solve3x3StrictCfopFromPattern(transformedPattern, {
+        ...options,
+        crossColor: "D",
+        __rouxOrientationApplied: true,
+        __colorNeutralApplied: true,
+        onStageUpdate: emitProgress ? onStageUpdate : undefined,
+      });
+      if (!candidateResult?.ok) return candidateResult;
+
+      const setupMoves = splitMoves(rotationAlg);
+      const cleanupMoves = splitMoves(invertAlg(rotationAlg));
+      const coreMoves = splitMoves(candidateResult.solution || "");
+      let fullMoves = simplifyMoves(setupMoves.concat(coreMoves, cleanupMoves));
+      fullMoves = maybePostOptimizeMoves(pattern, fullMoves, solveMode, options, ctx);
+      const fullSolution = joinMoves(fullMoves);
+      const stages = Array.isArray(candidateResult.stages)
+        ? candidateResult.stages.map((stage) => ({ ...stage }))
+        : [];
+
+      if (stages.length) {
+        if (setupMoves.length) {
+          const firstMoves = simplifyMoves(setupMoves.concat(splitMoves(stages[0].solution || "")));
+          stages[0].solution = joinMoves(firstMoves);
+          stages[0].moveCount = firstMoves.length;
+          stages[0].depth = firstMoves.length;
+        }
+        const lastIndex = stages.length - 1;
+        if (cleanupMoves.length) {
+          const lastMoves = simplifyMoves(splitMoves(stages[lastIndex].solution || "").concat(cleanupMoves));
+          stages[lastIndex].solution = joinMoves(lastMoves);
+          stages[lastIndex].moveCount = lastMoves.length;
+          stages[lastIndex].depth = lastMoves.length;
+        }
+      }
+
+      const finalPattern = fullSolution ? pattern.applyAlg(fullSolution) : pattern;
+      if (!isStrictSolvedPattern(finalPattern, finalPattern.patternData, ctx)) {
+        return {
+          ok: false,
+          reason: "FINAL_STATE_NOT_SOLVED",
+          stage: "LSE",
+          nodes: candidateResult.nodes || 0,
+        };
+      }
+
+      return {
+        ...candidateResult,
+        solution: fullSolution,
+        moveCount: fullMoves.length,
+        stages,
+        solutionDisplay: formatStageDisplay(stages, fullSolution),
+      };
+    }
+
+    const baseResult = await runRouxCandidate("", true);
+    if (!baseResult?.ok) {
+      return baseResult || {
+        ok: false,
+        reason: "ROUX_ORIENTATION_BASE_FAILED",
+        stage: "FB",
+        nodes: 0,
+      };
+    }
+
+    let bestResult = baseResult;
+    if (bestResult.moveCount <= sweepStopMoveCount || bestResult.moveCount <= sweepTriggerMoveCount) {
+      return bestResult;
+    }
+
+    const checkCount = Math.min(extraRotationCandidates.length, sweepMaxChecks);
+    for (let i = 0; i < checkCount; i++) {
+      const rotationAlg = extraRotationCandidates[i];
+      if (onStageUpdate) {
+        onStageUpdate({
+          type: "fallback_start",
+          stageName: `Roux Orientation ${i + 1}/${checkCount}`,
+          reason: rotationAlg || "identity",
+        });
+      }
+      const candidate = await runRouxCandidate(rotationAlg, false);
+      if (!candidate?.ok) {
+        if (onStageUpdate) {
+          onStageUpdate({
+            type: "fallback_fail",
+            stageName: `Roux Orientation ${i + 1}/${checkCount}`,
+          });
+        }
+        continue;
+      }
+      if (onStageUpdate) {
+        onStageUpdate({
+          type: "fallback_done",
+          stageName: `Roux Orientation ${i + 1}/${checkCount}`,
+        });
+      }
+      if (candidate.moveCount < bestResult.moveCount) {
+        bestResult = candidate;
+      }
+      if (bestResult.moveCount <= sweepStopMoveCount) {
+        break;
+      }
+    }
+    return bestResult;
+  }
+  if (solveMode !== "roux" && !options.__colorNeutralApplied && crossRotationCandidates.length) {
     const onStageUpdate = typeof options.onStageUpdate === "function" ? options.onStageUpdate : null;
     let selectedRotationAlg = "";
     let childResult = null;
@@ -1958,7 +2547,8 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     const setupMoves = splitMoves(selectedRotationAlg);
     const cleanupMoves = splitMoves(invertAlg(selectedRotationAlg));
     const coreMoves = splitMoves(childResult.solution || "");
-    const fullMoves = simplifyMoves(setupMoves.concat(coreMoves, cleanupMoves));
+    let fullMoves = simplifyMoves(setupMoves.concat(coreMoves, cleanupMoves));
+    fullMoves = maybePostOptimizeMoves(pattern, fullMoves, solveMode, options, ctx);
     const fullSolution = joinMoves(fullMoves);
     const stages = Array.isArray(childResult.stages)
       ? childResult.stages.map((stage) => ({ ...stage }))
@@ -1986,7 +2576,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       return {
         ok: false,
         reason: "FINAL_STATE_NOT_SOLVED",
-        stage: solveMode === "zb" ? "ZBLL" : "PLL",
+        stage: solveMode === "roux" ? "LSE" : solveMode === "zb" ? "ZBLL" : "PLL",
         nodes: childResult.nodes || 0,
       };
     }
@@ -2117,7 +2707,8 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     };
   }
 
-  const fullMoves = simplifyMoves(allMoves);
+  let fullMoves = simplifyMoves(allMoves);
+  fullMoves = maybePostOptimizeMoves(pattern, fullMoves, solveMode, options, ctx);
   const fullSolution = joinMoves(fullMoves);
   return {
     ok: true,
@@ -2126,7 +2717,12 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     moveCount: fullMoves.length,
     nodes: totalNodes,
     bound: totalBound,
-    source: solveMode === "zb" ? "INTERNAL_3X3_CFOP_ZB_HYBRID" : "INTERNAL_3X3_CFOP_STRICT",
+    source:
+      solveMode === "roux"
+        ? "INTERNAL_3X3_ROUX_HYBRID"
+        : solveMode === "zb"
+          ? "INTERNAL_3X3_CFOP_ZB_HYBRID"
+          : "INTERNAL_3X3_CFOP_STRICT",
     stages: solvedStages,
   };
 }

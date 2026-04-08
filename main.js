@@ -153,7 +153,7 @@ const INSPECTION_KEY = "cubeTimerInspection";
 const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
 const AO5_KEY = "cubeTimerShowAo5";
 const AO12_KEY = "cubeTimerShowAo12";
-const VALID_SOLVER_MODES = new Set(["strict", "zb", "fmc", "optimal"]);
+const VALID_SOLVER_MODES = new Set(["strict", "roux", "zb", "fmc", "optimal"]);
 
 const ACCENT_THEMES = {
   ocean: {
@@ -1502,6 +1502,8 @@ async function solveCurrentScramble() {
       solverStatus.textContent =
         solverMode === "optimal"
           ? "계산 중... (3x3 최소 수 우선 내부 탐색, 느릴 수 있음)"
+          : solverMode === "roux"
+            ? "계산 중... (3x3 Roux Hybrid: FB + SB + CMLL + LSE + Quality Sweep)"
           : solverMode === "fmc"
             ? "계산 중... (3x3 FMC 스타일 탐색: Direct + NISS + Premove)"
             : `계산 중... (3x3 CFOP 4단계, ${solverMode}, F2L: ${f2lMethod})`;
