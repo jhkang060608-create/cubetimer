@@ -230,26 +230,36 @@ async function solveInternal333(scrambleText, options = {}) {
       return null;
     }
 
-    const cfopRemaining = remainingMs(options.deadlineTs);
-    if (cfopRemaining <= 1000) return null;
-    const cfopTimeoutMs = Number.isFinite(options.cfopTimeoutMs)
-      ? Math.max(1000, Math.floor(options.cfopTimeoutMs))
-      : 20000;
-    const boundedCfopTimeoutMs = Math.max(1000, Math.min(cfopTimeoutMs, cfopRemaining - 200));
-    const cfopResult = await withTimeout(
-      solve3x3StrictCfopFromPattern(pattern, {
-        crossColor: "D",
-        mode: "strict",
-        f2lMethod: "legacy",
-      }),
-      boundedCfopTimeoutMs,
-    ).catch(() => null);
-    if (cfopResult?.ok) {
-      return {
-        ...cfopResult,
-        source: "INTERNAL_FMC_CFOP_FALLBACK",
-      };
+    const crossColors =
+      Array.isArray(options.crossColors) && options.crossColors.length
+        ? options.crossColors
+        : ["D"];
+    const cfopPerColorTimeoutMs = Number.isFinite(options.cfopPerColorTimeoutMs)
+      ? Math.max(700, Math.floor(options.cfopPerColorTimeoutMs))
+      : 3000;
+    let bestCfop = null;
+    for (let i = 0; i < crossColors.length; i++) {
+      const cfopRemaining = remainingMs(options.deadlineTs);
+      if (cfopRemaining <= 900) break;
+      const boundedCfopTimeoutMs = Math.max(700, Math.min(cfopPerColorTimeoutMs, cfopRemaining - 200));
+      const crossColor = crossColors[i];
+      const cfopResult = await withTimeout(
+        solve3x3StrictCfopFromPattern(pattern, {
+          crossColor,
+          mode: "strict",
+          f2lMethod: "legacy",
+        }),
+        boundedCfopTimeoutMs,
+      ).catch(() => null);
+      if (!cfopResult?.ok) continue;
+      if (!bestCfop || cfopResult.moveCount < bestCfop.moveCount) {
+        bestCfop = {
+          ...cfopResult,
+          source: "INTERNAL_FMC_CFOP_FALLBACK",
+        };
+      }
     }
+    if (bestCfop?.ok) return bestCfop;
     return null;
   } catch (_) {
     return null;
@@ -295,8 +305,9 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const direct = await solveInternal333(scramble, {
     profileLevel: "medium",
     phaseAttemptTimeoutMs: 6000,
-    cfopTimeoutMs: 7000,
+    cfopPerColorTimeoutMs: 2500,
     allowCfopFallback: true,
+    crossColors: options.crossColors || ["D"],
     deadlineTs,
   });
   attempts += 1;
@@ -317,8 +328,9 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       ? await solveInternal333(inverseScramble, {
           profileLevel: "medium",
           phaseAttemptTimeoutMs: 6000,
-          cfopTimeoutMs: 7000,
+          cfopPerColorTimeoutMs: 2500,
           allowCfopFallback: true,
+          crossColors: options.crossColors || ["D"],
           deadlineTs,
         })
       : null;
@@ -345,8 +357,9 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     const directWithPremove = await solveInternal333(directScrambleWithPremove, {
       profileLevel: "light",
       phaseAttemptTimeoutMs: 2500,
-      cfopTimeoutMs: 2500,
-      allowCfopFallback: false,
+      cfopPerColorTimeoutMs: 1600,
+      allowCfopFallback: options.premoveAllowCfopFallback === true,
+      crossColors: options.crossColors || ["D"],
       deadlineTs,
     });
     attempts += 1;
@@ -363,8 +376,9 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
     const inverseWithPremove = await solveInternal333(inverseScrambleWithPremove, {
       profileLevel: "light",
       phaseAttemptTimeoutMs: 2500,
-      cfopTimeoutMs: 2500,
-      allowCfopFallback: false,
+      cfopPerColorTimeoutMs: 1600,
+      allowCfopFallback: options.premoveAllowCfopFallback === true,
+      crossColors: options.crossColors || ["D"],
       deadlineTs,
     });
     attempts += 1;
