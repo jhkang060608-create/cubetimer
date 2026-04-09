@@ -4217,16 +4217,48 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
   );
   const bridgeNodeLimit = Math.max(0, normalizeDepth(stage.sbBridgeNodeLimit, 900000));
   const movePriority = getRouxSbMovePriorityByMoveIndex(ctx);
+  const startStateKey = getRouxSbStateKey(startData, ctx, lockedMask);
+  const moveSignature = moveIndices.join(",");
+  const continuation =
+    stage.__continuation && typeof stage.__continuation === "object" ? stage.__continuation : null;
+  const canResumeContinuation =
+    continuation?.type === "roux-sb" &&
+    continuation.startStateKey === startStateKey &&
+    continuation.lockedMask === lockedMask &&
+    continuation.moveSignature === moveSignature &&
+    continuation.heuristicCache instanceof Map &&
+    continuation.failCache instanceof Map &&
+    continuation.bestSeenDepthByState instanceof Map &&
+    continuation.bridgeFrontierByKey instanceof Map;
 
-  const heuristicCache = new Map();
-  const failCache = new Map();
-  const bestSeenDepthByState = new Map();
-  const bridgeFrontierByKey = new Map();
+  const heuristicCache = canResumeContinuation ? continuation.heuristicCache : new Map();
+  const failCache = canResumeContinuation ? continuation.failCache : new Map();
+  const bestSeenDepthByState = canResumeContinuation ? continuation.bestSeenDepthByState : new Map();
+  const bridgeFrontierByKey = canResumeContinuation ? continuation.bridgeFrontierByKey : new Map();
   const trace = [];
   let solvedPath = null;
-  let nodes = 0;
+  let nodes = canResumeContinuation ? Math.max(0, normalizeDepth(continuation.nodes, 0)) : 0;
   let nodeLimitHit = false;
   let timedOut = false;
+
+  function buildContinuation(nextBoundHint) {
+    return {
+      type: "roux-sb",
+      stageName: stage.name,
+      startStateKey,
+      lockedMask,
+      moveSignature,
+      heuristicCache,
+      failCache,
+      bestSeenDepthByState,
+      bridgeFrontierByKey,
+      nodes,
+      nextBound: Math.max(
+        1,
+        Number.isFinite(nextBoundHint) ? Math.floor(nextBoundHint) : Math.max(1, normalizeDepth(stage.searchMaxDepth, 1)),
+      ),
+    };
+  }
 
   function lockBroken(data, depth) {
     if (!lockedMask || depth > lockDepthLimit) return false;
@@ -4439,7 +4471,10 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
     return minNext;
   }
 
-  let bound = Math.max(heuristic(startData), 1);
+  let bound = Math.max(
+    canResumeContinuation ? normalizeDepth(continuation.nextBound, 1) : heuristic(startData),
+    1,
+  );
   while (bound <= searchMaxDepth) {
     if (isDeadlineExceeded(deadlineTs)) {
       timedOut = true;
@@ -4542,6 +4577,7 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
         reason: `${stage.name.toUpperCase()}_SEARCH_LIMIT`,
         nodes,
         bound: STAGE_NOT_SET,
+        __continuation: buildContinuation(bound),
       }
     : timedOut
       ? {
@@ -4549,12 +4585,14 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
           reason: `${stage.name.toUpperCase()}_TIMEOUT`,
           nodes,
           bound: STAGE_NOT_SET,
+          __continuation: buildContinuation(bound),
         }
       : {
           ok: false,
           reason: `${stage.name.toUpperCase()}_NOT_FOUND`,
           nodes,
           bound: STAGE_NOT_SET,
+          __continuation: buildContinuation(bound),
         };
 }
 
@@ -4870,14 +4908,39 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
     if (stage.isSolved(startData, ctx)) {
       return { ok: true, moves: [], depth: 0, nodes: 0, bound: 0 };
     }
+    const startStateKey = stage.key(startData);
+    const moveSignature = moveEntries.map((entry) => entry.move).join("|");
+    const continuation =
+      stage.__continuation && typeof stage.__continuation === "object" ? stage.__continuation : null;
+    const canResumeContinuation =
+      continuation?.type === "lse-reduced" &&
+      continuation.startStateKey === startStateKey &&
+      continuation.moveSignature === moveSignature &&
+      continuation.heuristicCache instanceof Map &&
+      continuation.failCache instanceof Map &&
+      continuation.bestSeenDepthByState instanceof Map;
 
-    const heuristicCache = new Map();
-    const failCache = new Map();
-    const bestSeenDepthByState = new Map();
+    const heuristicCache = canResumeContinuation ? continuation.heuristicCache : new Map();
+    const failCache = canResumeContinuation ? continuation.failCache : new Map();
+    const bestSeenDepthByState = canResumeContinuation ? continuation.bestSeenDepthByState : new Map();
     const path = [];
-    let nodes = 0;
+    let nodes = canResumeContinuation ? Math.max(0, normalizeDepth(continuation.nodes, 0)) : 0;
     let nodeLimitHit = false;
     let timedOut = false;
+
+    function buildContinuation(nextBoundHint) {
+      return {
+        type: "lse-reduced",
+        stageName: stage.name,
+        startStateKey,
+        moveSignature,
+        heuristicCache,
+        failCache,
+        bestSeenDepthByState,
+        nodes,
+        nextBound: Math.max(1, Number.isFinite(nextBoundHint) ? Math.floor(nextBoundHint) : 1),
+      };
+    }
 
     function heuristic(data) {
       const key = stage.key(data);
@@ -5031,7 +5094,10 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
       return minNext;
     }
 
-    let bound = Math.max(heuristic(startData), 1);
+    let bound = Math.max(
+      canResumeContinuation ? normalizeDepth(continuation.nextBound, 1) : heuristic(startData),
+      1,
+    );
     while (bound <= searchMaxDepth) {
       if (isDeadlineExceeded(deadlineTs)) {
         timedOut = true;
@@ -5061,6 +5127,7 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
           reason: `${stage.name.toUpperCase()}_SEARCH_LIMIT`,
           nodes,
           bound: STAGE_NOT_SET,
+          __continuation: buildContinuation(bound),
         }
       : timedOut
         ? {
@@ -5068,12 +5135,14 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
             reason: `${stage.name.toUpperCase()}_TIMEOUT`,
             nodes,
             bound: STAGE_NOT_SET,
+            __continuation: buildContinuation(bound),
           }
         : {
             ok: false,
             reason: `${stage.name.toUpperCase()}_NOT_FOUND`,
             nodes,
             bound: STAGE_NOT_SET,
+            __continuation: buildContinuation(bound),
           };
   }
 
@@ -5140,6 +5209,17 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
   }
 
   let preSearchNodes = 0;
+  const resumeContinuation =
+    stage.__resumeFromContinuation === true && stage.__continuation && typeof stage.__continuation === "object"
+      ? stage.__continuation
+      : null;
+  const resumeContinuationType = String(resumeContinuation?.type || "");
+  const skipFormulaDbForResume =
+    resumeContinuation &&
+    (resumeContinuationType === "roux-sb" ||
+      resumeContinuationType === "lse-reduced" ||
+      resumeContinuationType === "stage-ida");
+  const skipLseReducedForResume = resumeContinuation && resumeContinuationType === "stage-ida";
 
   if (typeof stage.customSearch === "function") {
     const customResult = stage.customSearch(startPattern, stage, ctx, deadlineTs);
@@ -5159,7 +5239,7 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
   }
 
   let formulaResult = null;
-  if (stage.skipFormulaDb !== true) {
+  if (stage.skipFormulaDb !== true && !skipFormulaDbForResume) {
     formulaResult = solveStageByFormulaDb(startPattern, stage, ctx, deadlineTs);
   }
   if (formulaResult?.ok) {
@@ -5197,7 +5277,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
   const canRunLseReducedSearch =
     stage.name === "LSE" &&
     !stage.__lseReducedMoveSearchTried &&
-    !stage.disableSearchFallback;
+    !stage.disableSearchFallback &&
+    !skipLseReducedForResume;
   if (canRunLseReducedSearch) {
     const reducedResult = solveLseReducedMoveSearch(
       startPattern,
@@ -5225,13 +5306,49 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     }
   }
 
-  const heuristicCache = new Map();
-  const failCache = new Map();
+  const moveIndices =
+    Array.isArray(stage.moveIndices) && stage.moveIndices.length ? stage.moveIndices : ctx.allMoveIndices;
+  const stageStartStateKey = stage.key(startData);
+  const moveSignature = moveIndices.join(",");
+  const canResumeStageContinuation =
+    resumeContinuation?.type === "stage-ida" &&
+    resumeContinuation.stageName === stage.name &&
+    resumeContinuation.startStateKey === stageStartStateKey &&
+    resumeContinuation.moveSignature === moveSignature &&
+    resumeContinuation.heuristicCache instanceof Map &&
+    resumeContinuation.failCache instanceof Map &&
+    resumeContinuation.bestSeenDepthByState instanceof Map;
+
+  const heuristicCache = canResumeStageContinuation ? resumeContinuation.heuristicCache : new Map();
+  const failCache = canResumeStageContinuation ? resumeContinuation.failCache : new Map();
+  const bestSeenDepthByState = canResumeStageContinuation ? resumeContinuation.bestSeenDepthByState : new Map();
   const path = [];
-  let nodes = 0;
+  let nodes = canResumeStageContinuation ? Math.max(0, normalizeDepth(resumeContinuation.nodes, 0)) : 0;
   let nodeLimitHit = false;
   let timedOut = false;
   const nodeLimit = Number.isFinite(stage.nodeLimit) ? stage.nodeLimit : 0;
+  const searchMaxDepth = Number.isFinite(stage.searchMaxDepth) ? stage.searchMaxDepth : stage.maxDepth;
+  const movePriorityByIndex =
+    stage.movePriorityByIndex instanceof Int8Array ? stage.movePriorityByIndex : null;
+
+  function buildStageContinuation(nextBoundHint) {
+    return {
+      type: "stage-ida",
+      stageName: stage.name,
+      startStateKey: stageStartStateKey,
+      moveSignature,
+      heuristicCache,
+      failCache,
+      bestSeenDepthByState,
+      nodes,
+      nextBound: Math.max(
+        1,
+        Number.isFinite(nextBoundHint)
+          ? Math.floor(nextBoundHint)
+          : Math.max(1, normalizeDepth(stage.searchMaxDepth, stage.maxDepth)),
+      ),
+    };
+  }
 
   function heuristic(data) {
     const key = stage.key(data);
@@ -5252,10 +5369,10 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     return h;
   }
 
-  let bound = Math.max(heuristic(startData), 1);
-  const searchMaxDepth = Number.isFinite(stage.searchMaxDepth) ? stage.searchMaxDepth : stage.maxDepth;
-  const movePriorityByIndex =
-    stage.movePriorityByIndex instanceof Int8Array ? stage.movePriorityByIndex : null;
+  let bound = Math.max(
+    canResumeStageContinuation ? normalizeDepth(resumeContinuation.nextBound, 1) : heuristic(startData),
+    1,
+  );
 
   function dfs(pattern, depth, currentBound, lastFace, presetHeuristic = null) {
     if ((nodes & 511) === 0 && isDeadlineExceeded(deadlineTs)) {
@@ -5274,6 +5391,11 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
 
     const remaining = currentBound - depth;
     const stateKey = stage.key(data);
+    const failKey = `${stateKey}|${lastFace}`;
+    const bestSeenDepth = bestSeenDepthByState.get(failKey);
+    if (Number.isFinite(bestSeenDepth) && bestSeenDepth <= depth) return Infinity;
+    if (bestSeenDepthByState.size > FAIL_CACHE_LIMIT * 2) bestSeenDepthByState.clear();
+    bestSeenDepthByState.set(failKey, depth);
     const seenMasks = failCache.get(stateKey);
     const seenMask = seenMasks && seenMasks.length > lastFace ? seenMasks[lastFace] || 0 : 0;
     const bit = 1 << Math.min(remaining, 30);
@@ -5281,18 +5403,18 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
 
     const shouldOrderMoves =
       stage.enableMoveOrdering === true &&
-      stage.moveIndices.length > 6 &&
+      moveIndices.length > 6 &&
       depth <= normalizeDepth(stage.moveOrderingMaxDepth, 7);
     let minNext = Infinity;
     if (shouldOrderMoves) {
       const candidates = [];
-      for (let i = 0; i < stage.moveIndices.length; i++) {
+      for (let i = 0; i < moveIndices.length; i++) {
         if (timedOut) return Infinity;
         if (nodeLimit > 0 && nodes >= nodeLimit) {
           nodeLimitHit = true;
           return Infinity;
         }
-        const moveIndex = stage.moveIndices[i];
+        const moveIndex = moveIndices[i];
         const face = ctx.moveFace[moveIndex];
         if (lastFace !== NO_FACE_INDEX) {
           if (face === lastFace) continue;
@@ -5338,13 +5460,13 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
         if (res < minNext) minNext = res;
       }
     } else {
-      for (let i = 0; i < stage.moveIndices.length; i++) {
+      for (let i = 0; i < moveIndices.length; i++) {
         if (timedOut) return Infinity;
         if (nodeLimit > 0 && nodes >= nodeLimit) {
           nodeLimitHit = true;
           return Infinity;
         }
-        const moveIndex = stage.moveIndices[i];
+        const moveIndex = moveIndices[i];
         const face = ctx.moveFace[moveIndex];
         if (lastFace !== NO_FACE_INDEX) {
           if (face === lastFace) continue;
@@ -5384,6 +5506,7 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     }
     if (nodeLimitHit) break;
     path.length = 0;
+    bestSeenDepthByState.clear();
     const res = dfs(startPattern, 0, bound, NO_FACE_INDEX);
     if (res === true) {
       path.reverse();
@@ -5405,6 +5528,7 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
         reason: `${stage.name.toUpperCase()}_SEARCH_LIMIT`,
         nodes: nodes + preSearchNodes,
         bound: STAGE_NOT_SET,
+        __continuation: buildStageContinuation(bound),
       }
     : timedOut
       ? {
@@ -5412,12 +5536,14 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
           reason: `${stage.name.toUpperCase()}_TIMEOUT`,
           nodes: nodes + preSearchNodes,
           bound: STAGE_NOT_SET,
+          __continuation: buildStageContinuation(bound),
         }
     : {
         ok: false,
         reason: `${stage.name.toUpperCase()}_NOT_FOUND`,
         nodes: nodes + preSearchNodes,
         bound: STAGE_NOT_SET,
+        __continuation: buildStageContinuation(bound),
       };
 
   const canRelaxSbSearch =
@@ -5428,6 +5554,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
   if (canRelaxSbSearch) {
     const relaxedSbStage = {
       ...stage,
+      __resumeFromContinuation: false,
+      __continuation: null,
       __relaxedSbSearch: true,
       sbLockedPairMask: 0,
       searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 2,
@@ -5458,6 +5586,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
           : ctx.noDMoveIndices;
     const relaxedStage = {
       ...stage,
+      __resumeFromContinuation: false,
+      __continuation: null,
       __relaxedSearchPass: nextRelaxedPass,
       __relaxedSearchTried: nextRelaxedPass >= 2,
       __relaxedBaseMoveIndices: relaxedBaseMoveIndices,
@@ -5507,6 +5637,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
   if (canRunLseQualityFallback) {
     const secondaryStage = {
       ...stage,
+      __resumeFromContinuation: false,
+      __continuation: null,
       __lseSecondaryAttempted: true,
       formulaKeys:
         Array.isArray(stage.secondaryFormulaKeys) && stage.secondaryFormulaKeys.length
@@ -5543,6 +5675,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     if (canRunLseEmergencyFallback) {
       const emergencyStage = {
         ...stage,
+        __resumeFromContinuation: false,
+        __continuation: null,
         __lseEmergencyAttempted: true,
         __lseSecondaryAttempted: true,
         secondaryLseQualityFallback: false,
@@ -5598,6 +5732,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
   if (canRelaxRouxLastLayerSearch) {
     const relaxedRouxStage = {
       ...stage,
+      __resumeFromContinuation: false,
+      __continuation: null,
       __relaxedRouxSearchTried: true,
       searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
       nodeLimit: Math.max(
@@ -6136,9 +6272,19 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
           });
         }
         const retryStageDeadlineTs = Math.min(solveDeadlineTs, Date.now() + stageBudgetRetryMs);
+        const retryContinuation =
+          result && result.__continuation && typeof result.__continuation === "object"
+            ? result.__continuation
+            : null;
         const retryStageBase = {
           ...stage,
           __stageBudgetRetryAttempted: true,
+          ...(retryContinuation
+            ? {
+                __continuation: retryContinuation,
+                __resumeFromContinuation: true,
+              }
+            : {}),
         };
         const retryStage =
           stage?.name === "SB"
@@ -6227,7 +6373,9 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
             reason: "ZBLL_SEARCH_LIMIT",
           };
         }
-        const combinedNodes = (result.nodes || 0) + (retryResult.nodes || 0);
+        const combinedNodes = retryContinuation
+          ? Math.max(result.nodes || 0, retryResult.nodes || 0)
+          : (result.nodes || 0) + (retryResult.nodes || 0);
         result = {
           ...retryResult,
           nodes: combinedNodes,
