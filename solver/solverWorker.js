@@ -9,21 +9,21 @@ let solver3x3PhaseModulesPromise = null;
 const FMC_333_TIMEOUT_MS = 120000;
 const OPTIMAL_333_TIMEOUT_MS = 240000;
 // 시간 제한 및 탐색 전략: 다양한 solver 모드에서 안정적으로 결과를 가져오기 위한 설정값입니다.
-const STRICT_CFOP_TIMEOUT_MS = 45000;
-const STRICT_CFOP_RETRY_TIMEOUT_MS = 25000;
+const STRICT_CFOP_TIMEOUT_MS = 150000;
+const STRICT_CFOP_RETRY_TIMEOUT_MS = 90000;
 const INTERNAL_333_PHASE_TIMEOUT_MS = 20000;
 const EXTERNAL_333_FALLBACK_TIMEOUT_MS = 20000;
 const ROUX_PARALLEL_ROTATIONS = Object.freeze(["", "x", "x'", "z", "z'", "x2"]);
 const ROUX_PARALLEL_COLOR_LOCK_ROTATIONS = Object.freeze(["", "y", "y'", "y2"]);
 const ROUX_PARALLEL_MAX_WORKERS = 6;
-const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 22000;
+const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 70000;
 const ROUX_PARALLEL_DEFAULT_SCOUT_CHECKS = 6;
 const ROUX_PARALLEL_EARLY_STOP_MOVE_COUNT = 48;
-const ROUX_PARALLEL_PRIMARY_ENABLED = false;
-const ROUX_PARALLEL_RESCUE_TIMEOUT_MS = 16000;
+const ROUX_PARALLEL_PRIMARY_ENABLED = true;
+const ROUX_PARALLEL_RESCUE_TIMEOUT_MS = 70000;
 const ROUX_PARALLEL_RESCUE_MAX_WORKERS = 4;
 const ROUX_PARALLEL_RESCUE_SCOUT_CHECKS = 3;
-const ROUX_PARALLEL_RESCUE_CANDIDATE_TIMEOUT_MS = 9000;
+const ROUX_PARALLEL_RESCUE_CANDIDATE_TIMEOUT_MS = 30000;
 const CROSS_COLOR_ROTATION_CANDIDATES = Object.freeze({
   D: Object.freeze([""]),
   U: Object.freeze(["x2"]),
@@ -91,8 +91,22 @@ const ROUX_RETRY_OPTIONS = [
     lseSearchMaxDepth: 15,
     lseNodeLimit: 880000,
   },
+  {
+    sbSearchMaxDepth: 16,
+    sbNodeLimit: 2600000,
+    cmllFormulaAttemptLimit: 320000,
+    cmllSearchMaxDepth: 16,
+    cmllNodeLimit: 1400000,
+    lseFormulaAttemptLimit: 360000,
+    lseSearchMaxDepth: 16,
+    lseNodeLimit: 1800000,
+  },
 ];
-const ROUX_STRICT_RETRY_OPTIONS = Object.freeze([ROUX_RETRY_OPTIONS[2], ROUX_RETRY_OPTIONS[3]]);
+const ROUX_STRICT_RETRY_OPTIONS = Object.freeze([
+  ROUX_RETRY_OPTIONS[2],
+  ROUX_RETRY_OPTIONS[3],
+  ROUX_RETRY_OPTIONS[4],
+]);
 const ZB_RETRY_OPTIONS = [
   {
     zblsFormulaAttemptLimit: 70000,
@@ -109,6 +123,22 @@ const ZB_RETRY_OPTIONS = [
     zbllFormulaAttemptLimit: 140000,
     zbllSearchMaxDepth: 14,
     zbllNodeLimit: 1200000,
+  },
+  {
+    zblsFormulaAttemptLimit: 180000,
+    zblsSearchMaxDepth: 15,
+    zblsNodeLimit: 2200000,
+    zbllFormulaAttemptLimit: 240000,
+    zbllSearchMaxDepth: 16,
+    zbllNodeLimit: 2600000,
+  },
+  {
+    zblsFormulaAttemptLimit: 260000,
+    zblsSearchMaxDepth: 16,
+    zblsNodeLimit: 3400000,
+    zbllFormulaAttemptLimit: 320000,
+    zbllSearchMaxDepth: 17,
+    zbllNodeLimit: 3800000,
   },
 ];
 const INTERNAL_PHASE_FALLBACK_OPTIONS = {
@@ -431,34 +461,34 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
       subWorkerOptions.enablePostInsertionOptimization = false;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "fbMaxDepth")) {
-      subWorkerOptions.fbMaxDepth = 8;
+        subWorkerOptions.fbMaxDepth = 10;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "sbMaxDepth")) {
-      subWorkerOptions.sbMaxDepth = 10;
+        subWorkerOptions.sbMaxDepth = 12;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "sbSearchMaxDepth")) {
-      subWorkerOptions.sbSearchMaxDepth = 9;
+        subWorkerOptions.sbSearchMaxDepth = 11;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "sbNodeLimit")) {
-      subWorkerOptions.sbNodeLimit = 190000;
+        subWorkerOptions.sbNodeLimit = 550000;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "cmllSearchMaxDepth")) {
-      subWorkerOptions.cmllSearchMaxDepth = 9;
+        subWorkerOptions.cmllSearchMaxDepth = 11;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "cmllNodeLimit")) {
-      subWorkerOptions.cmllNodeLimit = 180000;
+        subWorkerOptions.cmllNodeLimit = 420000;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "cmllFormulaAttemptLimit")) {
-      subWorkerOptions.cmllFormulaAttemptLimit = 45000;
+        subWorkerOptions.cmllFormulaAttemptLimit = 90000;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "lseSearchMaxDepth")) {
-      subWorkerOptions.lseSearchMaxDepth = 9;
+        subWorkerOptions.lseSearchMaxDepth = 11;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "lseNodeLimit")) {
-      subWorkerOptions.lseNodeLimit = 170000;
+        subWorkerOptions.lseNodeLimit = 500000;
     }
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "lseFormulaAttemptLimit")) {
-      subWorkerOptions.lseFormulaAttemptLimit = 42000;
+        subWorkerOptions.lseFormulaAttemptLimit = 110000;
     }
   }
 
@@ -727,8 +757,8 @@ const api = {
     let f2lMethod = "legacy";
     let rouxParallelPrimary = ROUX_PARALLEL_PRIMARY_ENABLED;
     let rouxParallelRescue = true;
-    let rouxOrientationSweep = false;
-    let rouxSweepMaxChecks = 1;
+    let rouxOrientationSweep = true;
+    let rouxSweepMaxChecks = 3;
     let rouxAllowCfopStageRecovery = true;
     let rouxRecoverAllStages = false;
     let rouxSafetyCfop = false;
@@ -1080,22 +1110,22 @@ const api = {
               f2lMethod: useLegacyRecovery ? "legacy" : f2lMethod,
               ...(mode === "roux"
                 ? {
-                    sbFormulaBeamWidth: 10,
-                    sbFormulaExpansionLimit: 16,
-                    sbFormulaMaxAttempts: 420000,
-                    sbSearchMaxDepth: 13,
-                    sbNodeLimit: 760000,
-                    cmllFormulaAttemptLimit: 120000,
-                    cmllSearchMaxDepth: 13,
-                    cmllNodeLimit: 460000,
-                    lseFormulaAttemptLimit: 150000,
-                    lseSearchMaxDepth: 13,
-                    lseNodeLimit: 760000,
-                    lseSecondarySearchMaxDepth: 14,
-                    lseSecondaryNodeLimit: 1200000,
+                    sbFormulaBeamWidth: 12,
+                    sbFormulaExpansionLimit: 20,
+                    sbFormulaMaxAttempts: 1200000,
+                    sbSearchMaxDepth: 16,
+                    sbNodeLimit: 2400000,
+                    cmllFormulaAttemptLimit: 280000,
+                    cmllSearchMaxDepth: 15,
+                    cmllNodeLimit: 1300000,
+                    lseFormulaAttemptLimit: 320000,
+                    lseSearchMaxDepth: 16,
+                    lseNodeLimit: 2400000,
+                    lseSecondarySearchMaxDepth: 17,
+                    lseSecondaryNodeLimit: 3600000,
                     lsePllFallback: true,
-                    lseStageTimeBudgetMs: 14000,
-                    sbDeepRetry: false,
+                    lseStageTimeBudgetMs: 70000,
+                    sbDeepRetry: true,
                     rouxLastLayerDeepRetry: true,
                     retryOptions: ROUX_STRICT_RETRY_OPTIONS,
                     // Parallel sweep already covers orientation alternatives.
@@ -1107,6 +1137,12 @@ const api = {
                 : {}),
               ...(mode === "zb"
                 ? {
+                    zblsFormulaAttemptLimit: 180000,
+                    zblsSearchMaxDepth: 15,
+                    zblsNodeLimit: 2200000,
+                    zbllFormulaAttemptLimit: 240000,
+                    zbllSearchMaxDepth: 16,
+                    zbllNodeLimit: 2600000,
                     retryOptions: ZB_RETRY_OPTIONS,
                   }
                 : {}),

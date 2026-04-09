@@ -1646,13 +1646,15 @@ function getCfopProfile(mode) {
 }
 
 function isStrictSolvedPattern(pattern, data, ctx) {
+  let strictSolved = false;
   if (pattern && typeof pattern.experimentalIsSolved === "function") {
     try {
-      return !!pattern.experimentalIsSolved({ ignorePuzzleOrientation: false });
+      strictSolved = !!pattern.experimentalIsSolved({ ignorePuzzleOrientation: false });
     } catch (_) {
-      // Fall back to cubie-level solved check below.
+      strictSolved = false;
     }
   }
+  if (strictSolved) return true;
   return isPLLSolved(data, ctx);
 }
 
@@ -2262,15 +2264,15 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         ),
         formulaMaxAttempts: normalizeDepth(
           options.sbFormulaMaxAttempts,
-          normalizeDepth(options.f2lFormulaMaxAttempts, Math.max(profile.f2lFormulaMaxAttempts, 520000)),
+          normalizeDepth(options.f2lFormulaMaxAttempts, Math.max(profile.f2lFormulaMaxAttempts, 900000)),
         ),
-        searchMaxDepth: normalizeDepth(options.sbSearchMaxDepth, 14),
-        nodeLimit: normalizeDepth(options.sbNodeLimit, 980000),
+        searchMaxDepth: normalizeDepth(options.sbSearchMaxDepth, 15),
+        nodeLimit: normalizeDepth(options.sbNodeLimit, 1400000),
         sbBridgeFallback: options.sbBridgeFallback !== false,
         sbBridgeFrontierLimit: Math.max(8, normalizeDepth(options.sbBridgeFrontierLimit, 24)),
         sbBridgeDepthCap: normalizeDepth(options.sbBridgeDepthCap, 8),
         sbBridgeMinDepth: normalizeDepth(options.sbBridgeMinDepth, 3),
-        sbBridgeNodeLimit: normalizeDepth(options.sbBridgeNodeLimit, 900000),
+        sbBridgeNodeLimit: normalizeDepth(options.sbBridgeNodeLimit, 1800000),
         moveIndices: ctx.noDMoveIndices,
         movePriorityByIndex: getRouxSbMovePriorityByMoveIndex(ctx),
         isSolved(data) {
@@ -2386,10 +2388,10 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         formulaKeys: ["CMLL", "OLL", "PLL"],
         formulaPreAufList: FORMULA_AUF,
         formulaPostAufList: [""],
-        formulaAttemptLimit: normalizeDepth(options.cmllFormulaAttemptLimit, 90000),
+        formulaAttemptLimit: normalizeDepth(options.cmllFormulaAttemptLimit, 130000),
         maxDepth: normalizeDepth(options.cmllMaxDepth, profile.ollMaxDepth),
-        searchMaxDepth: normalizeDepth(options.cmllSearchMaxDepth, 12),
-        nodeLimit: normalizeDepth(options.cmllNodeLimit, 320000),
+        searchMaxDepth: normalizeDepth(options.cmllSearchMaxDepth, 13),
+        nodeLimit: normalizeDepth(options.cmllNodeLimit, 600000),
         moveIndices: ctx.noDMoveIndices,
         isSolved: isCMLLSolved,
         mismatch(data) {
@@ -2421,23 +2423,23 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         secondaryFormulaAttemptLimit: normalizeDepth(
           options.lseSecondaryFormulaAttemptLimit,
           useRouxFastProfile
-            ? Math.max(normalizeDepth(options.lseFormulaAttemptLimit, 80000), 180000)
-            : Math.max(normalizeDepth(options.lseFormulaAttemptLimit, 100000), 180000),
+            ? Math.max(normalizeDepth(options.lseFormulaAttemptLimit, 120000), 220000)
+            : Math.max(normalizeDepth(options.lseFormulaAttemptLimit, 160000), 260000),
         ),
         secondarySearchMaxDepth: normalizeDepth(
           options.lseSecondarySearchMaxDepth,
-          normalizeDepth(options.lseSearchMaxDepth, useRouxFastProfile ? 12 : 13),
+          normalizeDepth(options.lseSearchMaxDepth, useRouxFastProfile ? 15 : 16),
         ),
         secondaryNodeLimit: normalizeDepth(
           options.lseSecondaryNodeLimit,
-          normalizeDepth(options.lseNodeLimit, useRouxFastProfile ? 760000 : 980000),
+          normalizeDepth(options.lseNodeLimit, useRouxFastProfile ? 2200000 : 2600000),
         ),
         secondaryMoveIndices: ctx.allMoveIndices,
         formulaPreAufList: FORMULA_AUF,
         formulaPostAufList: FORMULA_AUF,
         formulaAttemptLimit: normalizeDepth(
           options.lseFormulaAttemptLimit,
-          useRouxFastProfile ? 60000 : 100000,
+          useRouxFastProfile ? 180000 : 220000,
         ),
         caseLibraryBuildLimit: normalizeDepth(
           options.lseCaseLibraryBuildLimit,
@@ -2453,7 +2455,7 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         ),
         bridgeAttemptLimit: normalizeDepth(
           options.lseBridgeAttemptLimit,
-          useRouxFastProfile ? 90000 : 140000,
+          useRouxFastProfile ? 140000 : 200000,
         ),
         bridgeFrontierLimit: normalizeDepth(
           options.lseBridgeFrontierLimit,
@@ -2461,26 +2463,26 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         ),
         bridgeCandidateLimit: normalizeDepth(
           options.lseBridgeCandidateLimit,
-          useRouxFastProfile ? 16000 : 22000,
+          useRouxFastProfile ? 22000 : 28000,
         ),
         maxDepth: normalizeDepth(options.lseMaxDepth, profile.pllMaxDepth),
-        searchMaxDepth: normalizeDepth(options.lseSearchMaxDepth, useRouxFastProfile ? 11 : 13),
-        nodeLimit: normalizeDepth(options.lseNodeLimit, useRouxFastProfile ? 420000 : 900000),
+        searchMaxDepth: normalizeDepth(options.lseSearchMaxDepth, useRouxFastProfile ? 14 : 15),
+        nodeLimit: normalizeDepth(options.lseNodeLimit, useRouxFastProfile ? 1200000 : 1800000),
         lseReducedSearchMaxDepth: normalizeDepth(
           options.lseReducedSearchMaxDepth,
-          useRouxFastProfile ? 16 : 17,
+          useRouxFastProfile ? 17 : 18,
         ),
         lseReducedNodeLimit: normalizeDepth(
           options.lseReducedNodeLimit,
-          useRouxFastProfile ? 520000 : 700000,
+          useRouxFastProfile ? 800000 : 1100000,
         ),
         lseReducedExtendedSearchMaxDepth: normalizeDepth(
           options.lseReducedExtendedSearchMaxDepth,
-          useRouxFastProfile ? 18 : 19,
+          useRouxFastProfile ? 19 : 20,
         ),
         lseReducedExtendedNodeLimit: normalizeDepth(
           options.lseReducedExtendedNodeLimit,
-          useRouxFastProfile ? 1200000 : 1600000,
+          useRouxFastProfile ? 1800000 : 2400000,
         ),
         moveIndices: ctx.noDMoveIndices,
         // 기본은 탐색 fallback을 켜서 LSE_NOT_FOUND를 줄인다. false로 명시하면 끈다.
@@ -2746,13 +2748,13 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       name: stage3Name,
       formulaKeys: stage3FormulaKeys,
       formulaPreAufList: FORMULA_AUF,
-      formulaAttemptLimit: normalizeDepth(options.zblsFormulaAttemptLimit, useZbStages ? 26000 : 0),
+      formulaAttemptLimit: normalizeDepth(options.zblsFormulaAttemptLimit, useZbStages ? 180000 : 0),
       maxDepth: normalizeDepth(options.ollMaxDepth, profile.ollMaxDepth),
       searchMaxDepth: normalizeDepth(
         options.zblsSearchMaxDepth,
-        useZbStages ? 10 : profile.ollMaxDepth,
+        useZbStages ? 15 : profile.ollMaxDepth,
       ),
-      nodeLimit: normalizeDepth(options.zblsNodeLimit, useZbStages ? 320000 : 0),
+      nodeLimit: normalizeDepth(options.zblsNodeLimit, useZbStages ? 2200000 : 0),
       moveIndices: ctx.noDMoveIndices,
       isSolved: useZbStages ? isZBLSSolved : isOLLSolved,
       mismatch(data) {
@@ -2816,13 +2818,13 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       formulaKeys: stage4FormulaKeys,
       formulaPreAufList: FORMULA_AUF,
       formulaPostAufList: FORMULA_AUF,
-      formulaAttemptLimit: normalizeDepth(options.zbllFormulaAttemptLimit, useZbStages ? 50000 : 0),
+      formulaAttemptLimit: normalizeDepth(options.zbllFormulaAttemptLimit, useZbStages ? 240000 : 0),
       maxDepth: normalizeDepth(options.pllMaxDepth, profile.pllMaxDepth),
       searchMaxDepth: normalizeDepth(
         options.zbllSearchMaxDepth,
-        useZbStages ? 12 : profile.pllMaxDepth,
+        useZbStages ? 16 : profile.pllMaxDepth,
       ),
-      nodeLimit: normalizeDepth(options.zbllNodeLimit, useZbStages ? 320000 : 0),
+      nodeLimit: normalizeDepth(options.zbllNodeLimit, useZbStages ? 2600000 : 0),
       moveIndices: ctx.noDMoveIndices,
       isSolved: isPLLSolved,
       mismatch(data) {
@@ -5496,27 +5498,27 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
         formulaAttemptLimit: Math.max(
           normalizeDepth(stage.formulaAttemptLimit, 0),
           normalizeDepth(stage.secondaryFormulaAttemptLimit, 0),
-          260000,
+          360000,
         ),
         searchMaxDepth: Math.max(
           normalizeDepth(stage.searchMaxDepth, stage.maxDepth),
           normalizeDepth(stage.secondarySearchMaxDepth, stage.maxDepth),
-          15,
+          16,
         ),
         nodeLimit: Math.max(
           normalizeDepth(stage.nodeLimit, 0),
           normalizeDepth(stage.secondaryNodeLimit, 0),
-          1400000,
+          2200000,
         ),
         lseReducedSearchMaxDepth: Math.max(normalizeDepth(stage.lseReducedSearchMaxDepth, 0), 18),
-        lseReducedNodeLimit: Math.max(normalizeDepth(stage.lseReducedNodeLimit, 0), 900000),
+        lseReducedNodeLimit: Math.max(normalizeDepth(stage.lseReducedNodeLimit, 0), 1400000),
         lseReducedExtendedSearchMaxDepth: Math.max(
           normalizeDepth(stage.lseReducedExtendedSearchMaxDepth, 0),
           20,
         ),
         lseReducedExtendedNodeLimit: Math.max(
           normalizeDepth(stage.lseReducedExtendedNodeLimit, 0),
-          1800000,
+          2800000,
         ),
       };
       const emergencyResult = solveStage(startPattern, emergencyStage, ctx, deadlineTs);
@@ -5544,11 +5546,11 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
       searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
       nodeLimit: Math.max(
         normalizeDepth(stage.nodeLimit, 0),
-        stage.name === "CMLL" ? 520000 : 640000,
+        stage.name === "CMLL" ? 900000 : 1300000,
       ),
       formulaAttemptLimit: Math.max(
         normalizeDepth(stage.formulaAttemptLimit, 0),
-        stage.name === "CMLL" ? 140000 : 180000,
+        stage.name === "CMLL" ? 220000 : 280000,
       ),
     };
     const relaxedRouxResult = solveStage(startPattern, relaxedRouxStage, ctx, deadlineTs);
@@ -5958,7 +5960,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     }
     let stageDeadlineTs = solveDeadlineTs;
     if (solveMode === "roux" && stage?.name === "LSE") {
-      const lseStageTimeBudgetMs = normalizeDepth(options.lseStageTimeBudgetMs, 12000);
+      const lseStageTimeBudgetMs = normalizeDepth(options.lseStageTimeBudgetMs, 60000);
       if (Number.isFinite(solveDeadlineTs) && lseStageTimeBudgetMs > 0) {
         stageDeadlineTs = Math.min(solveDeadlineTs, Date.now() + lseStageTimeBudgetMs);
       }
@@ -6063,7 +6065,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
           searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + (stage.name === "SB" ? 2 : 1),
           nodeLimit: Math.max(
             normalizeDepth(stage.nodeLimit, 0),
-            stage.name === "SB" ? 1800000 : stage.name === "CMLL" ? 920000 : 980000,
+            stage.name === "SB" ? 2600000 : stage.name === "CMLL" ? 1400000 : 1800000,
           ),
           ...(stage.name === "SB"
             ? {
@@ -6075,7 +6077,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
             : {
                 formulaAttemptLimit: Math.max(
                   normalizeDepth(stage.formulaAttemptLimit, 0),
-                  stage.name === "CMLL" ? 220000 : 260000,
+                  stage.name === "CMLL" ? 320000 : 360000,
                 ),
               }),
         };
