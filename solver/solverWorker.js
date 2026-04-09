@@ -16,7 +16,7 @@ const EXTERNAL_333_FALLBACK_TIMEOUT_MS = 20000;
 const ROUX_PARALLEL_ROTATIONS = Object.freeze(["", "x", "x'", "z", "z'", "x2"]);
 const ROUX_PARALLEL_COLOR_LOCK_ROTATIONS = Object.freeze(["", "y", "y'", "y2"]);
 const ROUX_PARALLEL_MAX_WORKERS = 6;
-const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 45000;
+const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 30000;
 const ROUX_PARALLEL_DEFAULT_SCOUT_CHECKS = 6;
 const ROUX_PARALLEL_EARLY_STOP_MOVE_COUNT = 48;
 const ROUX_PARALLEL_PRIMARY_ENABLED = true;
@@ -125,20 +125,20 @@ const ZB_RETRY_OPTIONS = [
     zbllNodeLimit: 1200000,
   },
   {
-    zblsFormulaAttemptLimit: 180000,
+    zblsFormulaAttemptLimit: 220000,
     zblsSearchMaxDepth: 15,
-    zblsNodeLimit: 2200000,
-    zbllFormulaAttemptLimit: 240000,
+    zblsNodeLimit: 2600000,
+    zbllFormulaAttemptLimit: 300000,
     zbllSearchMaxDepth: 16,
-    zbllNodeLimit: 2600000,
+    zbllNodeLimit: 3000000,
   },
   {
-    zblsFormulaAttemptLimit: 260000,
+    zblsFormulaAttemptLimit: 320000,
     zblsSearchMaxDepth: 16,
-    zblsNodeLimit: 3400000,
-    zbllFormulaAttemptLimit: 320000,
+    zblsNodeLimit: 3600000,
+    zbllFormulaAttemptLimit: 420000,
     zbllSearchMaxDepth: 17,
-    zbllNodeLimit: 3800000,
+    zbllNodeLimit: 4200000,
   },
 ];
 const ZB_STRICT_RETRY_OPTIONS = Object.freeze([
@@ -763,9 +763,11 @@ const api = {
     let rouxParallelRescue = false;
     let rouxOrientationSweep = true;
     let rouxSweepMaxChecks = 3;
-    let rouxAllowCfopStageRecovery = true;
+    let rouxAllowCfopStageRecovery = false;
     let rouxRecoverAllStages = false;
-    let rouxSafetyCfop = true;
+    let rouxSafetyCfop = false;
+    let zbAllowCfopStageRecovery = false;
+    let zbSafetyCfop = false;
     if (arg1 && typeof arg1 === "object" && !Array.isArray(arg1)) {
       scramble = arg1.scramble;
       eventId = arg1.eventId;
@@ -801,6 +803,12 @@ const api = {
       }
       if (typeof arg1.rouxSafetyCfop === "boolean") {
         rouxSafetyCfop = arg1.rouxSafetyCfop;
+      }
+      if (typeof arg1.zbAllowCfopStageRecovery === "boolean") {
+        zbAllowCfopStageRecovery = arg1.zbAllowCfopStageRecovery;
+      }
+      if (typeof arg1.zbSafetyCfop === "boolean") {
+        zbSafetyCfop = arg1.zbSafetyCfop;
       }
     } else {
       scramble = arg1;
@@ -1119,7 +1127,7 @@ const api = {
                     sbFormulaMaxAttempts: 1200000,
                     sbSearchMaxDepth: 15,
                     sbNodeLimit: 1700000,
-                    sbStageTimeBudgetMs: 35000,
+                    sbStageTimeBudgetMs: 30000,
                     cmllFormulaAttemptLimit: 280000,
                     cmllSearchMaxDepth: 15,
                     cmllNodeLimit: 900000,
@@ -1129,16 +1137,16 @@ const api = {
                     lseSecondarySearchMaxDepth: 16,
                     lseSecondaryNodeLimit: 2600000,
                     lsePllFallback: true,
-                    lseStageTimeBudgetMs: 35000,
+                    lseStageTimeBudgetMs: 32000,
                     sbDeepRetry: false,
                     rouxSbLegacyFallback: false,
                     rouxLastLayerDeepRetry: true,
                     retryOptions: ROUX_STRICT_RETRY_OPTIONS,
-                    // Parallel sweep already covers orientation alternatives.
-                    rouxOrientationSweep: rouxParallelSucceeded ? false : rouxOrientationSweep,
-                    rouxSweepMaxChecks: rouxParallelSucceeded ? 0 : rouxSweepMaxChecks,
+                    // When parallel primary is enabled, avoid re-running full orientation sweep in serial strict mode.
+                    rouxOrientationSweep: rouxParallelPrimary ? false : rouxOrientationSweep,
+                    rouxSweepMaxChecks: rouxParallelPrimary ? 0 : rouxSweepMaxChecks,
                     rouxAllowCfopStageRecovery,
-                    rouxRecoverAllStages: true,
+                    rouxRecoverAllStages,
                   }
                 : {}),
               ...(mode === "zb"
@@ -1151,6 +1159,7 @@ const api = {
                     zbllSearchMaxDepth: 16,
                     zbllNodeLimit: 2600000,
                     zbllStageTimeBudgetMs: 30000,
+                    zbAllowCfopStageRecovery,
                     retryOptions: ZB_STRICT_RETRY_OPTIONS,
                   }
                 : {}),
@@ -1262,7 +1271,7 @@ const api = {
           }
         }
 
-        if (!strictResult?.ok && mode === "zb") {
+        if (!strictResult?.ok && mode === "zb" && zbSafetyCfop) {
           if (typeof onProgress === "function") {
             try {
               void onProgress({

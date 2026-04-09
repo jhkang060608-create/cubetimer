@@ -3244,10 +3244,15 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx, deadlineTs = In
   }
 
   // LSE는 단일 공식 매칭 실패 시 3-매크로(공식 A + 공식 B + 라이브러리 종결)까지 확장 탐색한다.
+  const allowPartialLseBridgeFallback = stage.allowPartialLseBridgeFallback !== false;
+  const bridgeDeadlineTs =
+    stage.name === "LSE" && allowPartialLseBridgeFallback && isDeadlineExceeded(formulaDeadlineTs)
+      ? deadlineTs
+      : formulaDeadlineTs;
   const canRunLseBridge =
     stage.name === "LSE" &&
     library?.caseMap?.size &&
-    !isDeadlineExceeded(formulaDeadlineTs);
+    !isDeadlineExceeded(bridgeDeadlineTs);
   if (canRunLseBridge) {
     const bridgeFrontierLimit = Number.isFinite(stage.bridgeFrontierLimit)
       ? Math.max(8, Math.floor(stage.bridgeFrontierLimit))
@@ -3267,7 +3272,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx, deadlineTs = In
           const alg = formulas[i];
           for (let p = 0; p < postAufList.length; p++) {
             bridgeSeedChecks += 1;
-            if ((bridgeSeedChecks & 255) === 0 && isDeadlineExceeded(formulaDeadlineTs)) {
+            if ((bridgeSeedChecks & 255) === 0 && isDeadlineExceeded(bridgeDeadlineTs)) {
               const timeout = timeoutResultOrNull(attempts);
               if (timeout) return timeout;
               break buildBridgeCandidatesLoop;
@@ -3339,7 +3344,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx, deadlineTs = In
 
     firstBridgeLoop:
     for (let i = 0; i < bridgeCandidates.length; i++) {
-      if ((bridgeAttempts & 63) === 0 && isDeadlineExceeded(formulaDeadlineTs)) {
+      if ((bridgeAttempts & 63) === 0 && isDeadlineExceeded(bridgeDeadlineTs)) {
         const timeout = timeoutResultOrNull(attempts + bridgeAttempts);
         if (timeout) return timeout;
         break firstBridgeLoop;
@@ -3397,7 +3402,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx, deadlineTs = In
       for (let f = 0; f < frontier.length; f++) {
         const base = frontier[f];
         for (let i = 0; i < bridgeCandidates.length; i++) {
-          if ((bridgeAttempts & 63) === 0 && isDeadlineExceeded(formulaDeadlineTs)) {
+          if ((bridgeAttempts & 63) === 0 && isDeadlineExceeded(bridgeDeadlineTs)) {
             const timeout = timeoutResultOrNull(attempts + bridgeAttempts);
             if (timeout) return timeout;
             break secondBridgeLoop;
@@ -3444,7 +3449,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx, deadlineTs = In
         for (let f = 0; f < secondFrontier.length; f++) {
           const base = secondFrontier[f];
           for (let i = 0; i < bridgeCandidates.length; i++) {
-            if ((bridgeAttempts & 63) === 0 && isDeadlineExceeded(formulaDeadlineTs)) {
+            if ((bridgeAttempts & 63) === 0 && isDeadlineExceeded(bridgeDeadlineTs)) {
               const timeout = timeoutResultOrNull(attempts + bridgeAttempts);
               if (timeout) return timeout;
               break thirdBridgeLoop;
@@ -4215,6 +4220,7 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
 
   const heuristicCache = new Map();
   const failCache = new Map();
+  const bestSeenDepthByState = new Map();
   const bridgeFrontierByKey = new Map();
   const trace = [];
   let solvedPath = null;
@@ -4273,7 +4279,7 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
       priority,
     };
     const stateKey = getRouxSbStateKey(nextData, ctx, lockedMask);
-    const frontierKey = `${stateKey}|${face}`;
+    const frontierKey = stateKey;
     const existing = bridgeFrontierByKey.get(frontierKey);
     if (existing && compareBridgeRank(existing.rank, rank) <= 0) {
       return;
@@ -4290,7 +4296,7 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
   }
 
   function dfs(pattern, depth, currentBound, lastFace, presetHeuristic = null) {
-    if ((nodes & 2047) === 0 && isDeadlineExceeded(deadlineTs)) {
+    if ((nodes & 511) === 0 && isDeadlineExceeded(deadlineTs)) {
       timedOut = true;
       return Infinity;
     }
@@ -4312,6 +4318,10 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
     const remaining = currentBound - depth;
     const stateKey = getRouxSbStateKey(data, ctx, lockedMask);
     const failKey = `${stateKey}|${lastFace}`;
+    const bestSeenDepth = bestSeenDepthByState.get(failKey);
+    if (Number.isFinite(bestSeenDepth) && bestSeenDepth <= depth) return Infinity;
+    if (bestSeenDepthByState.size > FAIL_CACHE_LIMIT * 2) bestSeenDepthByState.clear();
+    bestSeenDepthByState.set(failKey, depth);
     const seenMask = failCache.get(failKey) || 0;
     const bit = 1 << Math.min(remaining, 30);
     if (seenMask & bit) return Infinity;
@@ -4438,6 +4448,7 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
     if (nodeLimitHit) break;
     trace.length = 0;
     solvedPath = null;
+    bestSeenDepthByState.clear();
     const res = dfs(startPattern, 0, bound, NO_FACE_INDEX);
     if (res === true) {
       const moves = Array.isArray(solvedPath) ? solvedPath.slice() : [];
@@ -4862,6 +4873,7 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
 
     const heuristicCache = new Map();
     const failCache = new Map();
+    const bestSeenDepthByState = new Map();
     const path = [];
     let nodes = 0;
     let nodeLimitHit = false;
@@ -4887,7 +4899,7 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
     }
 
     function dfs(pattern, depth, currentBound, lastFace, lastAxis, presetHeuristic = null) {
-      if ((nodes & 1023) === 0 && isDeadlineExceeded(deadlineTs)) {
+      if ((nodes & 255) === 0 && isDeadlineExceeded(deadlineTs)) {
         timedOut = true;
         return Infinity;
       }
@@ -4905,6 +4917,10 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
       const remaining = currentBound - depth;
       const stateKey = stage.key(data);
       const failKey = `${stateKey}|${lastFace}`;
+      const bestSeenDepth = bestSeenDepthByState.get(failKey);
+      if (Number.isFinite(bestSeenDepth) && bestSeenDepth <= depth) return Infinity;
+      if (bestSeenDepthByState.size > FAIL_CACHE_LIMIT * 2) bestSeenDepthByState.clear();
+      bestSeenDepthByState.set(failKey, depth);
       const seenMask = failCache.get(failKey) || 0;
       const bit = 1 << Math.min(remaining, 30);
       if (seenMask & bit) return Infinity;
@@ -5023,6 +5039,7 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
       }
       if (nodeLimitHit) break;
       path.length = 0;
+      bestSeenDepthByState.clear();
       const res = dfs(startPattern, 0, bound, "", "");
       if (res === true) {
         path.reverse();
@@ -5152,10 +5169,19 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     };
   }
   if (formulaResult && !formulaResult.ok && String(formulaResult.reason || "").endsWith("_TIMEOUT")) {
-    return {
-      ...formulaResult,
-      nodes: preSearchNodes + (formulaResult.nodes || 0),
-    };
+    const canFallbackAfterFormulaTimeout =
+      !stage.disableSearchFallback &&
+      (stage.allowFormulaTimeoutFallback === true ||
+        stage.name === "LSE" ||
+        stage.name === "ZBLS" ||
+        stage.name === "ZBLL" ||
+        stage.name === "F2L");
+    if (!canFallbackAfterFormulaTimeout) {
+      return {
+        ...formulaResult,
+        nodes: preSearchNodes + (formulaResult.nodes || 0),
+      };
+    }
   }
   preSearchNodes += formulaResult?.nodes || 0;
 
@@ -5232,7 +5258,7 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     stage.movePriorityByIndex instanceof Int8Array ? stage.movePriorityByIndex : null;
 
   function dfs(pattern, depth, currentBound, lastFace, presetHeuristic = null) {
-    if ((nodes & 2047) === 0 && isDeadlineExceeded(deadlineTs)) {
+    if ((nodes & 511) === 0 && isDeadlineExceeded(deadlineTs)) {
       timedOut = true;
       return Infinity;
     }
@@ -5417,24 +5443,54 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     if (relaxedNodes > baseFailure.nodes) baseFailure.nodes = relaxedNodes;
   }
 
+  const relaxedSearchPass = normalizeDepth(stage.__relaxedSearchPass, 0);
   const canRelaxSearch =
     (stage.name === "ZBLS" || stage.name === "ZBLL") &&
-    !stage.__relaxedSearchTried &&
+    relaxedSearchPass < 2 &&
     !stage.disableSearchFallback;
   if (canRelaxSearch) {
+    const nextRelaxedPass = relaxedSearchPass + 1;
+    const relaxedBaseMoveIndices =
+      Array.isArray(stage.__relaxedBaseMoveIndices) && stage.__relaxedBaseMoveIndices.length
+        ? stage.__relaxedBaseMoveIndices
+        : Array.isArray(stage.moveIndices) && stage.moveIndices.length
+          ? stage.moveIndices
+          : ctx.noDMoveIndices;
     const relaxedStage = {
       ...stage,
-      __relaxedSearchTried: true,
-      // Last-stage ZB failures are usually limit-bound; allow wider move set and deeper cap once.
-      moveIndices: ctx.allMoveIndices,
-      searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + (stage.name === "ZBLS" ? 2 : 1),
+      __relaxedSearchPass: nextRelaxedPass,
+      __relaxedSearchTried: nextRelaxedPass >= 2,
+      __relaxedBaseMoveIndices: relaxedBaseMoveIndices,
+      // Last-stage ZB failures are usually limit-bound; escalate in two distinct passes.
+      moveIndices: nextRelaxedPass === 1 ? ctx.allMoveIndices : relaxedBaseMoveIndices,
+      searchMaxDepth:
+        normalizeDepth(stage.searchMaxDepth, stage.maxDepth) +
+        (stage.name === "ZBLS"
+          ? nextRelaxedPass === 1
+            ? 2
+            : 3
+          : nextRelaxedPass === 1
+            ? 1
+            : 2),
       nodeLimit: Math.max(
         normalizeDepth(stage.nodeLimit, 0),
-        stage.name === "ZBLS" ? 900000 : 700000,
+        stage.name === "ZBLS"
+          ? nextRelaxedPass === 1
+            ? 900000
+            : 1500000
+          : nextRelaxedPass === 1
+            ? 700000
+            : 1200000,
       ),
       formulaAttemptLimit: Math.max(
         normalizeDepth(stage.formulaAttemptLimit, 0),
-        stage.name === "ZBLS" ? 70000 : 90000,
+        stage.name === "ZBLS"
+          ? nextRelaxedPass === 1
+            ? 70000
+            : 130000
+          : nextRelaxedPass === 1
+            ? 90000
+            : 150000,
       ),
     };
     const relaxedResult = solveStage(startPattern, relaxedStage, ctx, deadlineTs);
@@ -5565,7 +5621,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
 export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   const ctx = await getCfopContext();
   const solveDeadlineTs = normalizeDeadlineTs(options.deadlineTs);
-  const recoveryGraceMs = normalizeDepth(options.recoveryGraceMs, 25000);
+  const enableCfopStageRecovery = options.enableCfopStageRecovery === true;
+  const recoveryGraceMs = normalizeDepth(options.recoveryGraceMs, enableCfopStageRecovery ? 25000 : 0);
   const getRecoveryDeadlineTs = () =>
     Number.isFinite(solveDeadlineTs) ? Math.max(solveDeadlineTs, Date.now() + recoveryGraceMs) : solveDeadlineTs;
   const solveMode = normalizeSolveMode(options.mode);
@@ -6061,9 +6118,9 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     if (canRunStageBudgetRetry) {
       let stageBudgetRetryMs = 0;
       if (stage?.name === "SB") {
-        stageBudgetRetryMs = normalizeDepth(options.sbStageRetryTimeBudgetMs, 40000);
+        stageBudgetRetryMs = normalizeDepth(options.sbStageRetryTimeBudgetMs, 25000);
       } else if (stage?.name === "LSE") {
-        stageBudgetRetryMs = normalizeDepth(options.lseStageRetryTimeBudgetMs, 50000);
+        stageBudgetRetryMs = normalizeDepth(options.lseStageRetryTimeBudgetMs, 30000);
       } else if (stage?.name === "ZBLS") {
         stageBudgetRetryMs = normalizeDepth(options.zblsStageRetryTimeBudgetMs, 35000);
       } else if (stage?.name === "ZBLL") {
@@ -6300,7 +6357,8 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       }
     }
     if (!result.ok) {
-      const allowRouxCfopStageRecovery = options.rouxAllowCfopStageRecovery !== false;
+      const allowRouxCfopStageRecovery =
+        enableCfopStageRecovery && options.rouxAllowCfopStageRecovery === true;
       const recoverableRouxStage =
         stage.name === "LSE" ||
         (options.rouxRecoverAllStages === true &&
@@ -6437,7 +6495,9 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         }
       }
 
+      const allowZbCfopStageRecovery = enableCfopStageRecovery && options.zbAllowCfopStageRecovery === true;
       const canAttemptZbRecovery =
+        allowZbCfopStageRecovery &&
         solveMode === "zb" &&
         (stage.name === "ZBLS" || stage.name === "ZBLL") &&
         !options.__zbRecoveryAttempted &&
