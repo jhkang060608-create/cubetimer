@@ -9,21 +9,21 @@ let solver3x3PhaseModulesPromise = null;
 const FMC_333_TIMEOUT_MS = 120000;
 const OPTIMAL_333_TIMEOUT_MS = 240000;
 // 시간 제한 및 탐색 전략: 다양한 solver 모드에서 안정적으로 결과를 가져오기 위한 설정값입니다.
-const STRICT_CFOP_TIMEOUT_MS = 150000;
-const STRICT_CFOP_RETRY_TIMEOUT_MS = 90000;
+const STRICT_CFOP_TIMEOUT_MS = 90000;
+const STRICT_CFOP_RETRY_TIMEOUT_MS = 50000;
 const INTERNAL_333_PHASE_TIMEOUT_MS = 20000;
 const EXTERNAL_333_FALLBACK_TIMEOUT_MS = 20000;
 const ROUX_PARALLEL_ROTATIONS = Object.freeze(["", "x", "x'", "z", "z'", "x2"]);
 const ROUX_PARALLEL_COLOR_LOCK_ROTATIONS = Object.freeze(["", "y", "y'", "y2"]);
 const ROUX_PARALLEL_MAX_WORKERS = 6;
-const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 70000;
+const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 45000;
 const ROUX_PARALLEL_DEFAULT_SCOUT_CHECKS = 6;
 const ROUX_PARALLEL_EARLY_STOP_MOVE_COUNT = 48;
 const ROUX_PARALLEL_PRIMARY_ENABLED = true;
-const ROUX_PARALLEL_RESCUE_TIMEOUT_MS = 70000;
+const ROUX_PARALLEL_RESCUE_TIMEOUT_MS = 30000;
 const ROUX_PARALLEL_RESCUE_MAX_WORKERS = 4;
 const ROUX_PARALLEL_RESCUE_SCOUT_CHECKS = 3;
-const ROUX_PARALLEL_RESCUE_CANDIDATE_TIMEOUT_MS = 30000;
+const ROUX_PARALLEL_RESCUE_CANDIDATE_TIMEOUT_MS = 12000;
 const CROSS_COLOR_ROTATION_CANDIDATES = Object.freeze({
   D: Object.freeze([""]),
   U: Object.freeze(["x2"]),
@@ -103,8 +103,6 @@ const ROUX_RETRY_OPTIONS = [
   },
 ];
 const ROUX_STRICT_RETRY_OPTIONS = Object.freeze([
-  ROUX_RETRY_OPTIONS[2],
-  ROUX_RETRY_OPTIONS[3],
   ROUX_RETRY_OPTIONS[4],
 ]);
 const ZB_RETRY_OPTIONS = [
@@ -141,6 +139,10 @@ const ZB_RETRY_OPTIONS = [
     zbllNodeLimit: 3800000,
   },
 ];
+const ZB_STRICT_RETRY_OPTIONS = Object.freeze([
+  ZB_RETRY_OPTIONS[2],
+  ZB_RETRY_OPTIONS[3],
+]);
 const INTERNAL_PHASE_FALLBACK_OPTIONS = {
   phase1MaxDepth: 13,
   phase2MaxDepth: 20,
@@ -756,12 +758,12 @@ const api = {
     let mode = "strict";
     let f2lMethod = "legacy";
     let rouxParallelPrimary = ROUX_PARALLEL_PRIMARY_ENABLED;
-    let rouxParallelRescue = true;
+    let rouxParallelRescue = false;
     let rouxOrientationSweep = true;
     let rouxSweepMaxChecks = 3;
     let rouxAllowCfopStageRecovery = true;
     let rouxRecoverAllStages = false;
-    let rouxSafetyCfop = false;
+    let rouxSafetyCfop = true;
     if (arg1 && typeof arg1 === "object" && !Array.isArray(arg1)) {
       scramble = arg1.scramble;
       eventId = arg1.eventId;
@@ -1113,26 +1115,27 @@ const api = {
                     sbFormulaBeamWidth: 12,
                     sbFormulaExpansionLimit: 20,
                     sbFormulaMaxAttempts: 1200000,
-                    sbSearchMaxDepth: 16,
+                    sbSearchMaxDepth: 15,
                     sbNodeLimit: 2400000,
+                    sbStageTimeBudgetMs: 25000,
                     cmllFormulaAttemptLimit: 280000,
                     cmllSearchMaxDepth: 15,
                     cmllNodeLimit: 1300000,
                     lseFormulaAttemptLimit: 320000,
-                    lseSearchMaxDepth: 16,
+                    lseSearchMaxDepth: 15,
                     lseNodeLimit: 2400000,
-                    lseSecondarySearchMaxDepth: 17,
+                    lseSecondarySearchMaxDepth: 16,
                     lseSecondaryNodeLimit: 3600000,
                     lsePllFallback: true,
-                    lseStageTimeBudgetMs: 70000,
-                    sbDeepRetry: true,
+                    lseStageTimeBudgetMs: 25000,
+                    sbDeepRetry: false,
                     rouxLastLayerDeepRetry: true,
                     retryOptions: ROUX_STRICT_RETRY_OPTIONS,
                     // Parallel sweep already covers orientation alternatives.
                     rouxOrientationSweep: rouxParallelSucceeded ? false : rouxOrientationSweep,
                     rouxSweepMaxChecks: rouxParallelSucceeded ? 0 : rouxSweepMaxChecks,
                     rouxAllowCfopStageRecovery,
-                    rouxRecoverAllStages,
+                    rouxRecoverAllStages: true,
                   }
                 : {}),
               ...(mode === "zb"
@@ -1140,10 +1143,12 @@ const api = {
                     zblsFormulaAttemptLimit: 180000,
                     zblsSearchMaxDepth: 15,
                     zblsNodeLimit: 2200000,
+                    zblsStageTimeBudgetMs: 22000,
                     zbllFormulaAttemptLimit: 240000,
                     zbllSearchMaxDepth: 16,
                     zbllNodeLimit: 2600000,
-                    retryOptions: ZB_RETRY_OPTIONS,
+                    zbllStageTimeBudgetMs: 22000,
+                    retryOptions: ZB_STRICT_RETRY_OPTIONS,
                   }
                 : {}),
               ...(useLegacyRecovery
@@ -1254,6 +1259,47 @@ const api = {
           }
         }
 
+        if (!strictResult?.ok && mode === "zb") {
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_start",
+                stageName: "ZB Safety CFOP",
+                reason: strictResult?.reason || "ZB_STAGE_FAILED",
+              });
+            } catch (_) {}
+          }
+          const zbSafetyResult = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
+            crossColor,
+            mode: "strict",
+            f2lMethod: "legacy",
+            retryOptions: [STRICT_F2L_RETRY_OPTIONS[0]],
+          });
+          if (zbSafetyResult?.ok) {
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_done",
+                  stageName: "ZB Safety CFOP",
+                });
+              } catch (_) {}
+            }
+            return {
+              ...zbSafetyResult,
+              source: "INTERNAL_3X3_ZB_SAFETY_CFOP",
+              fallbackFrom: strictResult?.reason || "ZB_STAGE_FAILED",
+            };
+          }
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_fail",
+                stageName: "ZB Safety CFOP",
+              });
+            } catch (_) {}
+          }
+        }
+
         if (strictResult?.ok || !shouldFallbackToExternal3x3(strictResult)) {
           return strictResult;
         }
@@ -1292,8 +1338,8 @@ const api = {
           } catch (_) {}
         }
 
-        if (mode !== "strict") {
-          // Do not use external library fallback in non-strict modes (optimal/fmc/roux/zb).
+        if (mode === "fmc" || mode === "optimal") {
+          // Keep fmc/optimal isolated from external fallback heuristics.
           return phaseResult?.reason ? phaseResult : strictResult;
         }
 

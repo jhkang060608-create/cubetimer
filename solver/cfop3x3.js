@@ -5565,6 +5565,9 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
 export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   const ctx = await getCfopContext();
   const solveDeadlineTs = normalizeDeadlineTs(options.deadlineTs);
+  const recoveryGraceMs = normalizeDepth(options.recoveryGraceMs, 12000);
+  const getRecoveryDeadlineTs = () =>
+    Number.isFinite(solveDeadlineTs) ? Math.max(solveDeadlineTs, Date.now() + recoveryGraceMs) : solveDeadlineTs;
   const solveMode = normalizeSolveMode(options.mode);
   const crossFailureStageName =
     solveMode === "roux" ? "FB" : solveMode === "zb" ? "XCross" : "Cross";
@@ -5959,10 +5962,27 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       });
     }
     let stageDeadlineTs = solveDeadlineTs;
-    if (solveMode === "roux" && stage?.name === "LSE") {
-      const lseStageTimeBudgetMs = normalizeDepth(options.lseStageTimeBudgetMs, 60000);
-      if (Number.isFinite(solveDeadlineTs) && lseStageTimeBudgetMs > 0) {
-        stageDeadlineTs = Math.min(solveDeadlineTs, Date.now() + lseStageTimeBudgetMs);
+    if (Number.isFinite(solveDeadlineTs)) {
+      if (solveMode === "roux" && stage?.name === "SB") {
+        const sbStageTimeBudgetMs = normalizeDepth(options.sbStageTimeBudgetMs, 25000);
+        if (sbStageTimeBudgetMs > 0) {
+          stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + sbStageTimeBudgetMs);
+        }
+      } else if (solveMode === "roux" && stage?.name === "LSE") {
+        const lseStageTimeBudgetMs = normalizeDepth(options.lseStageTimeBudgetMs, 25000);
+        if (lseStageTimeBudgetMs > 0) {
+          stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + lseStageTimeBudgetMs);
+        }
+      } else if (solveMode === "zb" && stage?.name === "ZBLS") {
+        const zblsStageTimeBudgetMs = normalizeDepth(options.zblsStageTimeBudgetMs, 22000);
+        if (zblsStageTimeBudgetMs > 0) {
+          stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + zblsStageTimeBudgetMs);
+        }
+      } else if (solveMode === "zb" && stage?.name === "ZBLL") {
+        const zbllStageTimeBudgetMs = normalizeDepth(options.zbllStageTimeBudgetMs, 22000);
+        if (zbllStageTimeBudgetMs > 0) {
+          stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + zbllStageTimeBudgetMs);
+        }
       }
     }
 
@@ -5972,6 +5992,20 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       options.rouxFbMultiCandidate !== false
         ? solveRouxFbWithCandidates(stageStartPattern, stage, ctx, options, stageDeadlineTs)
         : solveStage(stageStartPattern, stage, ctx, stageDeadlineTs);
+    if (
+      !result.ok &&
+      stage?.name === "SB" &&
+      result.reason === "SB_TIMEOUT" &&
+      Number.isFinite(stageDeadlineTs) &&
+      Number.isFinite(solveDeadlineTs) &&
+      stageDeadlineTs < solveDeadlineTs &&
+      !isDeadlineExceeded(solveDeadlineTs)
+    ) {
+      result = {
+        ...result,
+        reason: "SB_SEARCH_LIMIT",
+      };
+    }
     if (
       !result.ok &&
       stage?.name === "LSE" &&
@@ -5984,6 +6018,34 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       result = {
         ...result,
         reason: "LSE_SEARCH_LIMIT",
+      };
+    }
+    if (
+      !result.ok &&
+      stage?.name === "ZBLS" &&
+      result.reason === "ZBLS_TIMEOUT" &&
+      Number.isFinite(stageDeadlineTs) &&
+      Number.isFinite(solveDeadlineTs) &&
+      stageDeadlineTs < solveDeadlineTs &&
+      !isDeadlineExceeded(solveDeadlineTs)
+    ) {
+      result = {
+        ...result,
+        reason: "ZBLS_SEARCH_LIMIT",
+      };
+    }
+    if (
+      !result.ok &&
+      stage?.name === "ZBLL" &&
+      result.reason === "ZBLL_TIMEOUT" &&
+      Number.isFinite(stageDeadlineTs) &&
+      Number.isFinite(solveDeadlineTs) &&
+      stageDeadlineTs < solveDeadlineTs &&
+      !isDeadlineExceeded(solveDeadlineTs)
+    ) {
+      result = {
+        ...result,
+        reason: "ZBLL_SEARCH_LIMIT",
       };
     }
 
@@ -6114,7 +6176,8 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         recoverableRouxStage &&
         !options.__rouxSbRecoveryAttempted &&
         (String(result.reason || "").endsWith("_SEARCH_LIMIT") ||
-          String(result.reason || "").endsWith("_NOT_FOUND"));
+          String(result.reason || "").endsWith("_NOT_FOUND") ||
+          String(result.reason || "").endsWith("_TIMEOUT"));
       if (canAttemptRouxSbRecovery) {
         const recoveryStageName = `Roux ${stage.name} Recovery (CFOP)`;
         if (onStageUpdate) {
@@ -6126,7 +6189,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         }
         const recoveryResult = await solve3x3StrictCfopFromPattern(stageStartPattern, {
           ...options,
-          deadlineTs: solveDeadlineTs,
+          deadlineTs: getRecoveryDeadlineTs(),
           mode: "strict",
           f2lMethod: "legacy",
           crossColor: "D",
@@ -6191,7 +6254,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         }
         const recoveryResult = await solve3x3StrictCfopFromPattern(stageStartPattern, {
           ...options,
-          deadlineTs: solveDeadlineTs,
+          deadlineTs: getRecoveryDeadlineTs(),
           mode: "strict",
           f2lMethod: "legacy",
           crossColor: "D",
@@ -6244,7 +6307,8 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         (stage.name === "ZBLS" || stage.name === "ZBLL") &&
         !options.__zbRecoveryAttempted &&
         (String(result.reason || "").endsWith("_SEARCH_LIMIT") ||
-          String(result.reason || "").endsWith("_NOT_FOUND"));
+          String(result.reason || "").endsWith("_NOT_FOUND") ||
+          String(result.reason || "").endsWith("_TIMEOUT"));
       if (canAttemptZbRecovery) {
         const recoveryStageName =
           stage.name === "ZBLL" ? "ZBLL Recovery (CFOP Finish)" : "ZBLS Recovery (CFOP Finish)";
@@ -6258,7 +6322,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
 
         const recoveryResult = await solve3x3StrictCfopFromPattern(stageStartPattern, {
           ...options,
-          deadlineTs: solveDeadlineTs,
+          deadlineTs: getRecoveryDeadlineTs(),
           mode: "strict",
           crossColor: "D",
           __colorNeutralApplied: true,
@@ -6329,7 +6393,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         }
         const replayResult = await solve3x3StrictCfopFromPattern(pattern, {
           ...options,
-          deadlineTs: solveDeadlineTs,
+          deadlineTs: getRecoveryDeadlineTs(),
           fbNoDMoves: true,
           __rouxNoDReplayAttempted: true,
           __rouxOrientationApplied: true,
