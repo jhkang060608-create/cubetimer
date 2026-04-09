@@ -1593,6 +1593,152 @@ function getRouxSbGoalMacroTable(ctx, moveIndices, maxDepth, nodeLimit) {
   return table;
 }
 
+function solveRouxSbMeetInTheMiddle(startPattern, stage, ctx, deadlineTs = Infinity) {
+  if (isDeadlineExceeded(deadlineTs)) {
+    return {
+      ok: false,
+      reason: `${stage.name.toUpperCase()}_TIMEOUT`,
+      nodes: 0,
+      bound: STAGE_NOT_SET,
+    };
+  }
+
+  if (stage?.sbMitmEnabled === false) return null;
+  const startData = startPattern.patternData;
+  if (isRouxF2BSolved(startData, ctx)) {
+    return { ok: true, moves: [], depth: 0, nodes: 0, bound: 0 };
+  }
+
+  const moveIndices =
+    Array.isArray(stage.moveIndices) && stage.moveIndices.length ? stage.moveIndices : ctx.noDMoveIndices;
+  if (!Array.isArray(moveIndices) || !moveIndices.length) return null;
+
+  const searchMaxDepth = Number.isFinite(stage.searchMaxDepth) ? stage.searchMaxDepth : stage.maxDepth;
+  const forwardDepth = Math.max(2, Math.min(searchMaxDepth, normalizeDepth(stage.sbMitmForwardDepth, 6)));
+  const reverseDepth = Math.max(2, Math.min(searchMaxDepth, normalizeDepth(stage.sbMitmReverseDepth, 7)));
+  if (forwardDepth + reverseDepth < 4) return null;
+
+  const reverseNodeLimit = Math.max(20000, normalizeDepth(stage.sbMitmReverseNodeLimit, 420000));
+  const forwardNodeLimit = Math.max(20000, normalizeDepth(stage.sbMitmForwardNodeLimit, 700000));
+  const maxDepthCap = Math.min(searchMaxDepth, forwardDepth + reverseDepth);
+  const reverseTable = getRouxSbGoalMacroTable(ctx, moveIndices, reverseDepth, reverseNodeLimit);
+  if (!(reverseTable instanceof Map) || !reverseTable.size) return null;
+
+  const lockedMask =
+    Number.isFinite(stage.sbLockedPairMask) && stage.sbLockedPairMask > 0
+      ? Math.floor(stage.sbLockedPairMask)
+      : 0;
+  const lockDepthLimit =
+    Number.isFinite(stage.sbLockPreserveDepth) && stage.sbLockPreserveDepth >= 0
+      ? Math.floor(stage.sbLockPreserveDepth)
+      : 2;
+
+  let nodes = 0;
+  let timedOut = false;
+  const path = [];
+  const bestSeenDepthByState = new Map();
+
+  function lockBroken(data, depth) {
+    if (!lockedMask || depth > lockDepthLimit) return false;
+    return (getSolvedF2LPairMask(data, ctx) & lockedMask) !== lockedMask;
+  }
+
+  function canMergeWithReverse(pattern, depth) {
+    const stateKey = getF2LStateKey(pattern.patternData, ctx);
+    const tailMoveIndices = reverseTable.get(stateKey);
+    if (!Array.isArray(tailMoveIndices)) return null;
+    if (depth + tailMoveIndices.length > maxDepthCap) return null;
+    let mergedPattern = pattern;
+    for (let i = 0; i < tailMoveIndices.length; i++) {
+      const moveIndex = tailMoveIndices[i];
+      mergedPattern = mergedPattern.applyMove(MOVE_NAMES[moveIndex]);
+      if (lockBroken(mergedPattern.patternData, depth + i + 1)) {
+        return null;
+      }
+    }
+    if (!isRouxF2BSolved(mergedPattern.patternData, ctx)) return null;
+    return tailMoveIndices;
+  }
+
+  function dfs(pattern, depth, maxDepth, lastFace) {
+    if ((nodes & 255) === 0 && isDeadlineExceeded(deadlineTs)) {
+      timedOut = true;
+      return null;
+    }
+    if (timedOut) return null;
+    if (depth > maxDepth) return null;
+
+    const data = pattern.patternData;
+    if (isRouxF2BSolved(data, ctx)) {
+      return [];
+    }
+    if (lockBroken(data, depth)) return null;
+
+    const remaining = maxDepth - depth;
+    const h = getRouxSbF2bLowerBound(data, ctx, lockedMask);
+    if (h > remaining) return null;
+    if (depth + h > maxDepthCap) return null;
+
+    const mergeTail = canMergeWithReverse(pattern, depth);
+    if (mergeTail) return mergeTail;
+
+    const stateKey = getRouxSbStateKey(data, ctx, lockedMask);
+    const seenDepth = bestSeenDepthByState.get(stateKey);
+    if (Number.isFinite(seenDepth) && seenDepth <= depth) return null;
+    bestSeenDepthByState.set(stateKey, depth);
+
+    for (let i = 0; i < moveIndices.length; i++) {
+      if (nodes >= forwardNodeLimit) return null;
+      const moveIndex = moveIndices[i];
+      const face = ctx.moveFace[moveIndex];
+      if (lastFace !== NO_FACE_INDEX) {
+        if (face === lastFace) continue;
+        if (face === OPPOSITE_FACE[lastFace] && face < lastFace) continue;
+      }
+      nodes += 1;
+      path.push(moveIndex);
+      const nextPattern = pattern.applyMove(MOVE_NAMES[moveIndex]);
+      const tail = dfs(nextPattern, depth + 1, maxDepth, face);
+      if (tail) {
+        return tail;
+      }
+      path.pop();
+      if (timedOut) return null;
+    }
+    return null;
+  }
+
+  for (let bound = 0; bound <= forwardDepth; bound++) {
+    if (isDeadlineExceeded(deadlineTs)) {
+      timedOut = true;
+      break;
+    }
+    path.length = 0;
+    bestSeenDepthByState.clear();
+    const tail = dfs(startPattern, 0, bound, NO_FACE_INDEX);
+    if (tail) {
+      const moves = path.concat(tail).map((idx) => MOVE_NAMES[idx]);
+      return {
+        ok: true,
+        moves,
+        depth: moves.length,
+        nodes,
+        bound: moves.length,
+      };
+    }
+  }
+
+  if (timedOut) {
+    return {
+      ok: false,
+      reason: `${stage.name.toUpperCase()}_TIMEOUT`,
+      nodes,
+      bound: STAGE_NOT_SET,
+    };
+  }
+  return null;
+}
+
 function getGoalMacroTableByMoveEntries(
   ctx,
   solvedPattern,
@@ -2458,6 +2604,11 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         sbGoalMacroDepth: normalizeDepth(options.sbGoalMacroDepth, 8),
         sbGoalMacroNodeLimit: normalizeDepth(options.sbGoalMacroNodeLimit, 650000),
         sbGoalMacroMaxTailLength: normalizeDepth(options.sbGoalMacroMaxTailLength, 8),
+        sbMitmEnabled: options.sbMitmEnabled !== false,
+        sbMitmForwardDepth: normalizeDepth(options.sbMitmForwardDepth, 6),
+        sbMitmReverseDepth: normalizeDepth(options.sbMitmReverseDepth, 7),
+        sbMitmForwardNodeLimit: normalizeDepth(options.sbMitmForwardNodeLimit, 700000),
+        sbMitmReverseNodeLimit: normalizeDepth(options.sbMitmReverseNodeLimit, 420000),
         moveIndices: ctx.noDMoveIndices,
         movePriorityByIndex: getRouxSbMovePriorityByMoveIndex(ctx),
         isSolved(data) {
@@ -2682,6 +2833,12 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
           options.lseReducedGoalMacroMaxTailLength,
           useRouxFastProfile ? 9 : 10,
         ),
+        lsePrimaryUmOnly: options.lsePrimaryUmOnly !== false,
+        lsePrimaryMoveSet: normalizeSearchMoveTokens(
+          options.lsePrimaryMoveSet,
+          LSE_REDUCED_PRIMARY_MOVES,
+        ),
+        lseExtendedContinuationAware: options.lseExtendedContinuationAware !== false,
         allowReducedTimeoutFallback: options.lseReducedTimeoutFallback !== false,
         moveIndices: ctx.noDMoveIndices,
         // 기본은 탐색 fallback을 켜서 LSE_NOT_FOUND를 줄인다. false로 명시하면 끈다.
@@ -2801,6 +2958,10 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         seedDefaultExpansionLimit,
       ),
       formulaMaxAttempts: normalizeDepth(options.f2lFormulaMaxAttempts, seedDefaultFormulaAttempts),
+      formulaTimeBudgetMs: normalizeDepth(
+        options.f2lFormulaTimeBudgetMs,
+        useNoDbMode ? 0 : useDbSeedMode ? 2600 : 7000,
+      ),
       searchMaxDepth: normalizeDepth(
         useNoDbMode
           ? options.f2lPairSearchMaxDepth
@@ -2960,6 +3121,31 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         useZbStages ? options.zblsFormulaTimeBudgetMs : options.ollFormulaTimeBudgetMs,
         useZbStages ? 0 : 5000,
       ),
+      secondaryQualityFallback: useZbStages ? options.zblsSecondaryQualityFallback !== false : false,
+      secondarySearchMaxDepth: normalizeDepth(
+        options.zblsSecondarySearchMaxDepth,
+        normalizeDepth(options.zblsSearchMaxDepth, 15) + 2,
+      ),
+      secondaryNodeLimit: normalizeDepth(
+        options.zblsSecondaryNodeLimit,
+        Math.max(normalizeDepth(options.zblsNodeLimit, 2200000), 3000000),
+      ),
+      secondaryFormulaAttemptLimit: normalizeDepth(
+        options.zblsSecondaryFormulaAttemptLimit,
+        Math.max(normalizeDepth(options.zblsFormulaAttemptLimit, 180000), 300000),
+      ),
+      emergencySearchMaxDepth: normalizeDepth(
+        options.zblsEmergencySearchMaxDepth,
+        normalizeDepth(options.zblsSearchMaxDepth, 15) + 3,
+      ),
+      emergencyNodeLimit: normalizeDepth(
+        options.zblsEmergencyNodeLimit,
+        Math.max(normalizeDepth(options.zblsNodeLimit, 2200000), 4200000),
+      ),
+      emergencyFormulaAttemptLimit: normalizeDepth(
+        options.zblsEmergencyFormulaAttemptLimit,
+        Math.max(normalizeDepth(options.zblsFormulaAttemptLimit, 180000), 340000),
+      ),
       nodeLimit: normalizeDepth(
         useZbStages ? options.zblsNodeLimit : options.ollNodeLimit,
         useZbStages ? 2200000 : 0,
@@ -3039,6 +3225,31 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       formulaTimeBudgetMs: normalizeDepth(
         useZbStages ? options.zbllFormulaTimeBudgetMs : options.pllFormulaTimeBudgetMs,
         useZbStages ? 0 : 6000,
+      ),
+      secondaryQualityFallback: useZbStages ? options.zbllSecondaryQualityFallback !== false : false,
+      secondarySearchMaxDepth: normalizeDepth(
+        options.zbllSecondarySearchMaxDepth,
+        normalizeDepth(options.zbllSearchMaxDepth, 16) + 1,
+      ),
+      secondaryNodeLimit: normalizeDepth(
+        options.zbllSecondaryNodeLimit,
+        Math.max(normalizeDepth(options.zbllNodeLimit, 2600000), 3400000),
+      ),
+      secondaryFormulaAttemptLimit: normalizeDepth(
+        options.zbllSecondaryFormulaAttemptLimit,
+        Math.max(normalizeDepth(options.zbllFormulaAttemptLimit, 240000), 380000),
+      ),
+      emergencySearchMaxDepth: normalizeDepth(
+        options.zbllEmergencySearchMaxDepth,
+        normalizeDepth(options.zbllSearchMaxDepth, 16) + 2,
+      ),
+      emergencyNodeLimit: normalizeDepth(
+        options.zbllEmergencyNodeLimit,
+        Math.max(normalizeDepth(options.zbllNodeLimit, 2600000), 5000000),
+      ),
+      emergencyFormulaAttemptLimit: normalizeDepth(
+        options.zbllEmergencyFormulaAttemptLimit,
+        Math.max(normalizeDepth(options.zbllFormulaAttemptLimit, 240000), 460000),
       ),
       nodeLimit: normalizeDepth(
         useZbStages ? options.zbllNodeLimit : options.pllNodeLimit,
@@ -3794,10 +4005,19 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
   const maxAttempts = stage.formulaMaxAttempts || STRICT_CFOP_PROFILE.f2lFormulaMaxAttempts;
   const beamWidth = stage.formulaBeamWidth || STRICT_CFOP_PROFILE.f2lFormulaBeamWidth;
   const expansionLimit = stage.formulaExpansionLimit || STRICT_CFOP_PROFILE.f2lFormulaExpansionLimit;
+  const formulaBudgetMs = normalizeDepth(stage.formulaTimeBudgetMs, 0);
+  const formulaDeadlineTs =
+    formulaBudgetMs > 0
+      ? Math.min(deadlineTs, Date.now() + Math.max(300, formulaBudgetMs))
+      : deadlineTs;
   const attemptsRef = { count: 0 };
 
+  function isFormulaDeadlineExceeded() {
+    return isDeadlineExceeded(formulaDeadlineTs);
+  }
+
   function collectCandidates(node, nextFormulaDepth, bestDepthByState) {
-    if (isDeadlineExceeded(deadlineTs)) return null;
+    if (isFormulaDeadlineExceeded()) return null;
     const currentPattern = node.pattern;
     const currentData = currentPattern.patternData;
     const currentMetrics = metricsFor(currentData, node.key);
@@ -3881,7 +4101,7 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
     const scanAll = !candidateIndices;
     const scanLength = scanAll ? libEntries.length : candidateIndices.length;
     for (let i = 0; i < scanLength; i++) {
-      if ((attemptsRef.count & 255) === 0 && isDeadlineExceeded(deadlineTs)) return null;
+      if ((attemptsRef.count & 255) === 0 && isFormulaDeadlineExceeded()) return null;
       if (attemptsRef.count >= maxAttempts) break;
       const entry = scanAll ? libEntries[i] : libEntries[candidateIndices[i]];
       let matches = true;
@@ -3917,7 +4137,7 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
           : null;
       if (fallbackCandidates) {
         for (let i = 0; i < fallbackCandidates.length; i++) {
-          if ((attemptsRef.count & 255) === 0 && isDeadlineExceeded(deadlineTs)) return null;
+          if ((attemptsRef.count & 255) === 0 && isFormulaDeadlineExceeded()) return null;
           if (attemptsRef.count >= maxAttempts) break;
           const nextPattern = tryApplyTransformation(currentPattern, fallbackCandidates[i].transformation);
           attemptsRef.count += 1;
@@ -3931,7 +4151,7 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
           for (let a = 0; a < FORMULA_AUF.length && !stop; a++) {
             const preAuf = FORMULA_AUF[a];
             for (let i = 0; i < formulas.length; i++) {
-              if ((attemptsRef.count & 255) === 0 && isDeadlineExceeded(deadlineTs)) return null;
+              if ((attemptsRef.count & 255) === 0 && isFormulaDeadlineExceeded()) return null;
               if (attemptsRef.count >= maxAttempts) {
                 stop = true;
                 break;
@@ -3990,10 +4210,12 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
   const startKey = stage.key(startData);
   let beam = [{ pattern: startPattern, moves: [], key: startKey, ranking: metricsFor(startData) }];
   const bestDepthByState = new Map([[startKey, 0]]);
+  let bestPairProgress = beam[0].ranking.pairProgress;
+  let stagnationSteps = 0;
 
   const maxFormulaSteps = stage.formulaMaxSteps || FORMULA_F2L_MAX_STEPS;
   for (let step = 0; step < maxFormulaSteps; step++) {
-    if (isDeadlineExceeded(deadlineTs)) {
+    if (isFormulaDeadlineExceeded()) {
       return {
         ok: false,
         reason: `${stage.name.toUpperCase()}_TIMEOUT`,
@@ -4054,6 +4276,15 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
     if (nextBeam.length > beamWidth) {
       nextBeam = nextBeam.slice(0, beamWidth);
     }
+
+    const stepBestPairProgress = nextBeam.length ? nextBeam[0].ranking.pairProgress : bestPairProgress;
+    if (stepBestPairProgress > bestPairProgress) {
+      bestPairProgress = stepBestPairProgress;
+      stagnationSteps = 0;
+    } else {
+      stagnationSteps += 1;
+    }
+
     beam = nextBeam;
     for (let i = 0; i < beam.length; i++) {
       const prevDepth = bestDepthByState.get(beam[i].key);
@@ -4069,6 +4300,10 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx, deadlineTs = Infinity) 
           bound: beam[i].moves.length,
         };
       }
+    }
+    const stagnationLimit = stage.name === "F2L" ? 2 : 3;
+    if (stagnationSteps >= stagnationLimit && step >= 1) {
+      break;
     }
     if (attemptsRef.count >= maxAttempts) break;
   }
@@ -4415,6 +4650,14 @@ function solveRouxSbCustomSearch(startPattern, stage, ctx, deadlineTs = Infinity
       nodes: 0,
       bound: STAGE_NOT_SET,
     };
+  }
+
+  const mitmResult = solveRouxSbMeetInTheMiddle(startPattern, stage, ctx, deadlineTs);
+  if (mitmResult?.ok) {
+    return mitmResult;
+  }
+  if (mitmResult && !mitmResult.ok && String(mitmResult.reason || "").endsWith("_TIMEOUT")) {
+    return mitmResult;
   }
 
   const lockedMask =
@@ -5463,19 +5706,24 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
           };
   }
 
-  const primaryMoves = buildMoveEntries(stage.lseReducedMoveSet, LSE_REDUCED_PRIMARY_MOVES);
+  const incomingContinuation =
+    stage.__continuation && typeof stage.__continuation === "object" ? stage.__continuation : null;
+
+  const primaryMoveTokens =
+    stage.lsePrimaryUmOnly === false
+      ? normalizeSearchMoveTokens(stage.lseReducedMoveSet, LSE_REDUCED_PRIMARY_MOVES)
+      : normalizeSearchMoveTokens(stage.lsePrimaryMoveSet, LSE_REDUCED_PRIMARY_MOVES);
+  const primaryMoves = buildMoveEntries(primaryMoveTokens, LSE_REDUCED_PRIMARY_MOVES);
   if (!primaryMoves.length) return null;
 
-  const primaryResult = runReducedSearch(primaryMoves, reducedSearchMaxDepth, reducedNodeLimit);
-  if (!primaryResult || primaryResult.ok) return primaryResult;
-  const primaryTimedOut = String(primaryResult.reason || "").endsWith("_TIMEOUT");
+  if (stage.lseReducedExtended === false) {
+    return runReducedSearch(primaryMoves, reducedSearchMaxDepth, reducedNodeLimit);
+  }
 
-  if (stage.lseReducedExtended === false) return primaryResult;
-  const extendedMoves = buildMoveEntries(
-    stage.lseReducedExtendedMoveSet,
-    LSE_REDUCED_EXTENDED_MOVES,
-  );
-  if (!extendedMoves.length) return primaryResult;
+  const extendedMoves = buildMoveEntries(stage.lseReducedExtendedMoveSet, LSE_REDUCED_EXTENDED_MOVES);
+  if (!extendedMoves.length) {
+    return runReducedSearch(primaryMoves, reducedSearchMaxDepth, reducedNodeLimit);
+  }
 
   let sameMoveSet = extendedMoves.length === primaryMoves.length;
   if (sameMoveSet) {
@@ -5486,7 +5734,24 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
       }
     }
   }
-  if (sameMoveSet) return primaryResult;
+  if (sameMoveSet) {
+    return runReducedSearch(primaryMoves, reducedSearchMaxDepth, reducedNodeLimit);
+  }
+
+  const extendedSignature = extendedMoves.map((entry) => entry.move).join("|");
+  const hasExtendedContinuation =
+    stage.lseExtendedContinuationAware !== false &&
+    incomingContinuation?.type === "lse-reduced" &&
+    incomingContinuation.moveSignature === extendedSignature;
+
+  let primaryResult = null;
+  if (!hasExtendedContinuation) {
+    primaryResult = runReducedSearch(primaryMoves, reducedSearchMaxDepth, reducedNodeLimit);
+    if (!primaryResult || primaryResult.ok) return primaryResult;
+  }
+
+  const primaryTimedOut =
+    primaryResult && !primaryResult.ok && String(primaryResult.reason || "").endsWith("_TIMEOUT");
 
   const extendedSearchMaxDepth = Math.max(
     reducedSearchMaxDepth,
@@ -5505,12 +5770,18 @@ function solveLseReducedMoveSearch(startPattern, stage, ctx, deadlineTs = Infini
     extendedNodeLimit,
   );
   if (!extendedResult) return primaryResult;
-  if (!extendedResult.ok && primaryTimedOut && String(extendedResult.reason || "").endsWith("_TIMEOUT")) {
+  if (
+    primaryResult &&
+    !extendedResult.ok &&
+    primaryTimedOut &&
+    String(extendedResult.reason || "").endsWith("_TIMEOUT")
+  ) {
     return {
       ...extendedResult,
       nodes: Math.max(extendedResult.nodes || 0, primaryResult.nodes || 0),
     };
   }
+  if (!primaryResult) return extendedResult;
   return {
     ...extendedResult,
     nodes: (extendedResult.nodes || 0) + (primaryResult.nodes || 0),
@@ -5962,25 +6233,27 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
 
   const canRunZbQualityFallback =
     (stage.name === "ZBLS" || stage.name === "ZBLL") &&
+    stage.secondaryQualityFallback !== false &&
     !stage.__zbSecondaryAttempted &&
     !stage.disableSearchFallback;
   if (canRunZbQualityFallback) {
     const isZblsStage = stage.name === "ZBLS";
+    const continuationForRetry =
+      stage.__continuation && typeof stage.__continuation === "object" ? stage.__continuation : null;
     const secondaryStage = {
       ...stage,
-      __resumeFromContinuation: false,
-      __continuation: null,
+      __resumeFromContinuation: !!continuationForRetry,
+      __continuation: continuationForRetry,
       __zbSecondaryAttempted: true,
       moveIndices: ctx.allMoveIndices,
-      searchMaxDepth:
-        normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + (isZblsStage ? 2 : 1),
-      nodeLimit: Math.max(
-        normalizeDepth(stage.nodeLimit, 0),
-        isZblsStage ? 3000000 : 3400000,
+      searchMaxDepth: Math.max(
+        normalizeDepth(stage.searchMaxDepth, stage.maxDepth),
+        normalizeDepth(stage.secondarySearchMaxDepth, normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + (isZblsStage ? 2 : 1)),
       ),
+      nodeLimit: Math.max(normalizeDepth(stage.nodeLimit, 0), normalizeDepth(stage.secondaryNodeLimit, isZblsStage ? 3000000 : 3400000)),
       formulaAttemptLimit: Math.max(
         normalizeDepth(stage.formulaAttemptLimit, 0),
-        isZblsStage ? 300000 : 380000,
+        normalizeDepth(stage.secondaryFormulaAttemptLimit, isZblsStage ? 300000 : 380000),
       ),
     };
     const secondaryResult = solveStage(startPattern, secondaryStage, ctx, deadlineTs);
@@ -5995,21 +6268,20 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     if (canRunZbEmergencyFallback) {
       const emergencyStage = {
         ...stage,
-        __resumeFromContinuation: false,
-        __continuation: null,
+        __resumeFromContinuation: !!continuationForRetry,
+        __continuation: continuationForRetry,
         __zbSecondaryAttempted: true,
         __zbEmergencyAttempted: true,
         skipFormulaDb: true,
         moveIndices: ctx.allMoveIndices,
-        searchMaxDepth:
-          normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + (isZblsStage ? 3 : 2),
-        nodeLimit: Math.max(
-          normalizeDepth(stage.nodeLimit, 0),
-          isZblsStage ? 4200000 : 5000000,
+        searchMaxDepth: Math.max(
+          normalizeDepth(stage.searchMaxDepth, stage.maxDepth),
+          normalizeDepth(stage.emergencySearchMaxDepth, normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + (isZblsStage ? 3 : 2)),
         ),
+        nodeLimit: Math.max(normalizeDepth(stage.nodeLimit, 0), normalizeDepth(stage.emergencyNodeLimit, isZblsStage ? 4200000 : 5000000)),
         formulaAttemptLimit: Math.max(
           normalizeDepth(stage.formulaAttemptLimit, 0),
-          isZblsStage ? 340000 : 460000,
+          normalizeDepth(stage.emergencyFormulaAttemptLimit, isZblsStage ? 340000 : 460000),
         ),
       };
       const emergencyResult = solveStage(startPattern, emergencyStage, ctx, deadlineTs);
@@ -6029,10 +6301,12 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     !stage.__lseSecondaryAttempted &&
     !stage.disableSearchFallback;
   if (canRunLseQualityFallback) {
+    const continuationForRetry =
+      stage.__continuation && typeof stage.__continuation === "object" ? stage.__continuation : null;
     const secondaryStage = {
       ...stage,
-      __resumeFromContinuation: false,
-      __continuation: null,
+      __resumeFromContinuation: !!continuationForRetry,
+      __continuation: continuationForRetry,
       __lseSecondaryAttempted: true,
       formulaKeys:
         Array.isArray(stage.secondaryFormulaKeys) && stage.secondaryFormulaKeys.length
@@ -6068,8 +6342,8 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
     if (canRunLseEmergencyFallback) {
       const emergencyStage = {
         ...stage,
-        __resumeFromContinuation: false,
-        __continuation: null,
+        __resumeFromContinuation: !!continuationForRetry,
+        __continuation: continuationForRetry,
         __lseEmergencyAttempted: true,
         __lseSecondaryAttempted: true,
         secondaryLseQualityFallback: false,

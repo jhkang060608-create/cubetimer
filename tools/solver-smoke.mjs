@@ -26,6 +26,8 @@ const defaultOptions = {
   maxDepth: 14,
   randomCount: 0,
   randomLength: 6,
+  caseTimeoutMs: 60000,
+  caseMaxNodes: 1500000,
 };
 
 let solve2x2ScrambleFn = null;
@@ -37,6 +39,8 @@ Options:
   --random-count <n>   Add <n> random 3x3 smoke cases (default: 0)
   --random-length <n>  Random scramble length for generated cases (default: 6)
   --max-depth <n>      Max search depth passed to the 3x3 solver (default: 14)
+  --case-timeout-ms <n>  Timeout per case in milliseconds (default: 60000)
+  --case-max-nodes <n>  Max node expansions per 3x3 case (default: 1500000)
   --include-2x2        Also run optional 2x2 smoke cases
   --help               Show this message`);
 }
@@ -62,7 +66,13 @@ function parseArgs(argv) {
       options.include2x2 = true;
       continue;
     }
-    if (arg === "--random-count" || arg === "--random-length" || arg === "--max-depth") {
+    if (
+      arg === "--random-count" ||
+      arg === "--random-length" ||
+      arg === "--max-depth" ||
+      arg === "--case-timeout-ms" ||
+      arg === "--case-max-nodes"
+    ) {
       const next = argv[i + 1];
       if (typeof next !== "string") {
         throw new Error(`Missing value for ${arg}`);
@@ -72,6 +82,10 @@ function parseArgs(argv) {
         options.randomCount = parsePositiveInteger(arg, next);
       } else if (arg === "--random-length") {
         options.randomLength = parsePositiveInteger(arg, next);
+      } else if (arg === "--case-timeout-ms") {
+        options.caseTimeoutMs = parsePositiveInteger(arg, next);
+      } else if (arg === "--case-max-nodes") {
+        options.caseMaxNodes = parsePositiveInteger(arg, next);
       } else {
         options.maxDepth = parsePositiveInteger(arg, next);
       }
@@ -167,15 +181,37 @@ async function solveCase(testCase, options) {
   return await solveScramble(testCase.scramble, {
     eventId: testCase.eventId,
     maxDepth: options.maxDepth,
+    deadlineTs: Date.now() + options.caseTimeoutMs,
+    maxNodes: options.caseMaxNodes,
   });
 }
 
+function withTimeout(promise, timeoutMs, label) {
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    return promise;
+  }
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error(`${label}: timeout after ${timeoutMs}ms`));
+      }, timeoutMs);
+      timer.unref?.();
+    }),
+  ]);
+}
+
 async function verifyCase(testCase, options) {
+  console.log(`${testCase.name}: start (event=${testCase.eventId}, scramble="${testCase.scramble}")`);
   const startState = await SolverState.fromScramble(testCase.scramble, testCase.eventId);
   const startedAt = Date.now();
   let result;
   try {
-    result = await solveCase(testCase, options);
+    result = await withTimeout(
+      solveCase(testCase, options),
+      options.caseTimeoutMs,
+      `${testCase.name} [${testCase.eventId}]`,
+    );
   } catch (error) {
     if (testCase.kind === "2x2") {
       throw new Error(`${testCase.name}: 2x2 solver threw before verification (${error instanceof Error ? error.message : String(error)})`);

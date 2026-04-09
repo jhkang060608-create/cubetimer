@@ -34,20 +34,26 @@ const CROSS_COLOR_ROTATION_CANDIDATES = Object.freeze({
 });
 const STRICT_F2L_RETRY_OPTIONS = [
   {
-    f2lFormulaMaxSteps: 16,
-    f2lFormulaBeamWidth: 12,
-    f2lFormulaExpansionLimit: 20,
-    f2lFormulaMaxAttempts: 600000,
-    f2lSearchMaxDepth: 14,
-    f2lNodeLimit: 600000,
+    f2lFormulaMaxSteps: 14,
+    f2lFormulaBeamWidth: 10,
+    f2lFormulaExpansionLimit: 16,
+    f2lFormulaMaxAttempts: 420000,
+    f2lFormulaTimeBudgetMs: 7500,
+    f2lSearchMaxDepth: 13,
+    f2lNodeLimit: 520000,
+    f2lPairSearchMaxDepth: 16,
+    f2lPairNodeLimit: 1400000,
   },
   {
-    f2lFormulaMaxSteps: 18,
-    f2lFormulaBeamWidth: 16,
-    f2lFormulaExpansionLimit: 28,
-    f2lFormulaMaxAttempts: 1200000,
-    f2lSearchMaxDepth: 16,
-    f2lNodeLimit: 1500000,
+    f2lFormulaMaxSteps: 16,
+    f2lFormulaBeamWidth: 12,
+    f2lFormulaExpansionLimit: 22,
+    f2lFormulaMaxAttempts: 900000,
+    f2lFormulaTimeBudgetMs: 9500,
+    f2lSearchMaxDepth: 15,
+    f2lNodeLimit: 1200000,
+    f2lPairSearchMaxDepth: 18,
+    f2lPairNodeLimit: 2200000,
   },
 ];
 const ROUX_RETRY_OPTIONS = [
@@ -759,6 +765,7 @@ const api = {
     let crossColor = "D";
     let mode = "strict";
     let f2lMethod = "legacy";
+    let hasExplicitF2LMethod = false;
     let rouxParallelPrimary = ROUX_PARALLEL_PRIMARY_ENABLED;
     let rouxParallelRescue = false;
     let rouxOrientationSweep = true;
@@ -780,6 +787,7 @@ const api = {
       }
       if (typeof arg1.f2lMethod === "string" && arg1.f2lMethod) {
         f2lMethod = arg1.f2lMethod;
+        hasExplicitF2LMethod = true;
       }
       if (typeof arg1.rouxParallelPrimary === "boolean") {
         rouxParallelPrimary = arg1.rouxParallelPrimary;
@@ -822,10 +830,15 @@ const api = {
       }
       if (typeof arg6 === "string" && arg6) {
         f2lMethod = arg6;
+        hasExplicitF2LMethod = true;
       }
     }
     mode = normalizeMode(mode);
     f2lMethod = normalizeF2LMethod(f2lMethod);
+    if (mode === "strict" && !hasExplicitF2LMethod) {
+      // strict 기본값은 hybrid로 두어 최근 F2L 병목을 줄이고 실패 복구율을 높인다.
+      f2lMethod = "hybrid";
+    }
     const normalizedEventId = eventId === "333fm" ? "333" : eventId;
     if (!scramble) {
       return { ok: false, reason: "NO_SCRAMBLE" };
@@ -1088,6 +1101,9 @@ const api = {
             crossColor,
             mode: "strict",
             f2lMethod,
+            f2lFormulaTimeBudgetMs: 7000,
+            f2lPairSearchMaxDepth: 16,
+            f2lPairNodeLimit: 1500000,
             retryOptions: [],
           });
           if (!strictResult?.ok && f2lMethod === "hybrid") {
@@ -1122,6 +1138,11 @@ const api = {
               f2lMethod: useLegacyRecovery ? "legacy" : f2lMethod,
               ...(mode === "roux"
                 ? {
+                    sbMitmEnabled: true,
+                    sbMitmForwardDepth: 6,
+                    sbMitmReverseDepth: 7,
+                    sbMitmForwardNodeLimit: 760000,
+                    sbMitmReverseNodeLimit: 460000,
                     sbFormulaBeamWidth: 12,
                     sbFormulaExpansionLimit: 20,
                     sbFormulaMaxAttempts: 1200000,
@@ -1136,6 +1157,8 @@ const api = {
                     lseNodeLimit: 1800000,
                     lseSecondarySearchMaxDepth: 16,
                     lseSecondaryNodeLimit: 2600000,
+                    lsePrimaryUmOnly: true,
+                    lseExtendedContinuationAware: true,
                     lsePllFallback: true,
                     lseStageTimeBudgetMs: 32000,
                     sbDeepRetry: false,
@@ -1154,10 +1177,24 @@ const api = {
                     zblsFormulaAttemptLimit: 180000,
                     zblsSearchMaxDepth: 15,
                     zblsNodeLimit: 2200000,
+                    zblsSecondaryQualityFallback: true,
+                    zblsSecondarySearchMaxDepth: 17,
+                    zblsSecondaryNodeLimit: 3200000,
+                    zblsSecondaryFormulaAttemptLimit: 320000,
+                    zblsEmergencySearchMaxDepth: 18,
+                    zblsEmergencyNodeLimit: 4400000,
+                    zblsEmergencyFormulaAttemptLimit: 360000,
                     zblsStageTimeBudgetMs: 30000,
                     zbllFormulaAttemptLimit: 240000,
                     zbllSearchMaxDepth: 16,
                     zbllNodeLimit: 2600000,
+                    zbllSecondaryQualityFallback: true,
+                    zbllSecondarySearchMaxDepth: 17,
+                    zbllSecondaryNodeLimit: 3600000,
+                    zbllSecondaryFormulaAttemptLimit: 400000,
+                    zbllEmergencySearchMaxDepth: 18,
+                    zbllEmergencyNodeLimit: 5200000,
+                    zbllEmergencyFormulaAttemptLimit: 480000,
                     zbllStageTimeBudgetMs: 30000,
                     zbAllowCfopStageRecovery,
                     retryOptions: ZB_STRICT_RETRY_OPTIONS,
