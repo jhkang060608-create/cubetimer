@@ -5565,7 +5565,7 @@ function solveStage(startPattern, stage, ctx, deadlineTs = Infinity) {
 export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   const ctx = await getCfopContext();
   const solveDeadlineTs = normalizeDeadlineTs(options.deadlineTs);
-  const recoveryGraceMs = normalizeDepth(options.recoveryGraceMs, 12000);
+  const recoveryGraceMs = normalizeDepth(options.recoveryGraceMs, 25000);
   const getRecoveryDeadlineTs = () =>
     Number.isFinite(solveDeadlineTs) ? Math.max(solveDeadlineTs, Date.now() + recoveryGraceMs) : solveDeadlineTs;
   const solveMode = normalizeSolveMode(options.mode);
@@ -5964,22 +5964,22 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
     let stageDeadlineTs = solveDeadlineTs;
     if (Number.isFinite(solveDeadlineTs)) {
       if (solveMode === "roux" && stage?.name === "SB") {
-        const sbStageTimeBudgetMs = normalizeDepth(options.sbStageTimeBudgetMs, 25000);
+        const sbStageTimeBudgetMs = normalizeDepth(options.sbStageTimeBudgetMs, 30000);
         if (sbStageTimeBudgetMs > 0) {
           stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + sbStageTimeBudgetMs);
         }
       } else if (solveMode === "roux" && stage?.name === "LSE") {
-        const lseStageTimeBudgetMs = normalizeDepth(options.lseStageTimeBudgetMs, 25000);
+        const lseStageTimeBudgetMs = normalizeDepth(options.lseStageTimeBudgetMs, 35000);
         if (lseStageTimeBudgetMs > 0) {
           stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + lseStageTimeBudgetMs);
         }
       } else if (solveMode === "zb" && stage?.name === "ZBLS") {
-        const zblsStageTimeBudgetMs = normalizeDepth(options.zblsStageTimeBudgetMs, 22000);
+        const zblsStageTimeBudgetMs = normalizeDepth(options.zblsStageTimeBudgetMs, 30000);
         if (zblsStageTimeBudgetMs > 0) {
           stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + zblsStageTimeBudgetMs);
         }
       } else if (solveMode === "zb" && stage?.name === "ZBLL") {
-        const zbllStageTimeBudgetMs = normalizeDepth(options.zbllStageTimeBudgetMs, 22000);
+        const zbllStageTimeBudgetMs = normalizeDepth(options.zbllStageTimeBudgetMs, 30000);
         if (zbllStageTimeBudgetMs > 0) {
           stageDeadlineTs = Math.min(stageDeadlineTs, Date.now() + zbllStageTimeBudgetMs);
         }
@@ -6047,6 +6047,141 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
         ...result,
         reason: "ZBLL_SEARCH_LIMIT",
       };
+    }
+    const canRunStageBudgetRetry =
+      !result.ok &&
+      Number.isFinite(stageDeadlineTs) &&
+      Number.isFinite(solveDeadlineTs) &&
+      stageDeadlineTs < solveDeadlineTs &&
+      !isDeadlineExceeded(solveDeadlineTs) &&
+      ((stage?.name === "SB" && result.reason === "SB_SEARCH_LIMIT") ||
+        (stage?.name === "LSE" && result.reason === "LSE_SEARCH_LIMIT") ||
+        (stage?.name === "ZBLS" && result.reason === "ZBLS_SEARCH_LIMIT") ||
+        (stage?.name === "ZBLL" && result.reason === "ZBLL_SEARCH_LIMIT"));
+    if (canRunStageBudgetRetry) {
+      let stageBudgetRetryMs = 0;
+      if (stage?.name === "SB") {
+        stageBudgetRetryMs = normalizeDepth(options.sbStageRetryTimeBudgetMs, 40000);
+      } else if (stage?.name === "LSE") {
+        stageBudgetRetryMs = normalizeDepth(options.lseStageRetryTimeBudgetMs, 50000);
+      } else if (stage?.name === "ZBLS") {
+        stageBudgetRetryMs = normalizeDepth(options.zblsStageRetryTimeBudgetMs, 35000);
+      } else if (stage?.name === "ZBLL") {
+        stageBudgetRetryMs = normalizeDepth(options.zbllStageRetryTimeBudgetMs, 35000);
+      }
+      if (stageBudgetRetryMs > 0) {
+        const stageBudgetRetryStageName = `${stageLabel} Budget Retry`;
+        if (onStageUpdate) {
+          onStageUpdate({
+            type: "fallback_start",
+            stageName: stageBudgetRetryStageName,
+            reason: result.reason || `${stage.name}_SEARCH_LIMIT`,
+          });
+        }
+        const retryStageDeadlineTs = Math.min(solveDeadlineTs, Date.now() + stageBudgetRetryMs);
+        const retryStageBase = {
+          ...stage,
+          __stageBudgetRetryAttempted: true,
+        };
+        const retryStage =
+          stage?.name === "SB"
+            ? {
+                ...retryStageBase,
+                searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
+                nodeLimit: Math.max(normalizeDepth(stage.nodeLimit, 0), 2200000),
+                formulaMaxAttempts: Math.max(normalizeDepth(stage.formulaMaxAttempts, 0), 1400000),
+              }
+            : stage?.name === "LSE"
+              ? {
+                  ...retryStageBase,
+                  searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
+                  nodeLimit: Math.max(normalizeDepth(stage.nodeLimit, 0), 2200000),
+                  formulaAttemptLimit: Math.max(normalizeDepth(stage.formulaAttemptLimit, 0), 360000),
+                }
+              : stage?.name === "ZBLS"
+                ? {
+                    ...retryStageBase,
+                    searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
+                    nodeLimit: Math.max(normalizeDepth(stage.nodeLimit, 0), 2600000),
+                    formulaAttemptLimit: Math.max(normalizeDepth(stage.formulaAttemptLimit, 0), 240000),
+                  }
+                : stage?.name === "ZBLL"
+                  ? {
+                      ...retryStageBase,
+                      searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
+                      nodeLimit: Math.max(normalizeDepth(stage.nodeLimit, 0), 3200000),
+                      formulaAttemptLimit: Math.max(normalizeDepth(stage.formulaAttemptLimit, 0), 320000),
+                    }
+                  : retryStageBase;
+        let retryResult = solveStage(stageStartPattern, retryStage, ctx, retryStageDeadlineTs);
+        if (
+          !retryResult.ok &&
+          stage?.name === "SB" &&
+          retryResult.reason === "SB_TIMEOUT" &&
+          Number.isFinite(retryStageDeadlineTs) &&
+          Number.isFinite(solveDeadlineTs) &&
+          retryStageDeadlineTs < solveDeadlineTs &&
+          !isDeadlineExceeded(solveDeadlineTs)
+        ) {
+          retryResult = {
+            ...retryResult,
+            reason: "SB_SEARCH_LIMIT",
+          };
+        }
+        if (
+          !retryResult.ok &&
+          stage?.name === "LSE" &&
+          retryResult.reason === "LSE_TIMEOUT" &&
+          Number.isFinite(retryStageDeadlineTs) &&
+          Number.isFinite(solveDeadlineTs) &&
+          retryStageDeadlineTs < solveDeadlineTs &&
+          !isDeadlineExceeded(solveDeadlineTs)
+        ) {
+          retryResult = {
+            ...retryResult,
+            reason: "LSE_SEARCH_LIMIT",
+          };
+        }
+        if (
+          !retryResult.ok &&
+          stage?.name === "ZBLS" &&
+          retryResult.reason === "ZBLS_TIMEOUT" &&
+          Number.isFinite(retryStageDeadlineTs) &&
+          Number.isFinite(solveDeadlineTs) &&
+          retryStageDeadlineTs < solveDeadlineTs &&
+          !isDeadlineExceeded(solveDeadlineTs)
+        ) {
+          retryResult = {
+            ...retryResult,
+            reason: "ZBLS_SEARCH_LIMIT",
+          };
+        }
+        if (
+          !retryResult.ok &&
+          stage?.name === "ZBLL" &&
+          retryResult.reason === "ZBLL_TIMEOUT" &&
+          Number.isFinite(retryStageDeadlineTs) &&
+          Number.isFinite(solveDeadlineTs) &&
+          retryStageDeadlineTs < solveDeadlineTs &&
+          !isDeadlineExceeded(solveDeadlineTs)
+        ) {
+          retryResult = {
+            ...retryResult,
+            reason: "ZBLL_SEARCH_LIMIT",
+          };
+        }
+        const combinedNodes = (result.nodes || 0) + (retryResult.nodes || 0);
+        result = {
+          ...retryResult,
+          nodes: combinedNodes,
+        };
+        if (onStageUpdate) {
+          onStageUpdate({
+            type: result.ok ? "fallback_done" : "fallback_fail",
+            stageName: stageBudgetRetryStageName,
+          });
+        }
+      }
     }
 
     const canRunRouxSbLegacyFallback =
