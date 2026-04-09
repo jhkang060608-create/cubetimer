@@ -3,10 +3,12 @@ import { solveWithFMCSearch } from "./fmcSolver.js";
 import { solveWithExternalSearch } from "./externalSolver.js";
 import { ensureWasmSolverReady, solveWithWasmIfAvailable } from "./wasmSolver.js";
 
+// 워커 내부 상태 및 모듈 캐시: 2x2 및 3x3 phase solver 모듈을 비동기적으로 로드합니다.
 let solver2x2ModulesPromise = null;
 let solver3x3PhaseModulesPromise = null;
 const FMC_333_TIMEOUT_MS = 120000;
 const OPTIMAL_333_TIMEOUT_MS = 240000;
+// 시간 제한 및 탐색 전략: 다양한 solver 모드에서 안정적으로 결과를 가져오기 위한 설정값입니다.
 const STRICT_CFOP_TIMEOUT_MS = 45000;
 const STRICT_CFOP_RETRY_TIMEOUT_MS = 25000;
 const INTERNAL_333_PHASE_TIMEOUT_MS = 20000;
@@ -17,6 +19,11 @@ const ROUX_PARALLEL_MAX_WORKERS = 6;
 const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 22000;
 const ROUX_PARALLEL_DEFAULT_SCOUT_CHECKS = 6;
 const ROUX_PARALLEL_EARLY_STOP_MOVE_COUNT = 48;
+const ROUX_PARALLEL_PRIMARY_ENABLED = false;
+const ROUX_PARALLEL_RESCUE_TIMEOUT_MS = 16000;
+const ROUX_PARALLEL_RESCUE_MAX_WORKERS = 4;
+const ROUX_PARALLEL_RESCUE_SCOUT_CHECKS = 3;
+const ROUX_PARALLEL_RESCUE_CANDIDATE_TIMEOUT_MS = 9000;
 const CROSS_COLOR_ROTATION_CANDIDATES = Object.freeze({
   D: Object.freeze([""]),
   U: Object.freeze(["x2"]),
@@ -85,6 +92,7 @@ const ROUX_RETRY_OPTIONS = [
     lseNodeLimit: 880000,
   },
 ];
+const ROUX_STRICT_RETRY_OPTIONS = Object.freeze([ROUX_RETRY_OPTIONS[2]]);
 const ZB_RETRY_OPTIONS = [
   {
     zblsFormulaAttemptLimit: 70000,
@@ -112,6 +120,7 @@ const INTERNAL_PHASE_FALLBACK_OPTIONS = {
 };
 
 function normalizeMode(mode) {
+  // 사용자 입력 또는 저장된 값에서 유효한 solver 모드 문자열을 정규화합니다.
   const normalized = String(mode || "strict").trim().toLowerCase();
   if (normalized === "zz") {
     return "zb";
@@ -132,6 +141,7 @@ function normalizeMode(mode) {
 }
 
 function normalizeF2LMethod(method) {
+  // F2L 방법 이름을 표준화하여 내부 로직에서 일관되게 처리합니다.
   const normalized = String(method || "legacy").trim().toLowerCase();
   if (normalized === "search") {
     return "search";
@@ -148,6 +158,7 @@ function normalizeF2LMethod(method) {
   return "legacy";
 }
 
+// Cross 색상 값을 검증하고 기본값으로 보정합니다.
 function normalizeCrossColor(color) {
   const normalized = String(color || "D").trim().toUpperCase();
   return Object.prototype.hasOwnProperty.call(CROSS_COLOR_ROTATION_CANDIDATES, normalized)
@@ -156,11 +167,13 @@ function normalizeCrossColor(color) {
 }
 
 function getCrossRotationCandidates(color) {
+  // 선택된 cross 색상에 따라 회전 후보를 반환합니다.
   const normalized = normalizeCrossColor(color);
   const rotations = CROSS_COLOR_ROTATION_CANDIDATES[normalized];
   return Array.isArray(rotations) && rotations.length ? rotations : [""];
 }
 
+// 내부 3x3 solver가 실패했을 때 외부 fallback을 시도할지 판별합니다.
 function shouldFallbackToExternal3x3(result) {
   if (!result || result.ok) return false;
   const reason = String(result.reason || "");
@@ -180,7 +193,9 @@ function shouldFallbackToExternal3x3(result) {
   );
 }
 
+// Promise에 타임아웃을 적용하여 오래 걸리는 작업을 안전하게 처리합니다.
 function withTimeout(promise, timeoutMs) {
+  // 주어진 Promise에 시간 제한을 추가합니다. 제한 초과 시 TIMEOUT 에러를 발생시킵니다.
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`TIMEOUT_${timeoutMs}MS`)), timeoutMs);
     promise
@@ -195,6 +210,7 @@ function withTimeout(promise, timeoutMs) {
   });
 }
 
+// 2x2 내부 solver 실행: WASM 우선, 없으면 JS 모듈로 폴백합니다.
 async function solveWithInternal2x2(scramble) {
   const wasmResult = await solveWithWasmIfAvailable(scramble, "222");
   if (wasmResult?.ok) {
@@ -225,6 +241,7 @@ async function solveWithInternal2x2(scramble) {
   };
 }
 
+// 3x3 CFOP solver 실행: 패턴 생성 후 CFOP 단계별 탐색을 수행합니다.
 async function solveWithInternal3x3StrictCfop(scramble, onProgress, options = {}) {
   const [{ getDefaultPattern }, { solve3x3StrictCfopFromPattern }] = await Promise.all([
     import("./context.js"),
@@ -246,6 +263,7 @@ async function solveWithInternal3x3StrictCfop(scramble, onProgress, options = {}
   });
 }
 
+// 3x3 내부 phase solver 실행: phase1/phase2 기반 플래너를 사용합니다.
 async function solveWithInternal3x3Phase(scramble, options = {}) {
   if (!solver3x3PhaseModulesPromise) {
     solver3x3PhaseModulesPromise = import("./solver3x3Phase/index.js");
@@ -259,6 +277,7 @@ async function solveWithInternal3x3Phase(scramble, options = {}) {
   return solve3x3InternalPhase(pattern, options);
 }
 
+// 입력 값이 양의 정수인지 확인하고, 아니면 기본값을 반환합니다.
 function normalizePositiveInt(value, fallback) {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
@@ -266,6 +285,7 @@ function normalizePositiveInt(value, fallback) {
   return intN > 0 ? intN : fallback;
 }
 
+// 입력 값이 0 이상 정수인지 확인하고, 아니면 기본값을 반환합니다.
 function normalizeNonNegativeInt(value, fallback) {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
@@ -273,6 +293,7 @@ function normalizeNonNegativeInt(value, fallback) {
   return intN >= 0 ? intN : fallback;
 }
 
+// Roux 후보 탐색을 위해 서브 워커를 생성하고 결과를 비동기적으로 가져옵니다.
 async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeoutMs) {
   if (typeof Worker !== "function") {
     return { ok: false, reason: "WORKER_UNAVAILABLE" };
@@ -328,6 +349,7 @@ async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeo
   });
 }
 
+// Roux 병렬 탐색: 여러 방향으로 후보를 생성해 최적 해를 찾습니다.
 async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = {}) {
   if (options.rouxParallelEnabled === false) return null;
   if (typeof Worker !== "function") return null;
@@ -403,7 +425,8 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
     __rouxOrientationApplied: true,
     rouxSweepMaxChecks: 0,
   };
-  if (options.rouxParallelFastProfile === true) {
+  // Roux parallel sweep uses the fast profile by default so LSE doesn't dominate wall-clock time.
+  if (options.rouxParallelFastProfile !== false) {
     if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "enablePostInsertionOptimization")) {
       subWorkerOptions.enablePostInsertionOptimization = false;
     }
@@ -702,6 +725,13 @@ const api = {
     let crossColor = "D";
     let mode = "strict";
     let f2lMethod = "legacy";
+    let rouxParallelPrimary = ROUX_PARALLEL_PRIMARY_ENABLED;
+    let rouxParallelRescue = true;
+    let rouxOrientationSweep = false;
+    let rouxSweepMaxChecks = 1;
+    let rouxAllowCfopStageRecovery = false;
+    let rouxRecoverAllStages = false;
+    let rouxSafetyCfop = false;
     if (arg1 && typeof arg1 === "object" && !Array.isArray(arg1)) {
       scramble = arg1.scramble;
       eventId = arg1.eventId;
@@ -714,6 +744,29 @@ const api = {
       }
       if (typeof arg1.f2lMethod === "string" && arg1.f2lMethod) {
         f2lMethod = arg1.f2lMethod;
+      }
+      if (typeof arg1.rouxParallelPrimary === "boolean") {
+        rouxParallelPrimary = arg1.rouxParallelPrimary;
+      } else if (typeof arg1.rouxParallelFirst === "boolean") {
+        rouxParallelPrimary = arg1.rouxParallelFirst;
+      }
+      if (typeof arg1.rouxParallelRescue === "boolean") {
+        rouxParallelRescue = arg1.rouxParallelRescue;
+      }
+      if (typeof arg1.rouxOrientationSweep === "boolean") {
+        rouxOrientationSweep = arg1.rouxOrientationSweep;
+      }
+      if (Object.prototype.hasOwnProperty.call(arg1, "rouxSweepMaxChecks")) {
+        rouxSweepMaxChecks = normalizeNonNegativeInt(arg1.rouxSweepMaxChecks, rouxSweepMaxChecks);
+      }
+      if (typeof arg1.rouxAllowCfopStageRecovery === "boolean") {
+        rouxAllowCfopStageRecovery = arg1.rouxAllowCfopStageRecovery;
+      }
+      if (typeof arg1.rouxRecoverAllStages === "boolean") {
+        rouxRecoverAllStages = arg1.rouxRecoverAllStages;
+      }
+      if (typeof arg1.rouxSafetyCfop === "boolean") {
+        rouxSafetyCfop = arg1.rouxSafetyCfop;
       }
     } else {
       scramble = arg1;
@@ -946,7 +999,7 @@ const api = {
           } catch (_) {}
         }
         let rouxParallelSucceeded = false;
-        if (mode === "roux") {
+        if (mode === "roux" && rouxParallelPrimary) {
           const parallelRouxResult = await withTimeout(
             solveWithInternal3x3RouxParallel(scramble, onProgress, {
               crossColor,
@@ -1027,9 +1080,24 @@ const api = {
               f2lMethod: useLegacyRecovery ? "legacy" : f2lMethod,
               ...(mode === "roux"
                 ? {
-                    retryOptions: ROUX_RETRY_OPTIONS,
+                    sbFormulaBeamWidth: 10,
+                    sbFormulaExpansionLimit: 16,
+                    sbFormulaMaxAttempts: 420000,
+                    sbSearchMaxDepth: 13,
+                    sbNodeLimit: 760000,
+                    cmllFormulaAttemptLimit: 120000,
+                    cmllSearchMaxDepth: 13,
+                    cmllNodeLimit: 460000,
+                    lseFormulaAttemptLimit: 110000,
+                    lseSearchMaxDepth: 12,
+                    lseNodeLimit: 460000,
+                    sbDeepRetry: false,
+                    retryOptions: ROUX_STRICT_RETRY_OPTIONS,
                     // Parallel sweep already covers orientation alternatives.
-                    rouxOrientationSweep: rouxParallelSucceeded ? false : undefined,
+                    rouxOrientationSweep: rouxParallelSucceeded ? false : rouxOrientationSweep,
+                    rouxSweepMaxChecks: rouxParallelSucceeded ? 0 : rouxSweepMaxChecks,
+                    rouxAllowCfopStageRecovery,
+                    rouxRecoverAllStages,
                   }
                 : {}),
               ...(mode === "zb"
@@ -1058,7 +1126,53 @@ const api = {
           }
         }
 
-        if (!strictResult?.ok && mode === "roux") {
+        if (!strictResult?.ok && mode === "roux" && !rouxParallelSucceeded && rouxParallelRescue) {
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_start",
+                stageName: "Roux Parallel Sweep",
+                reason: strictResult?.reason || "ROUX_STAGE_FAILED",
+              });
+            } catch (_) {}
+          }
+          const rouxParallelRescueResult = await withTimeout(
+            solveWithInternal3x3RouxParallel(scramble, onProgress, {
+              crossColor,
+              mode,
+              f2lMethod,
+              rouxParallelWorkers: ROUX_PARALLEL_RESCUE_MAX_WORKERS,
+              rouxParallelScoutChecks: ROUX_PARALLEL_RESCUE_SCOUT_CHECKS,
+              rouxParallelCandidateTimeoutMs: ROUX_PARALLEL_RESCUE_CANDIDATE_TIMEOUT_MS,
+            }),
+            ROUX_PARALLEL_RESCUE_TIMEOUT_MS,
+          ).catch(() => null);
+          if (rouxParallelRescueResult?.ok) {
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_done",
+                  stageName: "Roux Parallel Sweep",
+                });
+              } catch (_) {}
+            }
+            return {
+              ...rouxParallelRescueResult,
+              source: "INTERNAL_3X3_ROUX_PARALLEL_RESCUE",
+              fallbackFrom: strictResult?.reason || "ROUX_STAGE_FAILED",
+            };
+          }
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_fail",
+                stageName: "Roux Parallel Sweep",
+              });
+            } catch (_) {}
+          }
+        }
+
+        if (!strictResult?.ok && mode === "roux" && rouxSafetyCfop) {
           if (typeof onProgress === "function") {
             try {
               void onProgress({

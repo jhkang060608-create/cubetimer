@@ -3,6 +3,8 @@ import { randomScrambleForEvent } from "cubing/scramble";
 import { TwistyPlayer } from "cubing/twisty";
 import { proxy, wrap } from "comlink";
 
+// ----------------------------------------------------------
+// 앱 전역 DOM 요소: HTML에서 주요 UI 요소를 가져와서 이벤트와 상태를 연결합니다.
 const scrambleText = document.getElementById("scrambleText");
 const scramblePreview = document.getElementById("scramblePreview");
 const prevScrambleBtn = document.getElementById("prevScrambleBtn");
@@ -163,6 +165,7 @@ const VALID_SOLVER_MODES = new Set([
 ]);
 const VALID_F2L_METHODS = new Set(["legacy"]);
 
+// 테마 및 저장 키: 사용자 설정을 로컬 스토리지에 안전하게 저장합니다.
 const ACCENT_THEMES = {
   ocean: {
     light: { accent: "#1f6fe5", accent2: "#2c6b5a", swatch: "#1f6fe5" },
@@ -226,6 +229,7 @@ const defaultState = () => {
 let appState = loadState();
 
 function createSession(name) {
+  // 세션 객체 생성: 새로운 타이머 세션의 기본 구조입니다.
   return {
     id: generateId(),
     name,
@@ -234,6 +238,7 @@ function createSession(name) {
 }
 
 function loadState() {
+  // 로컬 스토리지에서 상태를 불러옵니다. 데이터가 없거나 손상되면 기본 상태를 반환합니다.
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
@@ -262,14 +267,17 @@ function loadState() {
 }
 
 function saveState() {
+  // 현재 앱 상태를 로컬 스토리지에 저장합니다.
   localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
 }
 
 function activeSession() {
+  // 현재 활성화된 세션 객체를 반환합니다.
   return appState.sessions.find((s) => s.id === appState.activeSessionId);
 }
 
 function formatTime(ms) {
+  // 밀리초 단위 시간을 사용자에게 표시할 수 있는 문자열로 변환합니다.
   const totalSeconds = ms / 1000;
   if (totalSeconds < 60) {
     return totalSeconds.toFixed(2);
@@ -419,6 +427,7 @@ function clearHoldState() {
   timerDisplay.classList.remove("hold", "ready");
 }
 
+// 타이머가 실행 중일 때 애니메이션 프레임마다 호출되어 표시를 갱신합니다.
 function tick() {
   if (timerState !== "running") return;
   const now = performance.now();
@@ -428,6 +437,7 @@ function tick() {
   rafId = requestAnimationFrame(tick);
 }
 
+// 타이머를 시작하고 시간 측정을 시작합니다.
 function startTimer() {
   timerState = "running";
   clearHoldState();
@@ -439,6 +449,7 @@ function startTimer() {
   rafId = requestAnimationFrame(tick);
 }
 
+// 타이머를 중지하고 최종 기록을 세션에 저장합니다.
 function stopTimer() {
   timerState = "stopped";
   cancelAnimationFrame(rafId);
@@ -452,6 +463,7 @@ function stopTimer() {
   void generateScramble();
 }
 
+// 타이머 상태를 초기화하고 타이머 표시를 0으로 되돌립니다.
 function resetTimer() {
   timerState = "idle";
   cancelAnimationFrame(rafId);
@@ -462,6 +474,7 @@ function resetTimer() {
   inputLock = false;
 }
 
+// 새 기록을 현재 세션에 추가하고 통계 및 차트를 갱신합니다.
 function pushSolve(ms, penalty = "OK") {
   const session = activeSession();
   if (!session) return;
@@ -478,6 +491,7 @@ function pushSolve(ms, penalty = "OK") {
   renderAll();
 }
 
+// 손을 누른 상태에서 타이머 준비를 시작합니다.
 function beginHold() {
   if (timerState === "running") return;
   // 이전 입력이 해제될 때까지 홀드 시작을 막음.
@@ -499,6 +513,7 @@ function beginHold() {
   }, 300);
 }
 
+// 손을 떼면 준비 상태를 확인하고 실제 타이머를 시작하거나 취소합니다.
 function endHold() {
   if (timerState !== "holding") return;
   if (holdReady) {
@@ -520,6 +535,7 @@ function endHold() {
   }
 }
 
+// 세션 목록 UI를 현재 상태에 맞춰 다시 그립니다.
 function renderSessions() {
   sessionSelect.innerHTML = "";
   appState.sessions.forEach((session) => {
@@ -536,6 +552,7 @@ function renderHistory() {
   historyList.innerHTML = "";
   if (!session) return;
 
+  // 세션의 각 solve를 리스트 아이템으로 변환하여 기록 목록을 구성합니다.
   session.solves.forEach((solve, index) => {
     const li = document.createElement("li");
     li.className = "solve-item";
@@ -570,6 +587,7 @@ function renderHistory() {
   });
 }
 
+// 현재 세션 기록을 텍스트 형식으로 내보내기 위한 데이터를 준비합니다.
 function exportSession() {
   const session = activeSession();
   if (!session) return;
@@ -606,6 +624,8 @@ function renderStats() {
     return;
   }
 
+  // 현재 세션의 통계값을 계산하여 UI에 표시합니다.
+
   const validTimes = session.solves
     .filter((s) => s.penalty !== "DNF")
     .map((s) => s.timeMs + (s.penalty === "PLUS2" ? 2000 : 0));
@@ -621,6 +641,7 @@ function renderStats() {
   statAo12.textContent = formatAverageOf(session.solves, 12);
 }
 
+// 평균 시간 계산 유틸리티: 상위/하위 값을 제외한 trimmed average를 반환합니다.
 function formatAverageOf(solves, count) {
   if (solves.length < count) return "-";
   const window = solves.slice(0, count);
@@ -662,6 +683,7 @@ function averageAtIndexChrono(solves, index, count) {
   return trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
 }
 
+// 차트 렌더링: 기록 추세, Ao5/Ao12, 마우스 인터랙션 등을 그립니다.
 function renderChart() {
   if (!progressChart) return;
   const session = activeSession();
