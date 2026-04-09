@@ -2956,6 +2956,10 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         useZbStages ? options.zblsSearchMaxDepth : options.ollSearchMaxDepth,
         useZbStages ? 15 : profile.ollMaxDepth,
       ),
+      formulaTimeBudgetMs: normalizeDepth(
+        useZbStages ? options.zblsFormulaTimeBudgetMs : options.ollFormulaTimeBudgetMs,
+        useZbStages ? 0 : 5000,
+      ),
       nodeLimit: normalizeDepth(
         useZbStages ? options.zblsNodeLimit : options.ollNodeLimit,
         useZbStages ? 2200000 : 0,
@@ -3031,6 +3035,10 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       searchMaxDepth: normalizeDepth(
         useZbStages ? options.zbllSearchMaxDepth : options.pllSearchMaxDepth,
         useZbStages ? 16 : profile.pllMaxDepth,
+      ),
+      formulaTimeBudgetMs: normalizeDepth(
+        useZbStages ? options.zbllFormulaTimeBudgetMs : options.pllFormulaTimeBudgetMs,
+        useZbStages ? 0 : 6000,
       ),
       nodeLimit: normalizeDepth(
         useZbStages ? options.zbllNodeLimit : options.pllNodeLimit,
@@ -6776,6 +6784,66 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
             stageName: stageBudgetRetryStageName,
           });
         }
+      }
+    }
+
+    const canRunStrictLastLayerTimeoutRetry =
+      !result.ok &&
+      solveMode === "strict" &&
+      (stage?.name === "OLL" || stage?.name === "PLL") &&
+      String(result.reason || "").endsWith("_TIMEOUT") &&
+      !stage?.__strictLastLayerTimeoutRetryAttempted &&
+      Number.isFinite(solveDeadlineTs) &&
+      !isDeadlineExceeded(solveDeadlineTs);
+    if (canRunStrictLastLayerTimeoutRetry) {
+      const timeoutRetryStageName = `${stageLabel} Timeout Retry`;
+      if (onStageUpdate) {
+        onStageUpdate({
+          type: "fallback_start",
+          stageName: timeoutRetryStageName,
+          reason: result.reason || `${stage.name}_TIMEOUT`,
+        });
+      }
+      const timeoutRetryBudgetMs = normalizeDepth(
+        options.strictLastLayerTimeoutRetryMs,
+        stage.name === "OLL" ? 18000 : 24000,
+      );
+      if (timeoutRetryBudgetMs > 0) {
+        const retryDeadlineTs = Math.min(solveDeadlineTs, Date.now() + timeoutRetryBudgetMs);
+        const retryContinuation =
+          result && result.__continuation && typeof result.__continuation === "object"
+            ? result.__continuation
+            : null;
+        const retryStage = {
+          ...stage,
+          __strictLastLayerTimeoutRetryAttempted: true,
+          skipFormulaDb: true,
+          searchMaxDepth: normalizeDepth(stage.searchMaxDepth, stage.maxDepth) + 1,
+          nodeLimit: Math.max(
+            normalizeDepth(stage.nodeLimit, 0),
+            stage.name === "OLL" ? 2000000 : 2800000,
+          ),
+          ...(retryContinuation
+            ? {
+                __continuation: retryContinuation,
+                __resumeFromContinuation: true,
+              }
+            : {}),
+        };
+        const retryResult = solveStage(stageStartPattern, retryStage, ctx, retryDeadlineTs);
+        const combinedNodes = retryContinuation
+          ? Math.max(result.nodes || 0, retryResult.nodes || 0)
+          : (result.nodes || 0) + (retryResult.nodes || 0);
+        result = {
+          ...retryResult,
+          nodes: combinedNodes,
+        };
+      }
+      if (onStageUpdate) {
+        onStageUpdate({
+          type: result.ok ? "fallback_done" : "fallback_fail",
+          stageName: timeoutRetryStageName,
+        });
       }
     }
 
