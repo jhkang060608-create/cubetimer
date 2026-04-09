@@ -1,9 +1,10 @@
 import { getDefaultPattern } from "./context.js";
-import { MOVE_NAMES } from "./moves.js";
+import { MOVE_NAMES as ALL_MOVE_NAMES } from "./moves.js";
 
 const ORI_SIZE = 3 ** 7; // 2187
 const PERM_SIZE = 40320; // 8!
-const MOVE_COUNT = MOVE_NAMES.length; // 18
+const MOVE_NAMES = ALL_MOVE_NAMES.filter((move) => move[0] !== "M");
+const MOVE_COUNT = MOVE_NAMES.length; // 18 without M-slice turns
 const NOT_SET = 255;
 const MAX_DEPTH = 14;
 const FACT = [1, 1, 2, 6, 24, 120, 720, 5040, 40320];
