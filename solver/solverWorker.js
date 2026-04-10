@@ -6,13 +6,26 @@ import { ensureWasmSolverReady, solveWithWasmIfAvailable } from "./wasmSolver.js
 let solver2x2ModulesPromise = null;
 let solver3x3PhaseModulesPromise = null;
 const FMC_333_TIMEOUT_MS = 120000;
+const OPTIMAL_333_TIMEOUT_MS = 240000;
 const STRICT_CFOP_TIMEOUT_MS = 45000;
 const STRICT_CFOP_RETRY_TIMEOUT_MS = 25000;
 const INTERNAL_333_PHASE_TIMEOUT_MS = 20000;
 const EXTERNAL_333_FALLBACK_TIMEOUT_MS = 20000;
 const ROUX_PARALLEL_ROTATIONS = Object.freeze(["", "x", "x'", "z", "z'", "x2"]);
-const ROUX_PARALLEL_MAX_WORKERS = 4;
-const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 35000;
+const ROUX_PARALLEL_COLOR_LOCK_ROTATIONS = Object.freeze(["", "y", "y'", "y2"]);
+const ROUX_PARALLEL_MAX_WORKERS = 6;
+const ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS = 22000;
+const ROUX_PARALLEL_DEFAULT_SCOUT_CHECKS = 6;
+const ROUX_PARALLEL_EARLY_STOP_MOVE_COUNT = 48;
+const ROUX_PARALLEL_EARLY_STOP_GRACE_MS = 900;
+const CROSS_COLOR_ROTATION_CANDIDATES = Object.freeze({
+  D: Object.freeze([""]),
+  U: Object.freeze(["x2"]),
+  F: Object.freeze(["x", "x'"]),
+  B: Object.freeze(["x'", "x"]),
+  R: Object.freeze(["z'", "z"]),
+  L: Object.freeze(["z", "z'"]),
+});
 const STRICT_F2L_RETRY_OPTIONS = [
   {
     f2lFormulaMaxSteps: 16,
@@ -31,6 +44,66 @@ const STRICT_F2L_RETRY_OPTIONS = [
     f2lNodeLimit: 1500000,
   },
 ];
+const ROUX_RETRY_OPTIONS = [
+  {
+    sbSearchMaxDepth: 12,
+    sbNodeLimit: 480000,
+    cmllFormulaAttemptLimit: 90000,
+    cmllSearchMaxDepth: 12,
+    cmllNodeLimit: 320000,
+    lseFormulaAttemptLimit: 75000,
+    lseSearchMaxDepth: 12,
+    lseNodeLimit: 320000,
+  },
+  {
+    sbSearchMaxDepth: 13,
+    sbNodeLimit: 760000,
+    cmllFormulaAttemptLimit: 120000,
+    cmllSearchMaxDepth: 13,
+    cmllNodeLimit: 460000,
+    lseFormulaAttemptLimit: 110000,
+    lseSearchMaxDepth: 13,
+    lseNodeLimit: 460000,
+  },
+  {
+    sbSearchMaxDepth: 14,
+    sbNodeLimit: 1100000,
+    cmllFormulaAttemptLimit: 170000,
+    cmllSearchMaxDepth: 14,
+    cmllNodeLimit: 620000,
+    lseFormulaAttemptLimit: 150000,
+    lseSearchMaxDepth: 14,
+    lseNodeLimit: 620000,
+  },
+  {
+    sbSearchMaxDepth: 15,
+    sbNodeLimit: 1500000,
+    cmllFormulaAttemptLimit: 240000,
+    cmllSearchMaxDepth: 15,
+    cmllNodeLimit: 820000,
+    lseFormulaAttemptLimit: 220000,
+    lseSearchMaxDepth: 15,
+    lseNodeLimit: 880000,
+  },
+];
+const ZB_RETRY_OPTIONS = [
+  {
+    zblsFormulaAttemptLimit: 70000,
+    zblsSearchMaxDepth: 12,
+    zblsNodeLimit: 900000,
+    zbllFormulaAttemptLimit: 90000,
+    zbllSearchMaxDepth: 13,
+    zbllNodeLimit: 760000,
+  },
+  {
+    zblsFormulaAttemptLimit: 100000,
+    zblsSearchMaxDepth: 13,
+    zblsNodeLimit: 1300000,
+    zbllFormulaAttemptLimit: 140000,
+    zbllSearchMaxDepth: 14,
+    zbllNodeLimit: 1200000,
+  },
+];
 const INTERNAL_PHASE_FALLBACK_OPTIONS = {
   phase1MaxDepth: 13,
   phase2MaxDepth: 20,
@@ -40,23 +113,53 @@ const INTERNAL_PHASE_FALLBACK_OPTIONS = {
 };
 
 function normalizeMode(mode) {
-  if (mode === "fmc") {
+  const normalized = String(mode || "strict").trim().toLowerCase();
+  if (normalized === "zz") {
+    return "zb";
+  }
+  if (normalized === "fmc") {
     return "fmc";
   }
-  if (mode === "optimal") {
+  if (normalized === "optimal") {
     return "optimal";
   }
-  if (mode === "roux") {
+  if (normalized === "roux") {
     return "roux";
   }
-  if (mode === "zb") {
+  if (normalized === "zb") {
     return "zb";
   }
   return "strict";
 }
 
 function normalizeF2LMethod(method) {
+  const normalized = String(method || "legacy").trim().toLowerCase();
+  if (normalized === "search") {
+    return "search";
+  }
+  if (
+    normalized === "fast" ||
+    normalized === "hybrid" ||
+    normalized === "free" ||
+    normalized === "nodb" ||
+    normalized === "no-db"
+  ) {
+    return "hybrid";
+  }
   return "legacy";
+}
+
+function normalizeCrossColor(color) {
+  const normalized = String(color || "D").trim().toUpperCase();
+  return Object.prototype.hasOwnProperty.call(CROSS_COLOR_ROTATION_CANDIDATES, normalized)
+    ? normalized
+    : "D";
+}
+
+function getCrossRotationCandidates(color) {
+  const normalized = normalizeCrossColor(color);
+  const rotations = CROSS_COLOR_ROTATION_CANDIDATES[normalized];
+  return Array.isArray(rotations) && rotations.length ? rotations : [""];
 }
 
 function shouldFallbackToExternal3x3(result) {
@@ -72,6 +175,7 @@ function shouldFallbackToExternal3x3(result) {
     reason.startsWith("F2L2_") ||
     reason.startsWith("ZBLS_") ||
     reason.startsWith("ZBLL_") ||
+    reason.endsWith("_TIMEOUT") ||
     reason === "FINAL_STATE_NOT_SOLVED" ||
     reason === "INTERNAL_3X3_CFOP_TIMEOUT"
   );
@@ -170,7 +274,7 @@ function normalizeNonNegativeInt(value, fallback) {
   return intN >= 0 ? intN : fallback;
 }
 
-async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeoutMs) {
+async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeoutMs, abortSignal) {
   if (typeof Worker !== "function") {
     return { ok: false, reason: "WORKER_UNAVAILABLE" };
   }
@@ -179,10 +283,27 @@ async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeo
     let finished = false;
     let worker = null;
     let timer = 0;
+    let aborted = false;
+
+    const abortHandler = () => {
+      aborted = true;
+      done({ ok: false, reason: "ROUX_SUBWORKER_ABORTED" });
+    };
+
+    if (abortSignal) {
+      if (abortSignal.aborted) {
+        abortHandler();
+        return;
+      }
+      abortSignal.addEventListener("abort", abortHandler);
+    }
 
     function done(result) {
       if (finished) return;
       finished = true;
+      if (abortSignal) {
+        abortSignal.removeEventListener("abort", abortHandler);
+      }
       if (timer) clearTimeout(timer);
       if (worker) {
         try {
@@ -210,6 +331,7 @@ async function runRouxCandidateInSubWorker(scramble, rotationAlg, options, timeo
     });
 
     timer = setTimeout(() => {
+      if (aborted) return;
       done({ ok: false, reason: "ROUX_SUBWORKER_TIMEOUT" });
     }, timeoutMs);
 
@@ -229,20 +351,47 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
   if (options.rouxParallelEnabled === false) return null;
   if (typeof Worker !== "function") return null;
 
+  const normalizedCrossColor = normalizeCrossColor(options.crossColor);
+  const baseCrossRotations = getCrossRotationCandidates(normalizedCrossColor);
+  const defaultOrientationCandidates =
+    normalizedCrossColor === "D" ? ROUX_PARALLEL_ROTATIONS : ROUX_PARALLEL_COLOR_LOCK_ROTATIONS;
   const requested = Array.isArray(options.rouxOrientationCandidates)
     ? options.rouxOrientationCandidates
-    : ROUX_PARALLEL_ROTATIONS;
-  const rotations = [];
-  const seen = new Set();
-  if (!seen.has("")) {
-    seen.add("");
-    rotations.push("");
-  }
+    : defaultOrientationCandidates;
+  const orientationRotations = [];
+  const seenOrientation = new Set();
   for (let i = 0; i < requested.length; i++) {
     const value = String(requested[i] || "").trim();
-    if (!value || seen.has(value)) continue;
-    seen.add(value);
-    rotations.push(value);
+    if (seenOrientation.has(value)) continue;
+    seenOrientation.add(value);
+    orientationRotations.push(value);
+  }
+  if (!seenOrientation.has("")) {
+    orientationRotations.unshift("");
+  }
+
+  const rotations = [];
+  const seenCombined = new Set();
+  const pushRotation = (baseRotation, orientationRotation = "") => {
+    const combined = `${String(baseRotation || "").trim()} ${String(orientationRotation || "").trim()}`
+      .split(/\s+/)
+      .filter(Boolean)
+      .join(" ");
+    if (seenCombined.has(combined)) return;
+    seenCombined.add(combined);
+    rotations.push(combined);
+  };
+  for (let i = 0; i < baseCrossRotations.length; i++) {
+    pushRotation(baseCrossRotations[i], "");
+  }
+  const primaryBaseRotation = String(baseCrossRotations[0] || "").trim();
+  for (let i = 0; i < orientationRotations.length; i++) {
+    const orientation = String(orientationRotations[i] || "").trim();
+    if (!orientation) continue;
+    pushRotation(primaryBaseRotation, orientation);
+  }
+  if (!rotations.length) {
+    rotations.push("");
   }
 
   const maxWorkers = Math.min(
@@ -254,9 +403,17 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
     options.rouxParallelCandidateTimeoutMs,
     ROUX_PARALLEL_CANDIDATE_TIMEOUT_MS,
   );
-  const scoutChecks = normalizeNonNegativeInt(options.rouxParallelScoutChecks, rotations.length);
-  const candidateCount = Math.max(1, Math.min(rotations.length, scoutChecks));
+  const scoutChecks = normalizeNonNegativeInt(
+    options.rouxParallelScoutChecks,
+    Math.min(rotations.length, ROUX_PARALLEL_DEFAULT_SCOUT_CHECKS),
+  );
+  const minimumCrossChecks = Math.min(rotations.length, Math.max(1, baseCrossRotations.length));
+  const candidateCount = Math.max(minimumCrossChecks, Math.max(1, Math.min(rotations.length, scoutChecks)));
   const candidateRotations = rotations.slice(0, candidateCount);
+  const earlyStopMoveCount = normalizePositiveInt(
+    options.rouxParallelStopMoveCount,
+    ROUX_PARALLEL_EARLY_STOP_MOVE_COUNT,
+  );
   const subWorkerOptions = {
     ...options,
     mode: "roux",
@@ -265,6 +422,41 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
     __rouxOrientationApplied: true,
     rouxSweepMaxChecks: 0,
   };
+  if (options.rouxParallelFastProfile === true) {
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "enablePostInsertionOptimization")) {
+      subWorkerOptions.enablePostInsertionOptimization = false;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "fbMaxDepth")) {
+      subWorkerOptions.fbMaxDepth = 8;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "sbMaxDepth")) {
+      subWorkerOptions.sbMaxDepth = 10;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "sbSearchMaxDepth")) {
+      subWorkerOptions.sbSearchMaxDepth = 9;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "sbNodeLimit")) {
+      subWorkerOptions.sbNodeLimit = 190000;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "cmllSearchMaxDepth")) {
+      subWorkerOptions.cmllSearchMaxDepth = 9;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "cmllNodeLimit")) {
+      subWorkerOptions.cmllNodeLimit = 180000;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "cmllFormulaAttemptLimit")) {
+      subWorkerOptions.cmllFormulaAttemptLimit = 45000;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "lseSearchMaxDepth")) {
+      subWorkerOptions.lseSearchMaxDepth = 9;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "lseNodeLimit")) {
+      subWorkerOptions.lseNodeLimit = 170000;
+    }
+    if (!Object.prototype.hasOwnProperty.call(subWorkerOptions, "lseFormulaAttemptLimit")) {
+      subWorkerOptions.lseFormulaAttemptLimit = 42000;
+    }
+  }
 
   if (typeof onProgress === "function") {
     try {
@@ -280,10 +472,19 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
   let running = 0;
   let best = null;
   const failures = [];
+  let stopLaunch = false;
+  const runningControllers = new Set();
+  let earlyStopAbortTimer = 0;
+  let earlyAbortRequested = false;
 
   return await new Promise((resolve) => {
     const maybeFinish = () => {
-      if (running > 0 || nextIndex < candidateRotations.length) return;
+      if (running === 0 && earlyStopAbortTimer) {
+        clearTimeout(earlyStopAbortTimer);
+        earlyStopAbortTimer = 0;
+      }
+      if (running > 0) return;
+      if (!stopLaunch && nextIndex < candidateRotations.length) return;
       if (typeof onProgress === "function") {
         try {
           void onProgress({
@@ -302,11 +503,31 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
       }
     };
 
+    const requestEarlyAbort = () => {
+      if (earlyAbortRequested) return;
+      earlyAbortRequested = true;
+      if (earlyStopAbortTimer) {
+        clearTimeout(earlyStopAbortTimer);
+      }
+      earlyStopAbortTimer = setTimeout(() => {
+        earlyStopAbortTimer = 0;
+        for (const controller of Array.from(runningControllers)) {
+          try {
+            controller.abort();
+          } catch (_) {}
+        }
+        runningControllers.clear();
+        maybeFinish();
+      }, ROUX_PARALLEL_EARLY_STOP_GRACE_MS);
+    };
+
     const launch = () => {
-      while (running < maxWorkers && nextIndex < candidateRotations.length) {
+      while (!stopLaunch && running < maxWorkers && nextIndex < candidateRotations.length) {
         const idx = nextIndex++;
         const rotation = candidateRotations[idx];
         running += 1;
+        const abortController = new AbortController();
+        runningControllers.add(abortController);
         if (typeof onProgress === "function") {
           try {
             void onProgress({
@@ -317,11 +538,15 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
           } catch (_) {}
         }
 
-        void runRouxCandidateInSubWorker(scramble, rotation, subWorkerOptions, candidateTimeoutMs)
+        void runRouxCandidateInSubWorker(scramble, rotation, subWorkerOptions, candidateTimeoutMs, abortController.signal)
           .then((result) => {
             if (result?.ok) {
               if (!best || result.moveCount < best.moveCount) {
                 best = result;
+              }
+              if (best?.moveCount <= earlyStopMoveCount) {
+                stopLaunch = true;
+                requestEarlyAbort();
               }
               if (typeof onProgress === "function") {
                 try {
@@ -355,6 +580,7 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
             }
           })
           .finally(() => {
+            runningControllers.delete(abortController);
             running -= 1;
             launch();
             maybeFinish();
@@ -368,16 +594,28 @@ async function solveWithInternal3x3RouxParallel(scramble, onProgress, options = 
 }
 
 async function solveWithInternal3x3StrictRetries(scramble, onProgress, options = {}) {
-  const attempts = [
-    { timeoutMs: STRICT_CFOP_TIMEOUT_MS, extraOptions: null },
-    { timeoutMs: STRICT_CFOP_RETRY_TIMEOUT_MS, extraOptions: STRICT_F2L_RETRY_OPTIONS[0] },
-    { timeoutMs: STRICT_CFOP_RETRY_TIMEOUT_MS, extraOptions: STRICT_F2L_RETRY_OPTIONS[1] },
-  ];
+  const hasCustomRetryOptions = Object.prototype.hasOwnProperty.call(options, "retryOptions");
+  const customRetryOptions = hasCustomRetryOptions
+    ? Array.isArray(options.retryOptions)
+      ? options.retryOptions
+      : []
+    : STRICT_F2L_RETRY_OPTIONS;
+  const baseOptions = { ...options };
+  delete baseOptions.retryOptions;
+  const attempts = [{ timeoutMs: STRICT_CFOP_TIMEOUT_MS, extraOptions: null }];
+  for (let i = 0; i < customRetryOptions.length; i++) {
+    attempts.push({
+      timeoutMs: STRICT_CFOP_RETRY_TIMEOUT_MS,
+      extraOptions: customRetryOptions[i],
+    });
+  }
 
   let firstFailureReason = "";
   let lastFailure = null;
   for (let i = 0; i < attempts.length; i++) {
     const attempt = attempts[i];
+    const explicitDeadline = Number.isFinite(baseOptions.deadlineTs) ? Number(baseOptions.deadlineTs) : Infinity;
+    const attemptDeadlineTs = Math.min(explicitDeadline, Date.now() + Math.max(500, attempt.timeoutMs - 120));
     if (i > 0 && typeof onProgress === "function") {
       try {
         void onProgress({
@@ -390,7 +628,8 @@ async function solveWithInternal3x3StrictRetries(scramble, onProgress, options =
 
     const strictResult = await withTimeout(
       solveWithInternal3x3StrictCfop(scramble, onProgress, {
-        ...options,
+        ...baseOptions,
+        deadlineTs: attemptDeadlineTs,
         ...(attempt.extraOptions || {}),
       }),
       attempt.timeoutMs,
@@ -562,46 +801,138 @@ const api = {
 
         if (mode === "fmc" || mode === "optimal") {
           const isOptimalMode = mode === "optimal";
-          const fmcResult = await withTimeout(
-            solveWithFMCSearch(scramble, onProgress, {
-              maxPremoveSets: isOptimalMode ? 90 : 16,
-              timeBudgetMs: isOptimalMode ? 95000 : 20000,
-              sweepBudgetMs: isOptimalMode ? 52000 : 7000,
-              sweepIncludeInverse: true,
-              targetMoveCount: isOptimalMode ? 20 : 24,
-              allowCfopFallback: false,
-              premoveAllowCfopFallback: false,
-              preferNonCfop: true,
-              directProfileLevel: isOptimalMode ? "xdeep" : "deep",
-              directPhaseAttemptTimeoutMs: isOptimalMode ? 6000 : 2800,
-              directStageBudgetMs: isOptimalMode ? 22000 : 6000,
-              nissStageBudgetMs: isOptimalMode ? 22000 : 6000,
-              phaseTimeCheckInterval: isOptimalMode ? 1024 : 768,
-              directCfopPerColorTimeoutMs: isOptimalMode ? 1500 : 1000,
-              sweepProfileLevel: isOptimalMode ? "medium" : "light",
-              sweepPhaseAttemptTimeoutMs: isOptimalMode ? 1700 : 1200,
-              sweepAttemptBudgetMs: isOptimalMode ? 1700 : 1200,
-              sweepCfopPerColorTimeoutMs: isOptimalMode ? 900 : 800,
-              sweepUseScout: true,
-              sweepScoutProfileLevel: "micro",
-              sweepScoutPhaseAttemptTimeoutMs: isOptimalMode ? 700 : 500,
-              sweepScoutAttemptBudgetMs: isOptimalMode ? 700 : 500,
-              sweepScoutCfopPerColorTimeoutMs: isOptimalMode ? 750 : 600,
-              sweepScoutIncludeInverse: true,
-              sweepRefineSets: isOptimalMode ? 36 : 8,
-              verifyLimit: isOptimalMode ? 30 : 16,
-              enableInsertions: true,
-              insertionCandidateLimit: isOptimalMode ? 3 : 2,
-              insertionMaxPasses: isOptimalMode ? 3 : 2,
-              insertionMinWindow: 3,
-              insertionMaxWindow: isOptimalMode ? 7 : 6,
-              insertionMaxDepth: isOptimalMode ? 6 : 5,
-              insertionTimeMs: isOptimalMode ? 9000 : 2500,
-              insertionThreshold: isOptimalMode ? 23 : 24,
-              crossColors: ["D"],
-            }),
-            FMC_333_TIMEOUT_MS,
+          const fmcLikeTimeoutMs = isOptimalMode ? OPTIMAL_333_TIMEOUT_MS : FMC_333_TIMEOUT_MS;
+          const fmcCrossColor = normalizeCrossColor(crossColor);
+          const baseFmcOptions = {
+            maxPremoveSets: isOptimalMode ? 180 : 16,
+            timeBudgetMs: isOptimalMode ? 170000 : 20000,
+            sweepBudgetMs: isOptimalMode ? 125000 : 7000,
+            aggressivePrune: isOptimalMode ? false : true,
+            sweepIncludeInverse: true,
+            targetMoveCount: isOptimalMode ? 18 : 24,
+            allowCfopFallback: false,
+            premoveAllowCfopFallback: false,
+            preferNonCfop: true,
+            directProfileLevel: isOptimalMode ? "xdeep" : "deep",
+            directMaxProfiles: isOptimalMode ? 4 : 3,
+            nissMaxProfiles: isOptimalMode ? 4 : 3,
+            directPhaseAttemptTimeoutMs: isOptimalMode ? 10500 : 2800,
+            directStageBudgetMs: isOptimalMode ? 42000 : 6000,
+            nissStageBudgetMs: isOptimalMode ? 42000 : 6000,
+            phaseTimeCheckInterval: 768,
+            directCfopPerColorTimeoutMs: isOptimalMode ? 1500 : 1000,
+            sweepProfileLevel: isOptimalMode ? "deep" : "light",
+            sweepMaxProfiles: isOptimalMode ? 3 : 2,
+            sweepHeavyMaxProfiles: isOptimalMode ? 4 : 2,
+            sweepPhaseAttemptTimeoutMs: isOptimalMode ? 2600 : 1200,
+            sweepAttemptBudgetMs: isOptimalMode ? 2600 : 1200,
+            sweepCfopPerColorTimeoutMs: isOptimalMode ? 900 : 800,
+            sweepUseScout: true,
+            sweepScoutProfileLevel: isOptimalMode ? "light" : "micro",
+            sweepScoutMaxProfiles: isOptimalMode ? 2 : 1,
+            sweepScoutPhaseAttemptTimeoutMs: isOptimalMode ? 1000 : 500,
+            sweepScoutAttemptBudgetMs: isOptimalMode ? 1000 : 500,
+            sweepScoutCfopPerColorTimeoutMs: isOptimalMode ? 750 : 600,
+            sweepScoutIncludeInverse: true,
+            sweepScoutLimit: isOptimalMode ? 120 : 16,
+            sweepRefineSets: isOptimalMode ? 48 : 8,
+            sweepScoutImproveBy: isOptimalMode ? 0 : 1,
+            sweepImproveBy: 1,
+            sweepRefineSlack: isOptimalMode ? 2 : 3,
+            sweepSkipGap: isOptimalMode ? 2 : 3,
+            sweepScoutInverseSkipSlack: isOptimalMode ? 1 : 0,
+            sweepInverseSkipSlack: isOptimalMode ? 1 : 0,
+            sweepMaxUnsolvedRefine: isOptimalMode ? 10 : 8,
+            sweepScoutMaxNoImprove: isOptimalMode ? 40 : 18,
+            sweepMaxNoImprove: isOptimalMode ? 28 : 10,
+            verifyLimit: isOptimalMode ? 80 : 16,
+            enableInsertions: true,
+            insertionCandidateLimit: isOptimalMode ? 6 : 2,
+            insertionMaxPasses: isOptimalMode ? 4 : 2,
+            insertionMinWindow: 3,
+            insertionMaxWindow: isOptimalMode ? 8 : 6,
+            insertionMaxDepth: isOptimalMode ? 7 : 5,
+            insertionTimeMs: isOptimalMode ? 18000 : 2500,
+            insertionThreshold: isOptimalMode ? 25 : 24,
+            crossColors: [fmcCrossColor],
+          };
+
+          let fmcResult = await withTimeout(
+            solveWithFMCSearch(scramble, onProgress, baseFmcOptions),
+            fmcLikeTimeoutMs,
           ).catch(() => ({ ok: false, reason: isOptimalMode ? "OPTIMAL_TIMEOUT" : "FMC_TIMEOUT" }));
+          if (!fmcResult?.ok) {
+            const deepRetryStageName = isOptimalMode ? "Optimal Deep Retry" : "FMC Deep Retry";
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_start",
+                  stageName: deepRetryStageName,
+                  reason: fmcResult?.reason || "FMC_NO_VALID_SOLUTION",
+                });
+              } catch (_) {}
+            }
+            const deepRetryTimeoutMs = Math.min(
+              isOptimalMode ? 90000 : 36000,
+              Math.max(12000, fmcLikeTimeoutMs - 4000),
+            );
+            const deepRetryResult = await withTimeout(
+              solveWithFMCSearch(scramble, onProgress, {
+                ...baseFmcOptions,
+                maxPremoveSets: isOptimalMode ? 220 : 42,
+                timeBudgetMs: isOptimalMode ? 205000 : 36000,
+                sweepBudgetMs: isOptimalMode ? 150000 : 16000,
+                aggressivePrune: false,
+                directProfileLevel: "xdeep",
+                directMaxProfiles: isOptimalMode ? 5 : 4,
+                nissMaxProfiles: isOptimalMode ? 5 : 4,
+                directPhaseAttemptTimeoutMs: isOptimalMode ? 12500 : 4200,
+                directStageBudgetMs: isOptimalMode ? 58000 : 12000,
+                nissStageBudgetMs: isOptimalMode ? 58000 : 12000,
+                sweepProfileLevel: "deep",
+                sweepMaxProfiles: isOptimalMode ? 4 : 3,
+                sweepHeavyMaxProfiles: isOptimalMode ? 5 : 4,
+                sweepPhaseAttemptTimeoutMs: isOptimalMode ? 3200 : 1800,
+                sweepAttemptBudgetMs: isOptimalMode ? 3200 : 1800,
+                sweepCfopPerColorTimeoutMs: isOptimalMode ? 1000 : 900,
+                sweepScoutProfileLevel: "light",
+                sweepScoutMaxProfiles: 2,
+                sweepScoutPhaseAttemptTimeoutMs: isOptimalMode ? 1200 : 700,
+                sweepScoutAttemptBudgetMs: isOptimalMode ? 1200 : 700,
+                sweepScoutCfopPerColorTimeoutMs: isOptimalMode ? 900 : 700,
+                sweepScoutLimit: isOptimalMode ? 160 : 28,
+                sweepRefineSets: isOptimalMode ? 64 : 16,
+                sweepScoutImproveBy: 0,
+                verifyLimit: isOptimalMode ? 140 : 48,
+                insertionCandidateLimit: isOptimalMode ? 8 : 4,
+                insertionMaxPasses: isOptimalMode ? 5 : 3,
+                insertionMaxWindow: isOptimalMode ? 9 : 7,
+                insertionMaxDepth: isOptimalMode ? 8 : 6,
+                insertionTimeMs: isOptimalMode ? 26000 : 6500,
+              }),
+              deepRetryTimeoutMs,
+            ).catch(() => ({ ok: false, reason: isOptimalMode ? "OPTIMAL_DEEP_TIMEOUT" : "FMC_DEEP_TIMEOUT" }));
+            if (deepRetryResult?.ok) {
+              if (typeof onProgress === "function") {
+                try {
+                  void onProgress({
+                    type: "fallback_done",
+                    stageName: deepRetryStageName,
+                  });
+                } catch (_) {}
+              }
+              return deepRetryResult;
+            }
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_fail",
+                  stageName: deepRetryStageName,
+                });
+              } catch (_) {}
+            }
+            fmcResult = deepRetryResult || fmcResult;
+          }
           if (fmcResult?.ok) {
             return fmcResult;
           }
@@ -619,7 +950,13 @@ const api = {
             const phaseSafety = await withTimeout(
               solveWithInternal3x3Phase(scramble, {
                 ...INTERNAL_PHASE_FALLBACK_OPTIONS,
-                deadlineTs: Date.now() + Math.min(9000, INTERNAL_333_PHASE_TIMEOUT_MS - 800),
+                ...(isOptimalMode
+                  ? {
+                      phase1MaxDepth: 14,
+                      phase2MaxDepth: 22,
+                    }
+                  : {}),
+                deadlineTs: Date.now() + Math.min(isOptimalMode ? 18000 : 9000, INTERNAL_333_PHASE_TIMEOUT_MS - 800),
               }),
               INTERNAL_333_PHASE_TIMEOUT_MS,
             ).catch(() => null);
@@ -656,6 +993,7 @@ const api = {
             void onProgress({ type: "queue", eventId: "333" });
           } catch (_) {}
         }
+        let rouxParallelSucceeded = false;
         if (mode === "roux") {
           const parallelRouxResult = await withTimeout(
             solveWithInternal3x3RouxParallel(scramble, onProgress, {
@@ -665,19 +1003,149 @@ const api = {
             }),
             STRICT_CFOP_TIMEOUT_MS,
           ).catch(() => null);
+          rouxParallelSucceeded = !!parallelRouxResult?.ok;
           if (parallelRouxResult?.ok) {
             return {
               ...parallelRouxResult,
               source: "INTERNAL_3X3_ROUX_PARALLEL",
             };
           }
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_start",
+                stageName: "Roux Core Search",
+                reason: parallelRouxResult?.reason || "ROUX_PARALLEL_FAILED",
+              });
+            } catch (_) {}
+          }
         }
 
-        const strictResult = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
-          crossColor,
-          mode,
-          f2lMethod,
-        });
+        let strictResult = null;
+        let strictAttemptedWithCurrentMethod = false;
+        let noDbFailureReason = "";
+        const shouldRunNoDbPrimary = mode === "strict" && (f2lMethod === "hybrid" || f2lMethod === "search");
+        const noDbStageName = f2lMethod === "search" ? "F2L No-DB Search" : "F2L Hybrid (DB Seed + No-DB)";
+        if (shouldRunNoDbPrimary) {
+          strictAttemptedWithCurrentMethod = true;
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_start",
+                stageName: noDbStageName,
+                reason: f2lMethod === "search" ? "algorithmic search" : "db-seeded hybrid search",
+              });
+            } catch (_) {}
+          }
+          strictResult = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
+            crossColor,
+            mode: "strict",
+            f2lMethod,
+            retryOptions: [],
+          });
+          if (!strictResult?.ok && f2lMethod === "hybrid") {
+            noDbFailureReason = String(strictResult?.reason || "F2L_HYBRID_FAILED");
+          }
+          if (strictResult?.ok) {
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_done",
+                  stageName: noDbStageName,
+                });
+              } catch (_) {}
+            }
+          } else if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_fail",
+                stageName: noDbStageName,
+              });
+            } catch (_) {}
+          }
+        }
+
+        if (!strictResult?.ok) {
+          const useLegacyRecovery = mode === "strict" && f2lMethod === "hybrid";
+          const shouldRetryCurrentMethod = !(mode === "strict" && strictAttemptedWithCurrentMethod);
+          if (useLegacyRecovery || shouldRetryCurrentMethod) {
+            strictResult = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
+              crossColor,
+              mode,
+              f2lMethod: useLegacyRecovery ? "legacy" : f2lMethod,
+              ...(mode === "roux"
+                ? {
+                    retryOptions: ROUX_RETRY_OPTIONS,
+                    // Parallel sweep already covers orientation alternatives.
+                    rouxOrientationSweep: rouxParallelSucceeded ? false : undefined,
+                  }
+                : {}),
+              ...(mode === "zb"
+                ? {
+                    retryOptions: ZB_RETRY_OPTIONS,
+                  }
+                : {}),
+              ...(useLegacyRecovery
+                ? {
+                    enablePostInsertionOptimization: true,
+                    postInsertionMaxPasses: 2,
+                    postInsertionMinWindow: 3,
+                    postInsertionMaxWindow: 7,
+                    postInsertionMaxDepth: 5,
+                    postInsertionTimeMs: 900,
+                  }
+                : {}),
+            });
+            if (useLegacyRecovery && strictResult?.ok) {
+              strictResult = {
+                ...strictResult,
+                source: strictResult.source || "INTERNAL_3X3_CFOP_HYBRID_RECOVERY",
+                fallbackFrom: noDbFailureReason || strictResult.fallbackFrom || "F2L_HYBRID_FAILED",
+              };
+            }
+          }
+        }
+
+        if (!strictResult?.ok && mode === "roux") {
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_start",
+                stageName: "Roux Safety CFOP",
+                reason: strictResult?.reason || "ROUX_STAGE_FAILED",
+              });
+            } catch (_) {}
+          }
+          const rouxSafetyResult = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
+            crossColor,
+            mode: "strict",
+            f2lMethod: "legacy",
+            retryOptions: [STRICT_F2L_RETRY_OPTIONS[0]],
+          });
+          if (rouxSafetyResult?.ok) {
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_done",
+                  stageName: "Roux Safety CFOP",
+                });
+              } catch (_) {}
+            }
+            return {
+              ...rouxSafetyResult,
+              source: "INTERNAL_3X3_ROUX_SAFETY_CFOP",
+              fallbackFrom: strictResult?.reason || "ROUX_STAGE_FAILED",
+            };
+          }
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_fail",
+                stageName: "Roux Safety CFOP",
+              });
+            } catch (_) {}
+          }
+        }
 
         if (strictResult?.ok || !shouldFallbackToExternal3x3(strictResult)) {
           return strictResult;

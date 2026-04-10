@@ -153,7 +153,15 @@ const INSPECTION_KEY = "cubeTimerInspection";
 const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
 const AO5_KEY = "cubeTimerShowAo5";
 const AO12_KEY = "cubeTimerShowAo12";
-const VALID_SOLVER_MODES = new Set(["strict", "roux", "zb", "fmc", "optimal"]);
+const VALID_SOLVER_MODES = new Set([
+  "strict",
+  "roux",
+  "zb",
+  "zz",
+  "fmc",
+  "optimal",
+]);
+const VALID_F2L_METHODS = new Set(["legacy"]);
 
 const ACCENT_THEMES = {
   ocean: {
@@ -243,7 +251,7 @@ function loadState() {
     if (!VALID_SOLVER_MODES.has(parsed.settings.solverMode)) {
       parsed.settings.solverMode = "strict";
     }
-    if (parsed.settings.f2lMethod !== "legacy") {
+    if (!VALID_F2L_METHODS.has(parsed.settings.f2lMethod)) {
       parsed.settings.f2lMethod = "legacy";
     }
     if (!parsed.activeSessionId) parsed.activeSessionId = parsed.sessions[0].id;
@@ -274,25 +282,27 @@ function formatTime(ms) {
 function formatSolveTime(solve) {
   if (solve.penalty === "DNF") return "DNF";
   const adjusted = solve.timeMs + (solve.penalty === "PLUS2" ? 2000 : 0);
-  return solve.penalty === "PLUS2" ? `${formatTime(adjusted)} (+2)` : formatTime(adjusted);
+  return solve.penalty === "PLUS2"
+    ? `${formatTime(adjusted)} (+2)`
+    : formatTime(adjusted);
 }
 
 const EVENT_LABELS = {
-  "222": "2x2x2",
-  "333": "3x3x3",
-  "444": "4x4x4",
-  "555": "5x5x5",
-  "666": "6x6x6",
-  "777": "7x7x7",
+  222: "2x2x2",
+  333: "3x3x3",
+  444: "4x4x4",
+  555: "5x5x5",
+  666: "6x6x6",
+  777: "7x7x7",
   "333oh": "3x3x3 OH",
   "333bf": "3x3x3 BF",
   "333fm": "3x3x3 FMC",
   "333mbf": "3x3x3 MBLD",
-  "clock": "Clock",
-  "minx": "Megaminx",
-  "pyram": "Pyraminx",
-  "skewb": "Skewb",
-  "sq1": "Square-1",
+  clock: "Clock",
+  minx: "Megaminx",
+  pyram: "Pyraminx",
+  skewb: "Skewb",
+  sq1: "Square-1",
   "444bf": "4x4x4 BF",
   "555bf": "5x5x5 BF",
 };
@@ -341,7 +351,6 @@ function setDisplay(ms) {
 function setSolvingDisplay() {
   timerDisplay.textContent = "Solving";
 }
-
 
 function resetInspection() {
   inspectionActive = false;
@@ -568,7 +577,9 @@ function exportSession() {
   const header = `Genrated by  CubeTimer in ${stamp}`;
   const currentAo5 = formatAverageValue(averageWindowValue(session.solves, 5));
   const bestAo5 = formatAverageValue(bestAverageValue(session.solves, 5));
-  const currentAo12 = formatAverageValue(averageWindowValue(session.solves, 12));
+  const currentAo12 = formatAverageValue(
+    averageWindowValue(session.solves, 12),
+  );
   const bestAo12 = formatAverageValue(bestAverageValue(session.solves, 12));
   const stats = [
     `Current Ao5: ${currentAo5}`,
@@ -579,7 +590,10 @@ function exportSession() {
   const lines = session.solves.map((solve, index) => {
     return `${index + 1}. ${formatSolveTime(solve)} ${solve.scramble}`;
   });
-  openExportModal("기록 내보내기", `${header}\n\n${stats}\n\n${lines.join("\n")}`.trim());
+  openExportModal(
+    "기록 내보내기",
+    `${header}\n\n${stats}\n\n${lines.join("\n")}`.trim(),
+  );
 }
 
 function renderStats() {
@@ -596,7 +610,9 @@ function renderStats() {
     .filter((s) => s.penalty !== "DNF")
     .map((s) => s.timeMs + (s.penalty === "PLUS2" ? 2000 : 0));
 
-  statBest.textContent = validTimes.length ? formatTime(Math.min(...validTimes)) : "-";
+  statBest.textContent = validTimes.length
+    ? formatTime(Math.min(...validTimes))
+    : "-";
   statMean.textContent = validTimes.length
     ? formatTime(validTimes.reduce((a, b) => a + b, 0) / validTimes.length)
     : "-";
@@ -660,7 +676,10 @@ function renderChart() {
   const ratio = window.devicePixelRatio || 1;
   const nextCanvasWidth = Math.max(1, Math.floor(width * ratio));
   const nextCanvasHeight = Math.max(1, Math.floor(height * ratio));
-  if (chartCanvasWidth !== nextCanvasWidth || chartCanvasHeight !== nextCanvasHeight) {
+  if (
+    chartCanvasWidth !== nextCanvasWidth ||
+    chartCanvasHeight !== nextCanvasHeight
+  ) {
     progressChart.width = nextCanvasWidth;
     progressChart.height = nextCanvasHeight;
     chartCanvasWidth = nextCanvasWidth;
@@ -671,11 +690,13 @@ function renderChart() {
   ctx.clearRect(0, 0, width, height);
   const styles = getComputedStyle(document.body);
   const timeColor = styles.getPropertyValue("--chart-time").trim() || "#1f6fe5";
-  const pointColor = styles.getPropertyValue("--chart-time-point").trim() || timeColor;
+  const pointColor =
+    styles.getPropertyValue("--chart-time-point").trim() || timeColor;
   const ao5Color = styles.getPropertyValue("--chart-ao5").trim() || "#2c6b5a";
   const ao12Color = styles.getPropertyValue("--chart-ao12").trim() || "#7b61ff";
   const chartBg = styles.getPropertyValue("--chart-bg").trim() || "#fffaf3";
-  const chartGrid = styles.getPropertyValue("--chart-grid").trim() || "rgba(30, 27, 22, 0.08)";
+  const chartGrid =
+    styles.getPropertyValue("--chart-grid").trim() || "rgba(30, 27, 22, 0.08)";
   const showAo5 = localStorage.getItem(AO5_KEY) !== "false";
   const showAo12 = localStorage.getItem(AO12_KEY) !== "false";
   ctx.fillStyle = chartBg;
@@ -709,7 +730,8 @@ function renderChart() {
   const windowStartIndex = Math.max(0, total - windowSize - baseOffset);
   const windowEndIndex = windowStartIndex + windowSize;
   const solves = allSolves.slice(windowStartIndex, windowEndIndex);
-  const prevSolve = windowStartIndex > 0 ? allSolves[windowStartIndex - 1] : null;
+  const prevSolve =
+    windowStartIndex > 0 ? allSolves[windowStartIndex - 1] : null;
   const nextSolve = windowEndIndex < total ? allSolves[windowEndIndex] : null;
 
   if (chartWindowLabel) {
@@ -730,10 +752,14 @@ function renderChart() {
   }
 
   const ao5Values = showAo5
-    ? solves.map((_, idx) => averageAtIndexChrono(allSolves, windowStartIndex + idx, 5))
+    ? solves.map((_, idx) =>
+        averageAtIndexChrono(allSolves, windowStartIndex + idx, 5),
+      )
     : [];
   const ao12Values = showAo12
-    ? solves.map((_, idx) => averageAtIndexChrono(allSolves, windowStartIndex + idx, 12))
+    ? solves.map((_, idx) =>
+        averageAtIndexChrono(allSolves, windowStartIndex + idx, 12),
+      )
     : [];
 
   // y축 스케일은 전체 기록 기준으로 고정한다.
@@ -830,7 +856,10 @@ function renderChart() {
         started = false;
         return;
       }
-      const x = chartPadding.left + (innerWidth * index) / Math.max(1, values.length - 1) + xShift;
+      const x =
+        chartPadding.left +
+        (innerWidth * index) / Math.max(1, values.length - 1) +
+        xShift;
       const y = yScale(value);
       if (!started) {
         ctx.moveTo(x, y);
@@ -988,7 +1017,9 @@ function closeSettingsModal() {
 function setTheme(theme) {
   let resolved = theme;
   if (theme === "system") {
-    resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    resolved = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   }
   if (resolved === "dark") {
     document.body.classList.add("theme-dark");
@@ -1009,7 +1040,9 @@ function setTheme(theme) {
 
 function setAccentTheme(name) {
   const themeGroup = ACCENT_THEMES[name] || ACCENT_THEMES.ocean;
-  const mode = document.body.classList.contains("theme-dark") ? "dark" : "light";
+  const mode = document.body.classList.contains("theme-dark")
+    ? "dark"
+    : "light";
   const theme = themeGroup[mode];
   document.body.setAttribute("data-accent", name);
   document.documentElement.style.setProperty("--accent", theme.accent);
@@ -1153,7 +1186,8 @@ function exportStat(type) {
       `Best Ao12: ${bestAo12}`,
     ].join("\n");
     const lines = valid.map(
-      (solve, index) => `${index + 1}. ${formatSolveTime(solve)} ${solve.scramble}`,
+      (solve, index) =>
+        `${index + 1}. ${formatSolveTime(solve)} ${solve.scramble}`,
     );
     openExportModal("평균", `${header}\n\n${stats}\n\n${lines.join("\n")}`);
     return;
@@ -1162,7 +1196,10 @@ function exportStat(type) {
   if (type === "ao5" || type === "ao12") {
     const count = type === "ao5" ? 5 : 12;
     if (solves.length < count) {
-      openExportModal(type, `${header}\nNot enough solves (${solves.length}/${count}).`);
+      openExportModal(
+        type,
+        `${header}\nNot enough solves (${solves.length}/${count}).`,
+      );
       return;
     }
     const windowSolves = solves.slice(0, count);
@@ -1174,7 +1211,8 @@ function exportStat(type) {
       ? "DNF"
       : formatTime(trimmed.reduce((a, b) => a + b, 0) / trimmed.length);
     const lines = windowSolves.map(
-      (solve, index) => `${index + 1}. ${formatSolveTime(solve)} ${solve.scramble}`,
+      (solve, index) =>
+        `${index + 1}. ${formatSolveTime(solve)} ${solve.scramble}`,
     );
     openExportModal(type, `${header}\n\n${lines.join("\n")}`);
   }
@@ -1215,7 +1253,9 @@ async function generateScramble() {
     updateScrambleNav();
     return;
   }
-  setCurrentScramble(scramble, appState.settings.eventId, { pushHistory: true });
+  setCurrentScramble(scramble, appState.settings.eventId, {
+    pushHistory: true,
+  });
 }
 
 function setCurrentScramble(scramble, eventId, options = {}) {
@@ -1259,13 +1299,90 @@ function splitAlgTokens(algText) {
     .filter((token) => token && token !== "-");
 }
 
+function countHtmMoveToken(token) {
+  const normalized = String(token || "").trim();
+  if (!normalized) return 0;
+  const match = /^([0-9]?)([A-Za-z]+)(2'?|')?$/.exec(normalized);
+  if (!match) return 1;
+  let base = match[2];
+  if (!base) return 1;
+  if (/w$/i.test(base) && base.length > 1) {
+    base = base.slice(0, -1);
+  }
+  const face = base[0];
+  if (!face) return 1;
+  if (
+    face === "x" ||
+    face === "y" ||
+    face === "z" ||
+    face === "X" ||
+    face === "Y" ||
+    face === "Z"
+  ) {
+    return 0;
+  }
+  if (
+    face === "M" ||
+    face === "E" ||
+    face === "S" ||
+    face === "m" ||
+    face === "e" ||
+    face === "s"
+  ) {
+    return 2;
+  }
+  return 1;
+}
+
+function countStmMoveToken(token) {
+  const normalized = String(token || "").trim();
+  if (!normalized) return 0;
+  const match = /^([0-9]?)([A-Za-z]+)(2'?|')?$/.exec(normalized);
+  if (!match) return 1;
+  let base = match[2];
+  if (!base) return 1;
+  if (/w$/i.test(base) && base.length > 1) {
+    base = base.slice(0, -1);
+  }
+  const face = base[0];
+  if (!face) return 1;
+  if (
+    face === "x" ||
+    face === "y" ||
+    face === "z" ||
+    face === "X" ||
+    face === "Y" ||
+    face === "Z"
+  ) {
+    return 0;
+  }
+  return 1;
+}
+
+function countMetricMovesFromTokens(tokens, tokenCounter) {
+  if (!Array.isArray(tokens) || !tokens.length) return 0;
+  let total = 0;
+  for (let i = 0; i < tokens.length; i += 1) {
+    total += tokenCounter(tokens[i]);
+  }
+  return total;
+}
+
+function countHtmMoves(algText) {
+  return countMetricMovesFromTokens(splitAlgTokens(algText), countHtmMoveToken);
+}
+
+function countStmMoves(algText) {
+  return countMetricMovesFromTokens(splitAlgTokens(algText), countStmMoveToken);
+}
+
+function formatMoveMetrics(htm, stm) {
+  return `${htm} HTM / ${stm} STM`;
+}
+
 function joinAlgTokens(tokens) {
   if (!Array.isArray(tokens) || !tokens.length) return "";
-  return tokens
-    .filter(Boolean)
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return tokens.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
 }
 
 function stopSolverPlayback() {
@@ -1281,6 +1398,12 @@ function stopSolverPlayback() {
   if (solverTwistyPlayer) {
     solverTwistyPlayer.pause();
   }
+}
+
+function isSolverPlaybackActive() {
+  return Boolean(
+    solverPlaybackAnimating || solverPlaybackTimerId || solverPlaybackAutoTimerId,
+  );
 }
 
 function ensureSolverTwistyPlayer() {
@@ -1317,7 +1440,7 @@ function updateSolverPlaybackControls() {
   }
   if (solverPlayBtn) {
     solverPlayBtn.disabled = !hasMoves;
-    solverPlayBtn.textContent = solverPlaybackTimerId || solverPlaybackAutoTimerId ? "정지" : "자동 재생";
+    solverPlayBtn.textContent = isSolverPlaybackActive() ? "정지" : "자동 재생";
   }
 }
 
@@ -1335,8 +1458,14 @@ function renderSolverStages(stages, fallbackSolution = "") {
     const item = document.createElement("li");
     const title = document.createElement("strong");
     const stageName = stage?.name || `Stage ${i + 1}`;
+    const elapsedMs = Number.isFinite(stage?.elapsedMs)
+      ? Math.max(1, Math.round(stage.elapsedMs))
+      : null;
+    const elapsedText = elapsedMs ? ` (${elapsedMs}ms)` : "";
     const stageMoves = splitAlgTokens(stage?.solution || "");
-    title.textContent = `${stageName} (${stageMoves.length}수)`;
+    const stageHtm = countMetricMovesFromTokens(stageMoves, countHtmMoveToken);
+    const stageStm = countMetricMovesFromTokens(stageMoves, countStmMoveToken);
+    title.textContent = `${stageName}${elapsedText} (${formatMoveMetrics(stageHtm, stageStm)})`;
     item.appendChild(title);
     const line = document.createElement("div");
     if (stageMoves.length) {
@@ -1362,14 +1491,24 @@ function updateSolverTwistyFrame() {
 }
 
 function setSolverPlaybackIndex(nextIndex) {
-  const clamped = Math.max(0, Math.min(solverPlaybackMoves.length, Math.floor(nextIndex)));
+  const clamped = Math.max(
+    0,
+    Math.min(solverPlaybackMoves.length, Math.floor(nextIndex)),
+  );
   solverPlaybackIndex = clamped;
   updateSolverTwistyFrame();
 }
 
 function estimateMoveAnimationMs(move) {
-  if (!move) return 560;
-  return move.includes("2") ? 760 : 560;
+  const player = ensureSolverTwistyPlayer();
+  const tempoScale = player?.tempoScale && player.tempoScale > 0 ? player.tempoScale : 1;
+  const baseDuration = (() => {
+    if (!move) return 1000;
+    if (move.includes("2")) return 1500;
+    return 1000;
+  })();
+  const scaled = baseDuration / tempoScale;
+  return Math.max(320, Math.round(scaled + 120));
 }
 
 function playSingleForwardStep() {
@@ -1381,7 +1520,10 @@ function playSingleForwardStep() {
     return;
   }
   const move = solverPlaybackMoves[solverPlaybackIndex];
-  const setup = joinAlgTokens([solverPlaybackScramble, ...solverPlaybackMoves.slice(0, solverPlaybackIndex)]);
+  const setup = joinAlgTokens([
+    solverPlaybackScramble,
+    ...solverPlaybackMoves.slice(0, solverPlaybackIndex),
+  ]);
   solverPlaybackAnimating = true;
   player.experimentalSetupAlg = setup;
   player.alg = move;
@@ -1399,7 +1541,11 @@ function playSingleForwardStep() {
 
 function showSolverVisualResult(scramble, solution, stages) {
   if (!solverVisualPanel) return;
-  if (!scramble || !solution || !isThreeByThreeFamilyEvent(appState.settings.eventId)) {
+  if (
+    !scramble ||
+    !solution ||
+    !isThreeByThreeFamilyEvent(appState.settings.eventId)
+  ) {
     clearSolverVisualResult();
     return;
   }
@@ -1429,7 +1575,7 @@ function clearSolverVisualResult() {
 
 function toggleSolverPlayback() {
   if (!solverPlaybackMoves.length) return;
-  if (solverPlaybackTimerId || solverPlaybackAutoTimerId) {
+  if (isSolverPlaybackActive()) {
     stopSolverPlayback();
     updateSolverPlaybackControls();
     return;
@@ -1444,7 +1590,8 @@ function toggleSolverPlayback() {
       return;
     }
     playSingleForwardStep();
-    const delay = estimateMoveAnimationMs(solverPlaybackMoves[solverPlaybackIndex]) + 40;
+    const delay =
+      estimateMoveAnimationMs(solverPlaybackMoves[solverPlaybackIndex]) + 40;
     solverPlaybackAutoTimerId = window.setTimeout(() => {
       solverPlaybackAutoTimerId = 0;
       runStep();
@@ -1478,7 +1625,7 @@ function resetSolverState() {
     solverSolution.textContent = "-";
   }
   if (solverMoveCount) {
-    solverMoveCount.textContent = "0 수";
+    solverMoveCount.textContent = formatMoveMetrics(0, 0);
   }
   if (solverCopyBtn) {
     solverCopyBtn.disabled = true;
@@ -1490,7 +1637,8 @@ async function solveCurrentScramble() {
   await ensureSolverWorker();
   if (!currentScramble || solverBusy) return;
   if (!solverApi) {
-    if (solverStatus) solverStatus.textContent = `solver를 불러오지 못했습니다: ${solverError || "알 수 없음"}`;
+    if (solverStatus)
+      solverStatus.textContent = `solver를 불러오지 못했습니다: ${solverError || "알 수 없음"}`;
     return;
   }
   solverBusy = true;
@@ -1499,14 +1647,20 @@ async function solveCurrentScramble() {
     const solverMode = appState.settings.solverMode || "strict";
     const f2lMethod = appState.settings.f2lMethod || "legacy";
     if (isThreeByThreeFamilyEvent(appState.settings.eventId)) {
+      const f2lLabel =
+        f2lMethod === "free" || f2lMethod === "fast" || f2lMethod === "hybrid"
+          ? "Cross+1 DB Hybrid"
+          : f2lMethod === "search"
+            ? "No-DB Search"
+            : f2lMethod;
       solverStatus.textContent =
         solverMode === "optimal"
           ? "계산 중... (3x3 최소 수 우선 내부 탐색, 느릴 수 있음)"
           : solverMode === "roux"
             ? "계산 중... (3x3 Roux Hybrid: FB + SB + CMLL + LSE + Quality Sweep)"
-          : solverMode === "fmc"
-            ? "계산 중... (3x3 FMC 스타일 탐색: Direct + NISS + Premove)"
-            : `계산 중... (3x3 CFOP 4단계, ${solverMode}, F2L: ${f2lMethod})`;
+            : solverMode === "fmc"
+              ? "계산 중... (3x3 FMC 스타일 탐색: Direct + NISS + Premove)"
+              : `계산 중... (3x3 CFOP, ${solverMode}, F2L: ${f2lLabel})`;
     } else if (appState.settings.eventId === "222") {
       solverStatus.textContent =
         solverMode === "optimal" || solverMode === "fmc"
@@ -1517,7 +1671,7 @@ async function solveCurrentScramble() {
     }
   }
   if (solverSolution) solverSolution.textContent = "";
-  if (solverMoveCount) solverMoveCount.textContent = "0 수";
+  if (solverMoveCount) solverMoveCount.textContent = formatMoveMetrics(0, 0);
   if (solverCopyBtn) solverCopyBtn.disabled = true;
   stopSolverPlayback();
   updateSolverControls();
@@ -1527,62 +1681,187 @@ async function solveCurrentScramble() {
     const stageStartTimes = new Map();
     const stageElapsedTimes = new Map();
     const stageNames = new Map();
+    const processStartTimes = new Map();
+    const processLogs = [];
+    const appendProcessLog = (text) => {
+      const message = String(text || "").trim();
+      if (!message) return;
+      if (processLogs.length && processLogs[processLogs.length - 1] === message)
+        return;
+      processLogs.push(message);
+      if (processLogs.length > 24) {
+        processLogs.splice(0, processLogs.length - 24);
+      }
+    };
     const eventId = appState.settings.eventId;
-    const timeoutMs = isThreeByThreeFamilyEvent(eventId) ? SOLVER_CALL_TIMEOUT_MS_333 : SOLVER_CALL_TIMEOUT_MS_222;
+    const timeoutMs = isThreeByThreeFamilyEvent(eventId)
+      ? SOLVER_CALL_TIMEOUT_MS_333
+      : SOLVER_CALL_TIMEOUT_MS_222;
     const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(`SOLVER_TIMEOUT_${timeoutMs}MS`)), timeoutMs),
+      setTimeout(
+        () => reject(new Error(`SOLVER_TIMEOUT_${timeoutMs}MS`)),
+        timeoutMs,
+      ),
     );
-    const onProgress =
-      isThreeByThreeFamilyEvent(eventId)
-        ? proxy((progress) => {
-            if (runId !== solverProgressRunId || !solverBusy || !solverStatus) return;
-            if (!progress || typeof progress !== "object") return;
-            const stageName = progress.stageName || "";
-            const index = Number.isFinite(progress.stageIndex) ? progress.stageIndex + 1 : null;
-            const total = Number.isFinite(progress.totalStages) ? progress.totalStages : 4;
-            if (progress.type === "stage_start" && index) {
-              stageStartTimes.set(index, performance.now());
-              if (stageName) stageNames.set(index, stageName);
-              solverStatus.textContent = `계산 중... [${index}/${total}] ${stageName}`;
+    const onProgress = isThreeByThreeFamilyEvent(eventId)
+      ? proxy((progress) => {
+          if (runId !== solverProgressRunId || !solverBusy || !solverStatus)
+            return;
+          if (!progress || typeof progress !== "object") return;
+          const stageName = progress.stageName || "";
+          const isRouxCandidateFallback =
+            stageName.startsWith("Roux Candidate ");
+          const isRouxOrientationFallback =
+            stageName.startsWith("Roux Orientation ");
+          const isRouxSweepFallback = stageName === "Roux Parallel Sweep";
+          const index = Number.isFinite(progress.stageIndex)
+            ? progress.stageIndex + 1
+            : null;
+          const total = Number.isFinite(progress.totalStages)
+            ? progress.totalStages
+            : 4;
+          const stageKey = index ? `stage:${index}` : "";
+          if (progress.type === "queue") {
+            const targetEvent = progress.eventId
+              ? ` (${progress.eventId})`
+              : "";
+            const logText = `대기열 진입${targetEvent}`;
+            appendProcessLog(logText);
+            solverStatus.textContent = logText;
+            return;
+          }
+          if (progress.type === "start") {
+            const stageCount = Number.isFinite(progress.totalStages)
+              ? progress.totalStages
+              : total;
+            const logText = `탐색 시작 (총 ${stageCount}단계)`;
+            appendProcessLog(logText);
+            solverStatus.textContent = logText;
+            return;
+          }
+          if (progress.type === "stage_start" && index) {
+            const now = performance.now();
+            stageStartTimes.set(index, now);
+            processStartTimes.set(stageKey, now);
+            if (stageName) stageNames.set(index, stageName);
+            appendProcessLog(`[${index}/${total}] 시작: ${stageName}`);
+            solverStatus.textContent = `계산 중... [${index}/${total}] ${stageName}`;
+            return;
+          }
+          if (progress.type === "stage_done" && index) {
+            const now = performance.now();
+            const stageStart = stageStartTimes.get(index);
+            let elapsed = Number.isFinite(progress.elapsedMs)
+              ? Math.max(1, Math.round(progress.elapsedMs))
+              : 0;
+            if (!elapsed && typeof stageStart === "number") {
+              elapsed = Math.max(1, Math.round(now - stageStart));
+            }
+            if (elapsed) stageElapsedTimes.set(index, elapsed);
+            if (stageName) stageNames.set(index, stageName);
+            const moves = Number.isFinite(progress.moveCount)
+              ? progress.moveCount
+              : 0;
+            const elapsedText = elapsed > 0 ? `, ${elapsed}ms` : "";
+            appendProcessLog(
+              `[${index}/${total}] 완료: ${stageName} (${moves}수${elapsedText})`,
+            );
+            solverStatus.textContent = `진행 중... [${index}/${total}] ${stageName} 완료 (${moves}수${elapsedText})`;
+            return;
+          }
+          if (progress.type === "stage_fail" && index) {
+            const started = processStartTimes.get(stageKey);
+            const elapsed =
+              typeof started === "number"
+                ? Math.max(1, Math.round(performance.now() - started))
+                : 0;
+            const elapsedText = elapsed > 0 ? ` (${elapsed}ms)` : "";
+            appendProcessLog(
+              `[${index}/${total}] 실패: ${stageName}${elapsedText}`,
+            );
+            solverStatus.textContent = `실패 [${index}/${total}] ${stageName}${elapsedText}`;
+            return;
+          }
+          if (progress.type === "fallback_start") {
+            const fallbackKey = `fallback:${stageName || "general"}`;
+            processStartTimes.set(fallbackKey, performance.now());
+            if (isRouxCandidateFallback) {
+              appendProcessLog(`Roux 후보 탐색: ${stageName}`);
+              solverStatus.textContent = `Roux 후보 탐색 중... (${stageName})`;
               return;
             }
-            if (progress.type === "stage_done" && index) {
-              const stageStart = stageStartTimes.get(index);
-              if (typeof stageStart === "number") {
-                const elapsed = Math.max(1, Math.round(performance.now() - stageStart));
-                stageElapsedTimes.set(index, elapsed);
-              }
-              if (stageName) stageNames.set(index, stageName);
-              const moves = Number.isFinite(progress.moveCount) ? progress.moveCount : 0;
-              solverStatus.textContent = `진행 중... [${index}/${total}] ${stageName} 완료 (${moves}수)`;
+            if (isRouxSweepFallback) {
+              appendProcessLog("Roux 병렬 후보 탐색 시작");
+              solverStatus.textContent = "Roux 병렬 후보 탐색 시작...";
               return;
             }
-            if (progress.type === "stage_fail" && index) {
-              solverStatus.textContent = `실패 [${index}/${total}] ${stageName}`;
+            const target = progress.stageName ? ` ${progress.stageName}` : "";
+            const reason = progress.reason ? ` (${progress.reason})` : "";
+            appendProcessLog(`복구 시작${target}${reason}`);
+            solverStatus.textContent = `복구 탐색 시작${target}...${reason}`;
+            return;
+          }
+          if (progress.type === "fallback_done") {
+            const fallbackKey = `fallback:${stageName || "general"}`;
+            const started = processStartTimes.get(fallbackKey);
+            const elapsed =
+              typeof started === "number"
+                ? Math.max(1, Math.round(performance.now() - started))
+                : 0;
+            const elapsedText = elapsed > 0 ? ` (${elapsed}ms)` : "";
+            if (isRouxCandidateFallback) {
+              appendProcessLog(`Roux 후보 반영: ${stageName}${elapsedText}`);
+              solverStatus.textContent = `Roux 후보 반영 완료 (${stageName})${elapsedText}`;
               return;
             }
-            if (progress.type === "fallback_start") {
-              const target = progress.stageName ? ` ${progress.stageName}` : "";
-              const reason = progress.reason ? ` (${progress.reason})` : "";
-              solverStatus.textContent = `복구 탐색 시작${target}...${reason}`;
+            if (isRouxSweepFallback) {
+              appendProcessLog(`Roux 병렬 후보 탐색 완료${elapsedText}`);
+              solverStatus.textContent = `Roux 병렬 후보 탐색 완료${elapsedText}`;
               return;
             }
-            if (progress.type === "fallback_done") {
-              const target = progress.stageName ? ` (${progress.stageName})` : "";
-              solverStatus.textContent = `복구 탐색 완료${target}`;
+            const target = progress.stageName ? ` (${progress.stageName})` : "";
+            appendProcessLog(`복구 완료${target}${elapsedText}`);
+            solverStatus.textContent = `복구 탐색 완료${target}${elapsedText}`;
+            return;
+          }
+          if (progress.type === "fallback_fail") {
+            const fallbackKey = `fallback:${stageName || "general"}`;
+            const started = processStartTimes.get(fallbackKey);
+            const elapsed =
+              typeof started === "number"
+                ? Math.max(1, Math.round(performance.now() - started))
+                : 0;
+            const elapsedText = elapsed > 0 ? ` (${elapsed}ms)` : "";
+            if (isRouxCandidateFallback || isRouxOrientationFallback) {
+              appendProcessLog(`Roux 후보 실패: ${stageName}${elapsedText}`);
+              solverStatus.textContent = `Roux 후보 실패, 다음 후보 시도 중... (${stageName})${elapsedText}`;
               return;
             }
-            if (progress.type === "fallback_fail") {
-              const target = progress.stageName ? ` (${progress.stageName})` : "";
-              solverStatus.textContent = `복구 탐색 실패${target}`;
+            if (isRouxSweepFallback) {
+              appendProcessLog(
+                `Roux 병렬 후보 실패, 기본 탐색 전환${elapsedText}`,
+              );
+              solverStatus.textContent = `Roux 병렬 후보 실패, 기본 Roux 탐색으로 전환 중...${elapsedText}`;
+              return;
             }
-          })
-        : undefined;
+            const target = progress.stageName ? ` (${progress.stageName})` : "";
+            appendProcessLog(`복구 실패${target}${elapsedText}`);
+            solverStatus.textContent = `복구 탐색 실패${target}${elapsedText}`;
+          }
+        })
+      : undefined;
     const crossColor = appState.settings.crossColor || "D";
     const solverMode = appState.settings.solverMode || "strict";
     const f2lMethod = appState.settings.f2lMethod || "legacy";
     const result = await Promise.race([
-      solverApi.solve(currentScramble, eventId, onProgress, crossColor, solverMode, f2lMethod),
+      solverApi.solve(
+        currentScramble,
+        eventId,
+        onProgress,
+        crossColor,
+        solverMode,
+        f2lMethod,
+      ),
       timeout,
     ]);
     const duration = Math.max(1, Math.round(performance.now() - startTime));
@@ -1591,14 +1870,46 @@ async function solveCurrentScramble() {
         result.solution?.trim() ||
         (Array.isArray(result.stages)
           ? result.stages
-              .map((stage) => (typeof stage?.solution === "string" ? stage.solution.trim() : ""))
+              .map((stage) =>
+                typeof stage?.solution === "string"
+                  ? stage.solution.trim()
+                  : "",
+              )
               .filter(Boolean)
               .join(" ")
               .trim()
           : "");
-      const stageLines =
+      const timedStages =
         Array.isArray(result.stages) && result.stages.length
-          ? result.stages.map((stage) => `${stage.name}: ${stage.solution || "-"}`)
+          ? result.stages.map((stage, index) => {
+              const stageIndex = index + 1;
+              const elapsed = stageElapsedTimes.get(stageIndex);
+              if (!Number.isFinite(elapsed)) return stage;
+              return {
+                ...stage,
+                elapsedMs: Math.max(
+                  1,
+                  Math.round(
+                    Number.isFinite(stage?.elapsedMs) ? stage.elapsedMs : elapsed,
+                  ),
+                ),
+              };
+            })
+          : result.stages;
+      const stageLines =
+        Array.isArray(timedStages) && timedStages.length
+          ? timedStages.map((stage, index) => {
+              const stageIndex = index + 1;
+              const label = stage.name || `Stage ${stageIndex}`;
+              const elapsed = Number.isFinite(stageElapsedTimes.get(stageIndex))
+                ? stageElapsedTimes.get(stageIndex)
+                : Number.isFinite(stage?.elapsedMs)
+                  ? Math.max(1, Math.round(stage.elapsedMs))
+                  : null;
+              const elapsedText =
+                Number.isFinite(elapsed) ? ` (${elapsed}ms)` : "";
+              return `${label}${elapsedText}: ${stage.solution || "-"}`;
+            })
           : null;
       const timingLines =
         stageElapsedTimes.size > 0
@@ -1611,21 +1922,23 @@ async function solveCurrentScramble() {
           : null;
       const sections = [];
       if (stageLines?.length) sections.push(stageLines.join("\n"));
-      else if (result.solutionDisplay?.trim()) sections.push(result.solutionDisplay.trim());
+      else if (result.solutionDisplay?.trim())
+        sections.push(result.solutionDisplay.trim());
       else if (rawSolutionText) sections.push(rawSolutionText);
-      if (timingLines?.length) {
+      if (!stageLines?.length && timingLines?.length) {
         sections.push(["시간", ...timingLines].join("\n"));
+      }
+      if (typeof duration === "number" && Number.isFinite(duration)) {
+        sections.push(`총 시간: ${duration}ms`);
       }
       const solutionText = sections.join("\n\n").trim() || "-";
       if (solverSolution) {
         solverSolution.textContent = solutionText || "-";
       }
       if (solverMoveCount) {
-        const moveCount =
-          typeof result.moveCount === "number"
-            ? result.moveCount
-            : rawSolutionText.split(/\s+/).filter(Boolean).length;
-        solverMoveCount.textContent = `${moveCount} 수`;
+        const htm = countHtmMoves(rawSolutionText);
+        const stm = countStmMoves(rawSolutionText);
+        solverMoveCount.textContent = formatMoveMetrics(htm, stm);
       }
       lastSolution = rawSolutionText;
       lastSolutionDisplay = solutionText || rawSolutionText;
@@ -1635,7 +1948,10 @@ async function solveCurrentScramble() {
             ? `, ${result.nodes.toLocaleString()} 노드`
             : "";
         let fallbackText = "";
-        if (typeof result.source === "string" && result.source.startsWith("FMC_")) {
+        if (
+          typeof result.source === "string" &&
+          result.source.startsWith("FMC_")
+        ) {
           fallbackText = ", FMC";
         } else if (result.source === "EXTERNAL_CUBING_SEARCH_MINIMAL") {
           fallbackText = ", 최소수 탐색";
@@ -1649,7 +1965,7 @@ async function solveCurrentScramble() {
       if (solverCopyBtn) {
         solverCopyBtn.disabled = !rawSolutionText;
       }
-      showSolverVisualResult(currentScramble, rawSolutionText, result.stages);
+      showSolverVisualResult(currentScramble, rawSolutionText, timedStages);
     } else {
       lastSolution = "";
       lastSolutionDisplay = "";
@@ -1657,7 +1973,8 @@ async function solveCurrentScramble() {
       const reason = result?.reason || "해를 찾지 못했습니다.";
       if (solverStatus) solverStatus.textContent = reason;
       if (solverSolution) solverSolution.textContent = "-";
-      if (solverMoveCount) solverMoveCount.textContent = "0 수";
+      if (solverMoveCount)
+        solverMoveCount.textContent = formatMoveMetrics(0, 0);
       if (solverCopyBtn) solverCopyBtn.disabled = true;
     }
   } catch (error) {
@@ -1672,19 +1989,25 @@ async function solveCurrentScramble() {
       solverApi = null;
       solverReady = false;
       const eventId = appState.settings.eventId;
-      const timeoutMs = isThreeByThreeFamilyEvent(eventId) ? SOLVER_CALL_TIMEOUT_MS_333 : SOLVER_CALL_TIMEOUT_MS_222;
+      const timeoutMs = isThreeByThreeFamilyEvent(eventId)
+        ? SOLVER_CALL_TIMEOUT_MS_333
+        : SOLVER_CALL_TIMEOUT_MS_222;
       solverError = `solver 시간 초과 (${Math.round(timeoutMs / 1000)}초)`;
     }
     lastSolution = "";
     lastSolutionDisplay = "";
     if (solverStatus) {
-      const errorMessage = error?.message ? String(error.message) : "알 수 없는 오류";
-      solverStatus.textContent = String(error?.message || "").startsWith("SOLVER_TIMEOUT_")
+      const errorMessage = error?.message
+        ? String(error.message)
+        : "알 수 없는 오류";
+      solverStatus.textContent = String(error?.message || "").startsWith(
+        "SOLVER_TIMEOUT_",
+      )
         ? `시간 초과: 계산이 제한 시간 내에 끝나지 않았습니다.`
         : `해를 계산하는 중 오류가 발생했습니다. (${errorMessage})`;
     }
     if (solverSolution) solverSolution.textContent = "-";
-    if (solverMoveCount) solverMoveCount.textContent = "0 수";
+    if (solverMoveCount) solverMoveCount.textContent = formatMoveMetrics(0, 0);
     if (solverCopyBtn) solverCopyBtn.disabled = true;
   } finally {
     solverBusy = false;
@@ -1775,7 +2098,9 @@ solverModeSelect?.addEventListener("change", () => {
 
 f2lMethodSelect?.addEventListener("change", () => {
   if (!f2lMethodSelect) return;
-  appState.settings.f2lMethod = "legacy";
+  appState.settings.f2lMethod = VALID_F2L_METHODS.has(f2lMethodSelect.value)
+    ? f2lMethodSelect.value
+    : "legacy";
   saveState();
 });
 
@@ -1809,7 +2134,10 @@ sessionSelect.addEventListener("change", () => {
 });
 
 newSessionBtn.addEventListener("click", () => {
-  const name = window.prompt("새 세션 이름", `세션 ${appState.sessions.length + 1}`);
+  const name = window.prompt(
+    "새 세션 이름",
+    `세션 ${appState.sessions.length + 1}`,
+  );
   if (!name) return;
   const session = createSession(name);
   appState.sessions.unshift(session);
@@ -1918,14 +2246,22 @@ toggleAo12?.addEventListener("change", () => {
   renderChart();
 });
 toggleInspection.addEventListener("change", () => {
-  localStorage.setItem(INSPECTION_KEY, toggleInspection.checked ? "true" : "false");
+  localStorage.setItem(
+    INSPECTION_KEY,
+    toggleInspection.checked ? "true" : "false",
+  );
 });
 toggleHideLive?.addEventListener("change", () => {
-  localStorage.setItem(HIDE_LIVE_KEY, toggleHideLive.checked ? "true" : "false");
+  localStorage.setItem(
+    HIDE_LIVE_KEY,
+    toggleHideLive.checked ? "true" : "false",
+  );
   hideLiveUpdates = toggleHideLive.checked;
 });
 function updateAccentSwatches() {
-  const mode = document.body.classList.contains("theme-dark") ? "dark" : "light";
+  const mode = document.body.classList.contains("theme-dark")
+    ? "dark"
+    : "light";
   accentButtons.forEach((button) => {
     const name = button.getAttribute("data-accent");
     const themeGroup = ACCENT_THEMES[name] || ACCENT_THEMES.ocean;
@@ -1975,7 +2311,10 @@ historyList.addEventListener("click", (event) => {
     const count = type === "ao12" ? 12 : 5;
     const value = formatAverageAtIndex(session.solves, index, count);
     if (value === "-") {
-      openExportModal(type, `Genrated by  CubeTimer in ${formatShareTimestamp(new Date())}\n\nNot enough solves.`);
+      openExportModal(
+        type,
+        `Genrated by  CubeTimer in ${formatShareTimestamp(new Date())}\n\nNot enough solves.`,
+      );
       return;
     }
     const windowSolves = windowSolvesAtIndex(session.solves, index, count);
@@ -2012,7 +2351,10 @@ function applySolveAction(action) {
   if (action === "plus2") solve.penalty = "PLUS2";
   if (action === "dnf") solve.penalty = "DNF";
   if (action === "edit") {
-    const input = window.prompt("새 기록 (예: 12.34 or 1:02.50)", formatTime(solve.timeMs));
+    const input = window.prompt(
+      "새 기록 (예: 12.34 or 1:02.50)",
+      formatTime(solve.timeMs),
+    );
     if (input) {
       const ms = parseTimeInput(input);
       if (ms !== null) solve.timeMs = ms;
@@ -2071,14 +2413,21 @@ window.addEventListener("keydown", (event) => {
       stopTimer();
       return;
     }
-    if ((timerState === "idle" || timerState === "stopped") && !inspectionActive) {
+    if (
+      (timerState === "idle" || timerState === "stopped") &&
+      !inspectionActive
+    ) {
       if (toggleInspection.checked) {
         startInspection();
         timerState = "inspecting";
         return;
       }
     }
-    if (timerState === "idle" || timerState === "stopped" || timerState === "inspecting") {
+    if (
+      timerState === "idle" ||
+      timerState === "stopped" ||
+      timerState === "inspecting"
+    ) {
       beginHold();
     }
   }
@@ -2124,14 +2473,21 @@ function attachTimerPointerControls() {
       stopTimer();
       return;
     }
-    if ((timerState === "idle" || timerState === "stopped") && !inspectionActive) {
+    if (
+      (timerState === "idle" || timerState === "stopped") &&
+      !inspectionActive
+    ) {
       if (toggleInspection.checked) {
         startInspection();
         timerState = "inspecting";
         return;
       }
     }
-    if (timerState === "idle" || timerState === "stopped" || timerState === "inspecting") {
+    if (
+      timerState === "idle" ||
+      timerState === "stopped" ||
+      timerState === "inspecting"
+    ) {
       beginHold();
     }
   };
@@ -2188,7 +2544,8 @@ chartZoomOutBtn?.addEventListener("click", () => adjustChartWindow(5));
 chartZoomInBtn?.addEventListener("click", () => adjustChartWindow(-5));
 
 if (progressChart) {
-  const usePointerEvents = typeof window !== "undefined" && "PointerEvent" in window;
+  const usePointerEvents =
+    typeof window !== "undefined" && "PointerEvent" in window;
   const dragSurface = progressChart.closest(".chart-card") || progressChart;
   const clampOffset = (value) => Math.min(chartMaxOffset, Math.max(0, value));
 
@@ -2430,8 +2787,10 @@ async function initApp() {
       toggleHideLive.checked = localStorage.getItem(HIDE_LIVE_KEY) === "true";
       hideLiveUpdates = toggleHideLive.checked;
     }
-    if (toggleAo5) toggleAo5.checked = localStorage.getItem(AO5_KEY) !== "false";
-    if (toggleAo12) toggleAo12.checked = localStorage.getItem(AO12_KEY) !== "false";
+    if (toggleAo5)
+      toggleAo5.checked = localStorage.getItem(AO5_KEY) !== "false";
+    if (toggleAo12)
+      toggleAo12.checked = localStorage.getItem(AO12_KEY) !== "false";
     eventSelect.value = appState.settings.eventId;
     if (crossColorSelect) {
       crossColorSelect.value = appState.settings.crossColor || "D";
@@ -2465,7 +2824,10 @@ async function ensureSolverWorker() {
     solverError = "";
     solverReady = false;
     updateSolverControls();
-    const worker = new Worker(new URL("./solver/solverWorker.js", import.meta.url), { type: "module" });
+    const worker = new Worker(
+      new URL("./solver/solverWorker.js", import.meta.url),
+      { type: "module" },
+    );
     solverWorker = worker;
     solverApi = wrap(worker);
     const workerInitError = new Promise((_, reject) => {

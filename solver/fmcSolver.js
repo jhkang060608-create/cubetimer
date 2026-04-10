@@ -438,7 +438,11 @@ async function solveInternal333(scrambleText, options = {}) {
       pattern = solvedPattern.applyAlg(scrambleText);
     }
     if (remainingMs(options.deadlineTs) <= 300) return null;
-    const phaseProfiles = selectPhaseProfiles(options.profileLevel || "medium");
+    const selectedPhaseProfiles = selectPhaseProfiles(options.profileLevel || "medium");
+    const maxProfiles = Number.isFinite(options.maxProfiles)
+      ? Math.max(1, Math.floor(options.maxProfiles))
+      : selectedPhaseProfiles.length;
+    const phaseProfiles = selectedPhaseProfiles.slice(0, maxProfiles);
     const phaseAttemptTimeoutMs = Number.isFinite(options.phaseAttemptTimeoutMs)
       ? Math.max(600, Math.floor(options.phaseAttemptTimeoutMs))
       : 4000;
@@ -448,6 +452,9 @@ async function solveInternal333(scrambleText, options = {}) {
     const targetMoveCount = Number.isFinite(options.targetMoveCount)
       ? Math.max(1, Math.floor(options.targetMoveCount))
       : null;
+    const targetSlack = Number.isFinite(options.targetSlack)
+      ? Math.max(0, Math.floor(options.targetSlack))
+      : 0;
     let bestPhase = null;
 
     for (let i = 0; i < phaseProfiles.length; i++) {
@@ -478,7 +485,7 @@ async function solveInternal333(scrambleText, options = {}) {
             moveCount: candidateMoveCount,
           };
         }
-        if (targetMoveCount && bestPhase.moveCount <= targetMoveCount) {
+        if (targetMoveCount && bestPhase.moveCount <= targetMoveCount + targetSlack) {
           break;
         }
       }
@@ -518,6 +525,9 @@ async function solveInternal333(scrambleText, options = {}) {
           source: "INTERNAL_FMC_CFOP_FALLBACK",
         };
       }
+      if (targetMoveCount && bestCfop.moveCount <= targetMoveCount + targetSlack) {
+        break;
+      }
     }
     if (bestCfop?.ok) return bestCfop;
     return null;
@@ -527,6 +537,7 @@ async function solveInternal333(scrambleText, options = {}) {
 }
 
 export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
+  const aggressivePrune = options.aggressivePrune === true;
   const maxPremoveSets = Number.isFinite(options.maxPremoveSets)
     ? Math.max(0, Math.floor(options.maxPremoveSets))
     : 4;
@@ -585,6 +596,88 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const sweepRefineSets = Number.isFinite(options.sweepRefineSets)
     ? Math.max(1, Math.floor(options.sweepRefineSets))
     : Math.max(6, Math.floor(sweepLimit * 0.45));
+  const directMaxProfiles = Number.isFinite(options.directMaxProfiles)
+    ? Math.max(1, Math.floor(options.directMaxProfiles))
+    : directProfileLevel === "xdeep"
+      ? 3
+      : directProfileLevel === "deep"
+        ? 2
+        : Infinity;
+  const nissMaxProfiles = Number.isFinite(options.nissMaxProfiles)
+    ? Math.max(1, Math.floor(options.nissMaxProfiles))
+    : directMaxProfiles;
+  const sweepMaxProfiles = Number.isFinite(options.sweepMaxProfiles)
+    ? Math.max(1, Math.floor(options.sweepMaxProfiles))
+    : aggressivePrune
+      ? 1
+      : Infinity;
+  const sweepHeavyMaxProfiles = Number.isFinite(options.sweepHeavyMaxProfiles)
+    ? Math.max(sweepMaxProfiles, Math.floor(options.sweepHeavyMaxProfiles))
+    : Math.max(sweepMaxProfiles, 2);
+  const sweepHeavyThreshold = Number.isFinite(options.sweepHeavyThreshold)
+    ? Math.max(0, Math.floor(options.sweepHeavyThreshold))
+    : 2;
+  const sweepScoutMaxProfiles = Number.isFinite(options.sweepScoutMaxProfiles)
+    ? Math.max(1, Math.floor(options.sweepScoutMaxProfiles))
+    : 1;
+  const sweepScoutLimit = Number.isFinite(options.sweepScoutLimit)
+    ? Math.max(1, Math.min(sweepLimit, Math.floor(options.sweepScoutLimit)))
+    : Math.max(1, Math.min(sweepLimit, Math.max(sweepRefineSets, Math.floor(sweepRefineSets * 1.8))));
+  const directTargetSlack = Number.isFinite(options.directTargetSlack)
+    ? Math.max(0, Math.floor(options.directTargetSlack))
+    : 0;
+  const nissTargetSlack = Number.isFinite(options.nissTargetSlack)
+    ? Math.max(0, Math.floor(options.nissTargetSlack))
+    : directTargetSlack;
+  const sweepTargetSlack = Number.isFinite(options.sweepTargetSlack)
+    ? Math.max(0, Math.floor(options.sweepTargetSlack))
+    : aggressivePrune
+      ? 1
+      : 0;
+  const sweepScoutTargetSlack = Number.isFinite(options.sweepScoutTargetSlack)
+    ? Math.max(0, Math.floor(options.sweepScoutTargetSlack))
+    : aggressivePrune
+      ? 2
+      : 1;
+  const sweepImproveBy = Number.isFinite(options.sweepImproveBy)
+    ? Math.max(0, Math.floor(options.sweepImproveBy))
+    : 1;
+  const sweepScoutImproveBy = Number.isFinite(options.sweepScoutImproveBy)
+    ? Math.max(0, Math.floor(options.sweepScoutImproveBy))
+    : aggressivePrune
+      ? 0
+      : 1;
+  const sweepRefineSlack = Number.isFinite(options.sweepRefineSlack)
+    ? Math.max(0, Math.floor(options.sweepRefineSlack))
+    : aggressivePrune
+      ? 2
+      : 3;
+  const sweepSkipGap = Number.isFinite(options.sweepSkipGap)
+    ? Math.max(1, Math.floor(options.sweepSkipGap))
+    : aggressivePrune
+      ? 2
+      : 3;
+  const sweepScoutInverseSkipSlack = Number.isFinite(options.sweepScoutInverseSkipSlack)
+    ? Math.max(0, Math.floor(options.sweepScoutInverseSkipSlack))
+    : aggressivePrune
+      ? 1
+      : 0;
+  const sweepInverseSkipSlack = Number.isFinite(options.sweepInverseSkipSlack)
+    ? Math.max(0, Math.floor(options.sweepInverseSkipSlack))
+    : aggressivePrune
+      ? 1
+      : 0;
+  const sweepMaxUnsolvedRefine = Number.isFinite(options.sweepMaxUnsolvedRefine)
+    ? Math.max(0, Math.floor(options.sweepMaxUnsolvedRefine))
+    : aggressivePrune
+      ? 6
+      : 10;
+  const sweepScoutMaxNoImprove = Number.isFinite(options.sweepScoutMaxNoImprove)
+    ? Math.max(1, Math.floor(options.sweepScoutMaxNoImprove))
+    : Math.max(10, Math.floor(sweepScoutLimit * 0.35));
+  const sweepMaxNoImprove = Number.isFinite(options.sweepMaxNoImprove)
+    ? Math.max(1, Math.floor(options.sweepMaxNoImprove))
+    : Math.max(6, Math.floor(Math.max(1, sweepRefineSets) * 0.5));
   const enableInsertions = options.enableInsertions !== false;
   const insertionCandidateLimit = Number.isFinite(options.insertionCandidateLimit)
     ? Math.max(1, Math.floor(options.insertionCandidateLimit))
@@ -634,23 +727,65 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       bestMoveCount = candidate.moveCount;
     }
   };
-  const currentTargetMoveCount = () =>
-    Number.isFinite(bestMoveCount) ? Math.max(targetMoveCount, bestMoveCount - 1) : targetMoveCount;
+  const currentTargetMoveCount = (improveBy = 1) =>
+    Number.isFinite(bestMoveCount)
+      ? Math.max(targetMoveCount, bestMoveCount - Math.max(0, Math.floor(improveBy)))
+      : targetMoveCount;
+  const internalSolveCache = new Map();
+  const solveInternalCached = async (scrambleText, solveOptions) => {
+    const startPattern = solveOptions?.startPattern || null;
+    const keyCore = startPattern ? patternStateKey(startPattern) : "";
+    const cacheKey = keyCore ? `${scrambleText}::${keyCore}` : "";
+    const requestedTarget = Number.isFinite(solveOptions?.targetMoveCount)
+      ? Math.floor(solveOptions.targetMoveCount)
+      : Infinity;
+    const requestedSlack = Number.isFinite(solveOptions?.targetSlack)
+      ? Math.max(0, Math.floor(solveOptions.targetSlack))
+      : 0;
+    if (cacheKey) {
+      const cached = internalSolveCache.get(cacheKey);
+      if (cached?.solution && cached.moveCount <= requestedTarget + requestedSlack) {
+        return cached;
+      }
+    }
+    const result = await solveInternal333(scrambleText, solveOptions);
+    attempts += 1;
+    if (cacheKey && result?.solution) {
+      const normalizedMoveCount = Number.isFinite(result.moveCount)
+        ? result.moveCount
+        : splitMoves(result.solution).length;
+      const normalizedResult = {
+        ...result,
+        moveCount: normalizedMoveCount,
+      };
+      const cached = internalSolveCache.get(cacheKey);
+      if (!cached || normalizedResult.moveCount < cached.moveCount) {
+        internalSolveCache.set(cacheKey, normalizedResult);
+      }
+      return normalizedResult;
+    }
+    if (cacheKey) {
+      const cached = internalSolveCache.get(cacheKey);
+      if (cached?.solution) return cached;
+    }
+    return result;
+  };
 
   notify({ type: "stage_start", stageIndex: 0, totalStages, stageName: "FMC Direct" });
   const directDeadlineTs = Math.min(deadlineTs, Date.now() + directStageBudgetMs);
-  const direct = await solveInternal333(scramble, {
+  const direct = await solveInternalCached(scramble, {
     startPattern: scramblePattern,
     profileLevel: directProfileLevel,
+    maxProfiles: directMaxProfiles,
     phaseAttemptTimeoutMs: directPhaseAttemptTimeoutMs,
     cfopPerColorTimeoutMs: directCfopPerColorTimeoutMs,
     allowCfopFallback: options.allowCfopFallback === true,
     crossColors: options.crossColors || ["D"],
     deadlineTs: directDeadlineTs,
     phaseTimeCheckInterval,
-    targetMoveCount: currentTargetMoveCount(),
+    targetMoveCount: currentTargetMoveCount(1),
+    targetSlack: directTargetSlack,
   });
-  attempts += 1;
   if (direct?.solution) {
     trackCandidate(
       createCandidate(
@@ -676,19 +811,20 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const nissDeadlineTs = Math.min(deadlineTs, Date.now() + nissStageBudgetMs);
   const inverse =
     remainingMs(nissDeadlineTs) > 400
-      ? await solveInternal333(inverseScramble, {
+      ? await solveInternalCached(inverseScramble, {
           startPattern: inversePattern,
           profileLevel: directProfileLevel,
+          maxProfiles: nissMaxProfiles,
           phaseAttemptTimeoutMs: directPhaseAttemptTimeoutMs,
           cfopPerColorTimeoutMs: directCfopPerColorTimeoutMs,
           allowCfopFallback: options.allowCfopFallback === true,
           crossColors: options.crossColors || ["D"],
           deadlineTs: nissDeadlineTs,
           phaseTimeCheckInterval,
-          targetMoveCount: currentTargetMoveCount(),
+          targetMoveCount: currentTargetMoveCount(1),
+          targetSlack: nissTargetSlack,
         })
       : null;
-  attempts += 1;
   if (inverse?.solution) {
     trackCandidate(
       createCandidate(
@@ -713,31 +849,39 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   if (hasSweep) {
     notify({ type: "stage_start", stageIndex: 2, totalStages, stageName: "FMC Premove Sweep" });
     let sweepOrder = Array.from({ length: sweepLimit }, (_, index) => index);
-    if (sweepUseScout && sweepLimit > sweepRefineSets && remainingMs(sweepDeadlineTs) > 1200) {
+    const scoutMetaByIndex = new Map();
+    if (sweepUseScout && sweepLimit > 0 && remainingMs(sweepDeadlineTs) > 1200) {
       const scoredPremoves = [];
-      for (let i = 0; i < sweepLimit; i += 1) {
+      let scoutNoImproveCount = 0;
+      const scoutIterationLimit = Math.min(sweepLimit, sweepScoutLimit);
+      for (let i = 0; i < scoutIterationLimit; i += 1) {
         if (Date.now() - startedAt >= timeBudgetMs) break;
         if (remainingMs(deadlineTs) <= 900) break;
         if (remainingMs(sweepDeadlineTs) <= 450) break;
         if (bestMoveCount <= targetMoveCount) break;
+        const bestBeforeScout = bestMoveCount;
         const premove = FMC_PREMOVE_SETS[i];
         const scoutDeadlineTs = Math.min(deadlineTs, sweepDeadlineTs, Date.now() + sweepScoutAttemptBudgetMs);
         let bestScoutMoveCount = Infinity;
         let solvedScout = false;
+        let directScoutMoveCount = Infinity;
+        let inverseScoutMoveCount = Infinity;
+        let attemptedInverseScout = false;
 
         const directPatternWithPremove = applyMovesToPattern(scramblePattern, premove);
-        const directScout = await solveInternal333(scramble, {
+        const directScout = await solveInternalCached(scramble, {
           startPattern: directPatternWithPremove,
           profileLevel: sweepScoutProfileLevel,
+          maxProfiles: sweepScoutMaxProfiles,
           phaseAttemptTimeoutMs: sweepScoutPhaseAttemptTimeoutMs,
           cfopPerColorTimeoutMs: sweepScoutCfopPerColorTimeoutMs,
           allowCfopFallback: options.premoveAllowCfopFallback === true,
           crossColors: options.crossColors || ["D"],
           deadlineTs: scoutDeadlineTs,
           phaseTimeCheckInterval,
-          targetMoveCount: currentTargetMoveCount(),
+          targetMoveCount: currentTargetMoveCount(sweepScoutImproveBy),
+          targetSlack: sweepScoutTargetSlack,
         });
-        attempts += 1;
         if (directScout?.solution) {
           const moves = premove.concat(splitMoves(directScout.solution));
           const directCandidate = createCandidate(
@@ -751,25 +895,37 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
           );
           trackCandidate(directCandidate);
           if (directCandidate?.moveCount) {
+            directScoutMoveCount = directCandidate.moveCount;
             bestScoutMoveCount = Math.min(bestScoutMoveCount, directCandidate.moveCount);
             solvedScout = true;
           }
         }
 
-        if (sweepIncludeInverse && sweepScoutIncludeInverse && remainingMs(scoutDeadlineTs) > 120) {
+        let shouldScoutInverse = sweepIncludeInverse && sweepScoutIncludeInverse && remainingMs(scoutDeadlineTs) > 120;
+        if (
+          shouldScoutInverse &&
+          Number.isFinite(directScoutMoveCount) &&
+          Number.isFinite(bestMoveCount) &&
+          directScoutMoveCount <= bestMoveCount + sweepScoutInverseSkipSlack
+        ) {
+          shouldScoutInverse = false;
+        }
+        if (shouldScoutInverse) {
+          attemptedInverseScout = true;
           const inversePatternWithPremove = applyMovesToPattern(inversePattern, premove);
-          const inverseScout = await solveInternal333(inverseScramble, {
+          const inverseScout = await solveInternalCached(inverseScramble, {
             startPattern: inversePatternWithPremove,
             profileLevel: sweepScoutProfileLevel,
+            maxProfiles: sweepScoutMaxProfiles,
             phaseAttemptTimeoutMs: sweepScoutPhaseAttemptTimeoutMs,
             cfopPerColorTimeoutMs: sweepScoutCfopPerColorTimeoutMs,
             allowCfopFallback: options.premoveAllowCfopFallback === true,
             crossColors: options.crossColors || ["D"],
             deadlineTs: scoutDeadlineTs,
             phaseTimeCheckInterval,
-            targetMoveCount: currentTargetMoveCount(),
+            targetMoveCount: currentTargetMoveCount(sweepScoutImproveBy),
+            targetSlack: sweepScoutTargetSlack,
           });
-          attempts += 1;
           if (inverseScout?.solution) {
             const moves = invertMoves(splitMoves(inverseScout.solution)).concat(invertMoves(premove));
             const inverseCandidate = createCandidate(
@@ -783,18 +939,33 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
             );
             trackCandidate(inverseCandidate);
             if (inverseCandidate?.moveCount) {
+              inverseScoutMoveCount = inverseCandidate.moveCount;
               bestScoutMoveCount = Math.min(bestScoutMoveCount, inverseCandidate.moveCount);
               solvedScout = true;
             }
           }
         }
 
-        scoredPremoves.push({
+        const entry = {
           index: i,
           solved: solvedScout,
           bestMoveCount: bestScoutMoveCount,
           premoveLength: premove.length,
-        });
+          directScoutMoveCount,
+          inverseScoutMoveCount,
+          attemptedInverseScout,
+        };
+        scoredPremoves.push(entry);
+        scoutMetaByIndex.set(i, entry);
+
+        if (bestMoveCount < bestBeforeScout) {
+          scoutNoImproveCount = 0;
+        } else {
+          scoutNoImproveCount += 1;
+          if (scoutNoImproveCount >= sweepScoutMaxNoImprove && i + 1 >= sweepRefineSets) {
+            break;
+          }
+        }
       }
 
       if (scoredPremoves.length) {
@@ -804,19 +975,47 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
           if (a.premoveLength !== b.premoveLength) return a.premoveLength - b.premoveLength;
           return a.index - b.index;
         });
-        const refineCount = Math.min(scoredPremoves.length, Math.max(1, sweepRefineSets));
-        sweepOrder = scoredPremoves.slice(0, refineCount).map((entry) => entry.index);
+        let refinePool = scoredPremoves;
+        if (aggressivePrune) {
+          const referenceBest = Number.isFinite(bestMoveCount) ? bestMoveCount : Infinity;
+          const solvedPromising = scoredPremoves.filter(
+            (entry) => entry.solved && entry.bestMoveCount <= referenceBest + sweepRefineSlack,
+          );
+          const unsolvedPromising = scoredPremoves.filter((entry) => !entry.solved).slice(0, sweepMaxUnsolvedRefine);
+          const blended = solvedPromising.concat(unsolvedPromising);
+          if (blended.length) {
+            refinePool = blended;
+          }
+        }
+        const refineCount = Math.min(refinePool.length, Math.max(1, sweepRefineSets));
+        sweepOrder = refinePool.slice(0, refineCount).map((entry) => entry.index);
       }
     }
 
+    let sweepNoImproveCount = 0;
     for (let sweepPos = 0; sweepPos < sweepOrder.length; sweepPos += 1) {
       const i = sweepOrder[sweepPos];
       if (Date.now() - startedAt >= timeBudgetMs) break;
       if (remainingMs(deadlineTs) <= 1200) break;
       if (remainingMs(sweepDeadlineTs) <= 500) break;
       if (bestMoveCount <= targetMoveCount) break;
+      const scoutMeta = scoutMetaByIndex.get(i) || null;
+      if (
+        scoutMeta?.solved &&
+        Number.isFinite(bestMoveCount) &&
+        scoutMeta.bestMoveCount >= bestMoveCount + sweepSkipGap
+      ) {
+        sweepNoImproveCount += 1;
+        if (sweepNoImproveCount >= sweepMaxNoImprove) break;
+        continue;
+      }
+      const bestBeforeSweep = bestMoveCount;
       const premove = FMC_PREMOVE_SETS[i];
       const iterationDeadlineTs = Math.min(deadlineTs, sweepDeadlineTs, Date.now() + sweepAttemptBudgetMs);
+      const activeSweepMaxProfiles =
+        Number.isFinite(bestMoveCount) && bestMoveCount > targetMoveCount + sweepHeavyThreshold
+          ? sweepHeavyMaxProfiles
+          : sweepMaxProfiles;
       if (typeof onProgress === "function") {
         try {
           void onProgress({
@@ -828,67 +1027,99 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       }
 
       const directPatternWithPremove = applyMovesToPattern(scramblePattern, premove);
-      const directWithPremove = await solveInternal333(scramble, {
+      const directWithPremove = await solveInternalCached(scramble, {
         startPattern: directPatternWithPremove,
         profileLevel: sweepProfileLevel,
+        maxProfiles: activeSweepMaxProfiles,
         phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
         cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
         allowCfopFallback: options.premoveAllowCfopFallback === true,
         crossColors: options.crossColors || ["D"],
         deadlineTs: iterationDeadlineTs,
         phaseTimeCheckInterval,
-        targetMoveCount: currentTargetMoveCount(),
+        targetMoveCount: currentTargetMoveCount(sweepImproveBy),
+        targetSlack: sweepTargetSlack,
       });
-      attempts += 1;
+      let directRoundMoveCount = Infinity;
       if (directWithPremove?.solution) {
         const moves = premove.concat(splitMoves(directWithPremove.solution));
-        trackCandidate(
-          createCandidate(
-            "FMC_PREMOVE_DIRECT",
-            {
-              tag: `premove:${joinMoves(premove)}`,
-              usesCfop: directWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
-              innerSource: directWithPremove.source,
-            },
-            moves,
-          ),
+        const directCandidate = createCandidate(
+          "FMC_PREMOVE_DIRECT",
+          {
+            tag: `premove:${joinMoves(premove)}`,
+            usesCfop: directWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
+            innerSource: directWithPremove.source,
+          },
+          moves,
         );
+        trackCandidate(directCandidate);
+        if (directCandidate?.moveCount) {
+          directRoundMoveCount = directCandidate.moveCount;
+        }
       }
 
-      if (!sweepIncludeInverse) {
-        continue;
+      let shouldRunInverse = sweepIncludeInverse;
+      if (
+        shouldRunInverse &&
+        Number.isFinite(directRoundMoveCount) &&
+        Number.isFinite(bestMoveCount) &&
+        directRoundMoveCount <= bestMoveCount + sweepInverseSkipSlack
+      ) {
+        shouldRunInverse = false;
       }
-      if (Date.now() - startedAt >= timeBudgetMs) break;
-      if (remainingMs(deadlineTs) <= 1200) break;
-      if (remainingMs(sweepDeadlineTs) <= 500) break;
-      if (bestMoveCount <= targetMoveCount) break;
+      if (shouldRunInverse && scoutMeta?.attemptedInverseScout) {
+        if (!Number.isFinite(scoutMeta.inverseScoutMoveCount) && aggressivePrune) {
+          shouldRunInverse = false;
+        } else if (
+          Number.isFinite(scoutMeta.inverseScoutMoveCount) &&
+          Number.isFinite(bestMoveCount) &&
+          scoutMeta.inverseScoutMoveCount >= bestMoveCount + sweepSkipGap
+        ) {
+          shouldRunInverse = false;
+        }
+      }
 
-      const inversePatternWithPremove = applyMovesToPattern(inversePattern, premove);
-      const inverseWithPremove = await solveInternal333(inverseScramble, {
-        startPattern: inversePatternWithPremove,
-        profileLevel: sweepProfileLevel,
-        phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
-        cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
-        allowCfopFallback: options.premoveAllowCfopFallback === true,
-        crossColors: options.crossColors || ["D"],
-        deadlineTs: iterationDeadlineTs,
-        phaseTimeCheckInterval,
-        targetMoveCount: currentTargetMoveCount(),
-      });
-      attempts += 1;
-      if (inverseWithPremove?.solution) {
-        const moves = invertMoves(splitMoves(inverseWithPremove.solution)).concat(invertMoves(premove));
-        trackCandidate(
-          createCandidate(
-            "FMC_PREMOVE_NISS",
-            {
-              tag: `niss:${joinMoves(premove)}`,
-              usesCfop: inverseWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
-              innerSource: inverseWithPremove.source,
-            },
-            moves,
-          ),
-        );
+      if (shouldRunInverse) {
+        if (Date.now() - startedAt >= timeBudgetMs) break;
+        if (remainingMs(deadlineTs) <= 1200) break;
+        if (remainingMs(sweepDeadlineTs) <= 500) break;
+        if (bestMoveCount <= targetMoveCount) break;
+
+        const inversePatternWithPremove = applyMovesToPattern(inversePattern, premove);
+        const inverseWithPremove = await solveInternalCached(inverseScramble, {
+          startPattern: inversePatternWithPremove,
+          profileLevel: sweepProfileLevel,
+          maxProfiles: activeSweepMaxProfiles,
+          phaseAttemptTimeoutMs: sweepPhaseAttemptTimeoutMs,
+          cfopPerColorTimeoutMs: sweepCfopPerColorTimeoutMs,
+          allowCfopFallback: options.premoveAllowCfopFallback === true,
+          crossColors: options.crossColors || ["D"],
+          deadlineTs: iterationDeadlineTs,
+          phaseTimeCheckInterval,
+          targetMoveCount: currentTargetMoveCount(sweepImproveBy),
+          targetSlack: sweepTargetSlack,
+        });
+        if (inverseWithPremove?.solution) {
+          const moves = invertMoves(splitMoves(inverseWithPremove.solution)).concat(invertMoves(premove));
+          trackCandidate(
+            createCandidate(
+              "FMC_PREMOVE_NISS",
+              {
+                tag: `niss:${joinMoves(premove)}`,
+                usesCfop: inverseWithPremove.source === "INTERNAL_FMC_CFOP_FALLBACK",
+                innerSource: inverseWithPremove.source,
+              },
+              moves,
+            ),
+          );
+        }
+      }
+
+      if (bestMoveCount < bestBeforeSweep) {
+        sweepNoImproveCount = 0;
+      } else {
+        sweepNoImproveCount += 1;
+        if (sweepNoImproveCount >= sweepMaxNoImprove) break;
       }
     }
     notify({
@@ -1002,10 +1233,19 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   }
 
   const preferNonCfop = options.preferNonCfop === true;
+  const allowReverseScramble = options.allowReverseScramble === true;
   const nonReverseCandidates = validCandidates.filter(
     (candidate) => !isReverseScrambleSolution(candidate.solution, reverseScrambleCanonical),
   );
-  const reverseAwareCandidates = nonReverseCandidates.length ? nonReverseCandidates : validCandidates;
+  if (!allowReverseScramble && !nonReverseCandidates.length) {
+    return {
+      ok: false,
+      reason: "FMC_REVERSE_SCRAMBLE_BLOCKED",
+      attempts,
+    };
+  }
+  const reverseAwareCandidates =
+    allowReverseScramble && !nonReverseCandidates.length ? validCandidates : nonReverseCandidates;
   const nonCfopCandidates = preferNonCfop ? reverseAwareCandidates.filter((candidate) => !candidate.usesCfop) : [];
   const rankedCandidates = (nonCfopCandidates.length ? nonCfopCandidates : reverseAwareCandidates)
     .slice()
@@ -1013,6 +1253,13 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       if (a.moveCount !== b.moveCount) return a.moveCount - b.moveCount;
       return a.solution.localeCompare(b.solution);
     });
+  if (!rankedCandidates.length) {
+    return {
+      ok: false,
+      reason: "FMC_NO_RANKED_CANDIDATE",
+      attempts,
+    };
+  }
   const best = rankedCandidates[0];
   const candidateLines = rankedCandidates
     .slice(0, 3)
