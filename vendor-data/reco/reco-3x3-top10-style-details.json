@@ -1,0 +1,380 @@
+{
+  "generatedAt": "2026-04-10T11:42:31.786Z",
+  "sourceInput": "vendor-data/reco/reco-3x3-style-profiles.json",
+  "sourceGeneratedAt": "2026-04-10T11:42:31.727Z",
+  "puzzle": "3x3",
+  "profileScope": "top-10",
+  "minSolves": 20,
+  "candidatePlayerCount": 83,
+  "playerCount": 10,
+  "players": [
+    {
+      "solver": "Max Park",
+      "solveCount": 959,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 1,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 9,
+        "aufWeight": 6,
+        "wideTurnWeight": 10
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 62.306569343065696,
+        "avgRotationCount": 3.2231491136600625,
+        "avgAufCount": 24.37851929092805,
+        "avgWideTurnCount": 2.97288842544317,
+        "rotationRate": 0.05173048600883652,
+        "aufRate": 0.39126723791672247,
+        "wideTurnRate": 0.04771388405409024,
+        "rotationRatePct": 5.173,
+        "aufRatePct": 39.127,
+        "wideTurnRatePct": 4.771
+      },
+      "stageLabelCounts": {
+        "CROSS": 963,
+        "OLL": 902,
+        "PLL": 846,
+        "ZBLL": 32,
+        "ZBLS": 1
+      }
+    },
+    {
+      "solver": "Feliks Zemdegs",
+      "solveCount": 772,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 0.9987046632124352,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 8,
+        "aufWeight": 8,
+        "wideTurnWeight": 11
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 59.91321243523316,
+        "avgRotationCount": 3.61139896373057,
+        "avgAufCount": 22.492227979274613,
+        "avgWideTurnCount": 1.9093264248704662,
+        "rotationRate": 0.060277171210516074,
+        "aufRate": 0.37541348669275504,
+        "wideTurnRate": 0.031868203143579875,
+        "rotationRatePct": 6.028,
+        "aufRatePct": 37.541,
+        "wideTurnRatePct": 3.187
+      },
+      "stageLabelCounts": {
+        "CROSS": 779,
+        "OLL": 560,
+        "PLL": 600,
+        "ZBLS": 12,
+        "ZBLL": 120
+      }
+    },
+    {
+      "solver": "Tymon Kolasiński",
+      "solveCount": 756,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 0.7962962962962963,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 10,
+        "aufWeight": 8,
+        "wideTurnWeight": 10
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 55.076719576719576,
+        "avgRotationCount": 2.374338624338624,
+        "avgAufCount": 20.496031746031747,
+        "avgWideTurnCount": 2.562169312169312,
+        "rotationRate": 0.04310965944569864,
+        "aufRate": 0.3721360295883568,
+        "wideTurnRate": 0.04652000576396561,
+        "rotationRatePct": 4.311,
+        "aufRatePct": 37.214,
+        "wideTurnRatePct": 4.652
+      },
+      "stageLabelCounts": {
+        "CROSS": 767,
+        "ZBLS": 165,
+        "ZBLL": 290,
+        "OLL": 431,
+        "PLL": 425
+      }
+    },
+    {
+      "solver": "Yiheng Wang",
+      "solveCount": 584,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 0.9982876712328768,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 9,
+        "aufWeight": 8,
+        "wideTurnWeight": 11
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 58.46917808219178,
+        "avgRotationCount": 2.844178082191781,
+        "avgAufCount": 21.90582191780822,
+        "avgWideTurnCount": 1.946917808219178,
+        "rotationRate": 0.04864405786915012,
+        "aufRate": 0.374655889416037,
+        "wideTurnRate": 0.03329819012475839,
+        "rotationRatePct": 4.864,
+        "aufRatePct": 37.466,
+        "wideTurnRatePct": 3.33
+      },
+      "stageLabelCounts": {
+        "CROSS": 593,
+        "OLL": 563,
+        "PLL": 559,
+        "ZBLL": 6,
+        "ZBLS": 5
+      }
+    },
+    {
+      "solver": "Matty Hiroto Inaba",
+      "solveCount": 516,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 0.998062015503876,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 8,
+        "aufWeight": 8,
+        "wideTurnWeight": 10
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 58.1375968992248,
+        "avgRotationCount": 3.1666666666666665,
+        "avgAufCount": 21.8468992248062,
+        "avgWideTurnCount": 2.2655038759689923,
+        "rotationRate": 0.05446848228274276,
+        "aufRate": 0.3757791926397547,
+        "wideTurnRate": 0.038967965598853294,
+        "rotationRatePct": 5.447,
+        "aufRatePct": 37.578,
+        "wideTurnRatePct": 3.897
+      },
+      "stageLabelCounts": {
+        "CROSS": 528,
+        "OLL": 457,
+        "PLL": 446,
+        "ZBLL": 30,
+        "ZBLS": 1
+      }
+    },
+    {
+      "solver": "Dylan Miller",
+      "solveCount": 434,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 1,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 9,
+        "aufWeight": 8,
+        "wideTurnWeight": 11
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 60.73963133640553,
+        "avgRotationCount": 3.064516129032258,
+        "avgAufCount": 22.682027649769584,
+        "avgWideTurnCount": 2.2119815668202767,
+        "rotationRate": 0.05045332119418838,
+        "aufRate": 0.37343044649292517,
+        "wideTurnRate": 0.03641743484693297,
+        "rotationRatePct": 5.045,
+        "aufRatePct": 37.343,
+        "wideTurnRatePct": 3.642
+      },
+      "stageLabelCounts": {
+        "CROSS": 446,
+        "OLL": 396,
+        "PLL": 387,
+        "ZBLL": 16,
+        "ZBLS": 2
+      }
+    },
+    {
+      "solver": "Luke Garrett",
+      "solveCount": 310,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 1,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 7,
+        "aufWeight": 8,
+        "wideTurnWeight": 11
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 57.909677419354836,
+        "avgRotationCount": 3.6483870967741936,
+        "avgAufCount": 21.75483870967742,
+        "avgWideTurnCount": 1.6225806451612903,
+        "rotationRate": 0.06300133689839572,
+        "aufRate": 0.37566844919786097,
+        "wideTurnRate": 0.02801916221033868,
+        "rotationRatePct": 6.3,
+        "aufRatePct": 37.567,
+        "wideTurnRatePct": 2.802
+      },
+      "stageLabelCounts": {
+        "CROSS": 315,
+        "ZBLL": 17,
+        "OLL": 270,
+        "PLL": 247
+      }
+    },
+    {
+      "solver": "Ruihang Xu",
+      "solveCount": 308,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 1,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 8,
+        "aufWeight": 8,
+        "wideTurnWeight": 11
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 62.84415584415584,
+        "avgRotationCount": 3.727272727272727,
+        "avgAufCount": 23.308441558441558,
+        "avgWideTurnCount": 2.0844155844155843,
+        "rotationRate": 0.05930977474684852,
+        "aufRate": 0.37089274643521386,
+        "wideTurnRate": 0.033168009919404835,
+        "rotationRatePct": 5.931,
+        "aufRatePct": 37.089,
+        "wideTurnRatePct": 3.317
+      },
+      "stageLabelCounts": {
+        "CROSS": 312,
+        "OLL": 281,
+        "PLL": 282,
+        "ZBLL": 11
+      }
+    },
+    {
+      "solver": "Seung Hyuk Nahm",
+      "solveCount": 272,
+      "primaryMethod": "CFOP",
+      "primaryMethodRatio": 1,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 8,
+        "aufWeight": 8,
+        "wideTurnWeight": 11
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 59.283088235294116,
+        "avgRotationCount": 3.2720588235294117,
+        "avgAufCount": 22.095588235294116,
+        "avgWideTurnCount": 1.9448529411764706,
+        "rotationRate": 0.055193798449612405,
+        "aufRate": 0.3727131782945736,
+        "wideTurnRate": 0.0328062015503876,
+        "rotationRatePct": 5.519,
+        "aufRatePct": 37.271,
+        "wideTurnRatePct": 3.281
+      },
+      "stageLabelCounts": {
+        "CROSS": 275,
+        "ZBLL": 54,
+        "OLL": 206,
+        "PLL": 208,
+        "ZBLS": 15
+      }
+    },
+    {
+      "solver": "Xuanyi Geng",
+      "solveCount": 240,
+      "primaryMethod": "ZB",
+      "primaryMethodRatio": 1,
+      "recommendedF2LMethod": "balanced",
+      "recommendedStyleProfile": {
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1
+      },
+      "detailedStyleProfile": {
+        "preset": "balanced",
+        "rotationWeight": 9,
+        "aufWeight": 10,
+        "wideTurnWeight": 10
+      },
+      "styleFingerprint": {
+        "avgMoveCount": 49.5,
+        "avgRotationCount": 2.2375,
+        "avgAufCount": 17.945833333333333,
+        "avgWideTurnCount": 2,
+        "rotationRate": 0.0452020202020202,
+        "aufRate": 0.36254208754208755,
+        "wideTurnRate": 0.04040404040404041,
+        "rotationRatePct": 4.52,
+        "aufRatePct": 36.254,
+        "wideTurnRatePct": 4.04
+      },
+      "stageLabelCounts": {
+        "CROSS": 251,
+        "ZBLS": 224,
+        "PLL": 13,
+        "ZBLL": 226,
+        "OLL": 2
+      }
+    }
+  ]
+}

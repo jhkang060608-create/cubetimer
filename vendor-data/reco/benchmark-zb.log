@@ -1,0 +1,301 @@
+[zb] [zb] [1/60] #1 scramble id=13027 (sample 1)
+[zb]   - legacy: ok moves=71, 4621ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: ok moves=76, 4886ms
+[zb]   - low-auf: ok moves=76, 4566ms
+[zb] [zb] [2/60] #2 scramble id=13026 (sample 2)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail ZBLS_SEARCH_LIMIT, 5054ms
+[zb] [zb] [3/60] #1 scramble id=13025 (sample 3)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [4/60] #2 scramble id=13024 (sample 4)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [5/60] #1 scramble id=13023 (sample 5)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [6/60] #2 scramble id=13022 (sample 6)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [7/60] #1 scramble id=13021 (sample 7)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [8/60] #2 scramble id=12988 (sample 8)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=52, 1550ms
+[zb] [zb] [9/60] #1 scramble id=12987 (sample 9)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [10/60] #2 scramble id=12986 (sample 10)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: ok moves=49, 1667ms
+[zb]   - rotationless: ok moves=49, 1612ms
+[zb]   - low-auf: ok moves=49, 1678ms
+[zb] [zb] [11/60] #1 scramble id=12985 (sample 11)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [12/60] #2 scramble id=12984 (sample 12)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail ZBLS_SEARCH_LIMIT, 5100ms
+[zb]   - rotationless: fail ZBLS_SEARCH_LIMIT, 5109ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [13/60] #1 scramble id=12982 (sample 13)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [14/60] #2 scramble id=12981 (sample 14)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [15/60] #1 scramble id=12980 (sample 15)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [16/60] #2 scramble id=12979 (sample 16)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [17/60] #1 scramble id=12977 (sample 17)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=63, 1874ms
+[zb] [zb] [18/60] #2 scramble id=12976 (sample 18)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [19/60] #1 scramble id=12975 (sample 19)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail ZBLS_SEARCH_LIMIT, 5098ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [20/60] #2 scramble id=12974 (sample 20)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [21/60] #1 scramble id=12968 (sample 21)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [22/60] #2 scramble id=12967 (sample 22)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [23/60] #1 scramble id=12966 (sample 23)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [24/60] #2 scramble id=12965 (sample 24)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [25/60] #1 scramble id=12964 (sample 25)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [26/60] #2 scramble id=12963 (sample 26)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [27/60] #1 scramble id=12962 (sample 27)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [28/60] #2 scramble id=12961 (sample 28)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=58, 1667ms
+[zb] [zb] [29/60] #1 scramble id=12960 (sample 29)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [30/60] #2 scramble id=12959 (sample 30)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [31/60] #1 scramble id=12943 (sample 31)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [32/60] #2 scramble id=12937 (sample 32)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [33/60] #1 scramble id=12936 (sample 33)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [34/60] #2 scramble id=12935 (sample 34)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [35/60] #1 scramble id=12934 (sample 35)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: ok moves=45, 1503ms
+[zb]   - rotationless: ok moves=45, 1504ms
+[zb]   - low-auf: ok moves=45, 1514ms
+[zb] [zb] [36/60] #2 scramble id=12933 (sample 36)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [37/60] #1 scramble id=12932 (sample 37)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=50, 4873ms
+[zb] [zb] [38/60] #2 scramble id=12931 (sample 38)
+[zb]   - legacy: ok moves=67, 4507ms
+[zb]   - balanced: ok moves=60, 4352ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=60, 4487ms
+[zb] [zb] [39/60] #1 scramble id=12930 (sample 39)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [40/60] #2 scramble id=12929 (sample 40)
+[zb]   - legacy: ok moves=59, 678ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [41/60] #1 scramble id=12928 (sample 41)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: ok moves=65, 1081ms
+[zb]   - rotationless: ok moves=65, 2095ms
+[zb]   - low-auf: ok moves=65, 2078ms
+[zb] [zb] [42/60] #2 scramble id=12921 (sample 42)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [43/60] #1 scramble id=12920 (sample 43)
+[zb]   - legacy: fail ZBLS_SEARCH_LIMIT, 5079ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=53, 5133ms
+[zb] [zb] [44/60] #2 scramble id=12919 (sample 44)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail ZBLS_SEARCH_LIMIT, 5123ms
+[zb]   - low-auf: fail ZBLS_SEARCH_LIMIT, 5067ms
+[zb] [zb] [45/60] #1 scramble id=12918 (sample 45)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [46/60] #2 scramble id=12917 (sample 46)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [47/60] #1 scramble id=12916 (sample 47)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [48/60] #2 scramble id=12915 (sample 48)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [49/60] #1 scramble id=12914 (sample 49)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [50/60] #2 scramble id=12913 (sample 50)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [51/60] #1 scramble id=12912 (sample 51)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [52/60] #2 scramble id=12911 (sample 52)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [53/60] #1 scramble id=12910 (sample 53)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [54/60] #2 scramble id=12891 (sample 54)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: ok moves=68, 2370ms
+[zb]   - rotationless: ok moves=68, 2453ms
+[zb]   - low-auf: ok moves=68, 2506ms
+[zb] [zb] [55/60] #1 scramble id=12874 (sample 55)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [56/60] #2 scramble id=12873 (sample 56)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [57/60] #1 scramble id=12872 (sample 57)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: ok moves=47, 1681ms
+[zb]   - low-auf: ok moves=47, 1707ms
+[zb] [zb] [58/60] #2 scramble id=12871 (sample 58)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] [zb] [59/60] #1 scramble id=12870 (sample 59)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: ok moves=69, 4434ms
+[zb] [zb] [60/60] #2 scramble id=12869 (sample 60)
+[zb]   - legacy: fail TIMEOUT_5000MS, 5150ms
+[zb]   - balanced: fail TIMEOUT_5000MS, 5150ms
+[zb]   - rotationless: fail TIMEOUT_5000MS, 5150ms
+[zb]   - low-auf: fail TIMEOUT_5000MS, 5150ms
+[zb] Wrote /home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-3x3-style-benchmark-zb.json

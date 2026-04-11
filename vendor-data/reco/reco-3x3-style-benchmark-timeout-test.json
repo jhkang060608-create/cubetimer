@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-04-10T11:49:07.450Z",
+  "sourceInput": "vendor-data/reco/reco-3x3-details.json",
+  "parameters": {
+    "offset": 0,
+    "limit": 2,
+    "crossColor": "D",
+    "mode": "strict",
+    "timeoutMs": 2000,
+    "styles": [
+      "legacy",
+      "balanced"
+    ]
+  },
+  "sampleCount": 2,
+  "summaries": [
+    {
+      "style": "legacy",
+      "attempted": 2,
+      "solved": 0,
+      "failed": 2,
+      "successRate": 0,
+      "avgMoveCountSolved": null,
+      "p50MoveCountSolved": null,
+      "p90MoveCountSolved": null,
+      "avgDurationMs": 2154,
+      "p50DurationMs": 2153,
+      "p95DurationMs": 2153,
+      "avgNodesSolved": null
+    },
+    {
+      "style": "balanced",
+      "attempted": 2,
+      "solved": 0,
+      "failed": 2,
+      "successRate": 0,
+      "avgMoveCountSolved": null,
+      "p50MoveCountSolved": null,
+      "p90MoveCountSolved": null,
+      "avgDurationMs": 2153.5,
+      "p50DurationMs": 2153,
+      "p95DurationMs": 2153,
+      "avgNodesSolved": null
+    }
+  ],
+  "comparisonVsLegacy": [
+    {
+      "style": "balanced",
+      "deltaSuccessRate": 0,
+      "deltaAvgMoveCountSolved": null,
+      "deltaAvgDurationMs": -0.5
+    }
+  ],
+  "runsByStyle": {
+    "legacy": [
+      {
+        "id": 12999,
+        "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "TIMEOUT_2000MS",
+        "moveCount": null,
+        "nodes": null,
+        "durationMs": 2155
+      },
+      {
+        "id": 12998,
+        "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "TIMEOUT_2000MS",
+        "moveCount": null,
+        "nodes": null,
+        "durationMs": 2153
+      }
+    ],
+    "balanced": [
+      {
+        "id": 12999,
+        "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "TIMEOUT_2000MS",
+        "moveCount": null,
+        "nodes": null,
+        "durationMs": 2154
+      },
+      {
+        "id": 12998,
+        "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "TIMEOUT_2000MS",
+        "moveCount": null,
+        "nodes": null,
+        "durationMs": 2153
+      }
+    ]
+  }
+}

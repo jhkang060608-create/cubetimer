@@ -1,0 +1,324 @@
+{
+  "generatedAt": "2026-04-10T12:25:52.403Z",
+  "source": "vendor-data/reco/reco-3x3-style-benchmark.json",
+  "sampleCount": 58,
+  "timeoutMs": 12000,
+  "failuresByStyle": {
+    "legacy": {
+      "failedCount": 8,
+      "reasonCounts": {
+        "TIMEOUT_12000MS": 4,
+        "F2L_SEARCH_LIMIT": 4
+      },
+      "failed": [
+        {
+          "id": 12994,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12151,
+          "sourceSolver": "Brian Johnson"
+        },
+        {
+          "id": 12988,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12154,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12980,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7309,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12962,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12151,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12931,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7163,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12930,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7413,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12928,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12155,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12917,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7338,
+          "sourceSolver": "Dylan Miller"
+        }
+      ]
+    },
+    "balanced": {
+      "failedCount": 6,
+      "reasonCounts": {
+        "F2L_SEARCH_LIMIT": 4,
+        "TIMEOUT_12000MS": 2
+      },
+      "failed": [
+        {
+          "id": 12997,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7258,
+          "sourceSolver": "Yi Shen"
+        },
+        {
+          "id": 12987,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12155,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12980,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7340,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12931,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7140,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12930,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7378,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12918,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12151,
+          "sourceSolver": "Dylan Miller"
+        }
+      ]
+    },
+    "rotationless": {
+      "failedCount": 6,
+      "reasonCounts": {
+        "F2L_SEARCH_LIMIT": 4,
+        "TIMEOUT_12000MS": 2
+      },
+      "failed": [
+        {
+          "id": 12997,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7459,
+          "sourceSolver": "Yi Shen"
+        },
+        {
+          "id": 12987,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12152,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12980,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7281,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12931,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7236,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12930,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7285,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12918,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12154,
+          "sourceSolver": "Dylan Miller"
+        }
+      ]
+    },
+    "low-auf": {
+      "failedCount": 10,
+      "reasonCounts": {
+        "F2L_SEARCH_LIMIT": 9,
+        "TIMEOUT_12000MS": 1
+      },
+      "failed": [
+        {
+          "id": 12997,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7591,
+          "sourceSolver": "Yi Shen"
+        },
+        {
+          "id": 12980,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7317,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12979,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7107,
+          "sourceSolver": "Xuanyi Geng"
+        },
+        {
+          "id": 12962,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7480,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12961,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7188,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12960,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7383,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12931,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7222,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12930,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7394,
+          "sourceSolver": "Yiheng Wang"
+        },
+        {
+          "id": 12924,
+          "reason": "F2L_SEARCH_LIMIT",
+          "durationMs": 7372,
+          "sourceSolver": "Radosław Marcinek"
+        },
+        {
+          "id": 12921,
+          "reason": "TIMEOUT_12000MS",
+          "durationMs": 12151,
+          "sourceSolver": "Dylan Miller"
+        }
+      ]
+    }
+  },
+  "commonFailureIds": {
+    "12918": [
+      {
+        "style": "balanced",
+        "reason": "TIMEOUT_12000MS"
+      },
+      {
+        "style": "rotationless",
+        "reason": "TIMEOUT_12000MS"
+      }
+    ],
+    "12930": [
+      {
+        "style": "legacy",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "balanced",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "rotationless",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "low-auf",
+        "reason": "F2L_SEARCH_LIMIT"
+      }
+    ],
+    "12931": [
+      {
+        "style": "legacy",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "balanced",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "rotationless",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "low-auf",
+        "reason": "F2L_SEARCH_LIMIT"
+      }
+    ],
+    "12962": [
+      {
+        "style": "legacy",
+        "reason": "TIMEOUT_12000MS"
+      },
+      {
+        "style": "low-auf",
+        "reason": "F2L_SEARCH_LIMIT"
+      }
+    ],
+    "12980": [
+      {
+        "style": "legacy",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "balanced",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "rotationless",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "low-auf",
+        "reason": "F2L_SEARCH_LIMIT"
+      }
+    ],
+    "12987": [
+      {
+        "style": "balanced",
+        "reason": "TIMEOUT_12000MS"
+      },
+      {
+        "style": "rotationless",
+        "reason": "TIMEOUT_12000MS"
+      }
+    ],
+    "12997": [
+      {
+        "style": "balanced",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "rotationless",
+        "reason": "F2L_SEARCH_LIMIT"
+      },
+      {
+        "style": "low-auf",
+        "reason": "F2L_SEARCH_LIMIT"
+      }
+    ]
+  }
+}

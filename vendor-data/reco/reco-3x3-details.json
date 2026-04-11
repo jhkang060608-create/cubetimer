@@ -1,0 +1,7390 @@
+{
+  "generatedAt": "2026-04-10T11:05:39.845Z",
+  "sourceInput": "vendor-data/reco/reco-3x3-index.json",
+  "parameters": {
+    "offset": 0,
+    "limit": 60,
+    "delayMs": 120,
+    "retries": 1,
+    "checkpointEvery": 20,
+    "resume": true,
+    "userAgent": "CubeTimerRecoBot/0.1 (+local-analysis)"
+  },
+  "totals": {
+    "selected": 60,
+    "fetched": 60,
+    "skipped": 0,
+    "ok": 60,
+    "failed": 0
+  },
+  "records": [
+    {
+      "id": 12999,
+      "solveUrl": "https://reco.nz/solve/12999",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Yi Shen",
+        "result": "5.32",
+        "puzzle": "3x3",
+        "date": "2026-04-07",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+      "inspection": "x' z2",
+      "algorithmAnnotated": "x' z2 // inspection\nD U R' r D R' F R D // xcross\nU R U R' U' F U F' // 2nd pair\nR U' R' y U2 L' U' L U' L' U L // 3rd pair\nU R U' R' U F' U F R U' R' // 4th pair/ZBLS\nR' U2' R U2 R2' F' R U R U' R' F R U' R' U2 R // ZBLL",
+      "algorithmPlain": "x' z2 D U R' r D R' F R D U R U R' U' F U F' R U' R' y U2 L' U' L U' L' U L U R U' R' U F' U F R U' R' R' U2' R U2 R2' F' R U R U' R' F R U' R' U2 R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z2",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D U R' r D R' F R D",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U R U R' U' F U F'",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "R U' R' y U2 L' U' L U' L' U L",
+          "moveCount": 12
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "U R U' R' U F' U F R U' R'",
+          "moveCount": 11
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "R' U2' R U2 R2' F' R U R U' R' F R U' R' U2 R",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.32,
+            "F2L": 3.77,
+            "LL": 1.55,
+            "Cross+1": 0.87,
+            "ZBLS": 0.73,
+            "ZBLL": 1.55
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 70.9,
+            "LL": 29.1,
+            "Cross+1": 16.4,
+            "ZBLS": 13.7,
+            "ZBLL": 29.1
+          },
+          "STM": {
+            "Total": 56,
+            "F2L": 39,
+            "LL": 17,
+            "Cross+1": 9,
+            "ZBLS": 11,
+            "ZBLL": 17
+          },
+          "STPS": {
+            "Total": 10.53,
+            "F2L": 10.34,
+            "LL": 10.97,
+            "Cross+1": 10.34,
+            "ZBLS": 15.07,
+            "ZBLL": 10.97
+          },
+          "ETM": {
+            "Total": 57,
+            "F2L": 40,
+            "LL": 17,
+            "Cross+1": 9,
+            "ZBLS": 11,
+            "ZBLL": 17
+          },
+          "ETPS": {
+            "Total": 10.71,
+            "F2L": 10.61,
+            "LL": 10.97,
+            "Cross+1": 10.34,
+            "ZBLS": 15.07,
+            "ZBLL": 10.97
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:06.886Z",
+      "fetchMs": 1073
+    },
+    {
+      "id": 12998,
+      "solveUrl": "https://reco.nz/solve/12998",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Yi Shen",
+        "result": "5.90",
+        "puzzle": "3x3",
+        "date": "2026-04-07",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+      "inspection": "y'",
+      "algorithmAnnotated": "y' // inspection\nU' R r' R U' r' D U L // cross\ny' U R' U2' R // 1st pair\nR' D' R U R' D r y' S // 2nd pair\nR U R' d R U' R' // 3rd pair\ny U R U R' U F' U2 F // 4th pair/ZBLS\nU2' R' F R U' R' U' R U R' F' R U R' U' R' F R F' R U' // ZBLL",
+      "algorithmPlain": "y' U' R r' R U' r' D U L y' U R' U2' R R' D' R U R' D r y' S R U R' d R U' R' y U R U R' U F' U2 F U2' R' F R U' R' U' R U R' F' R U R' U' R' F R F' R U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y'",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "U' R r' R U' r' D U L",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "y' U R' U2' R",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "R' D' R U R' D r y' S",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "R U R' d R U' R'",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "4th pair/ZBLS",
+          "moves": "y U R U R' U F' U2 F",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "ZBLL",
+          "moves": "U2' R' F R U' R' U' R U R' F' R U R' U' R' F R F' R U'",
+          "moveCount": 21
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.9,
+            "F2L": 4.2,
+            "LL": 1.7,
+            "Cross+1": 1.8,
+            "ZBLS": 0.77,
+            "ZBLL": 1.7
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 71.2,
+            "LL": 28.8,
+            "Cross+1": 30.5,
+            "ZBLS": 13.1,
+            "ZBLL": 28.8
+          },
+          "STM": {
+            "Total": 57,
+            "F2L": 36,
+            "LL": 21,
+            "Cross+1": 13,
+            "ZBLS": 8,
+            "ZBLL": 21
+          },
+          "STPS": {
+            "Total": 9.66,
+            "F2L": 8.57,
+            "LL": 12.35,
+            "Cross+1": 7.22,
+            "ZBLS": 10.39,
+            "ZBLL": 12.35
+          },
+          "ETM": {
+            "Total": 60,
+            "F2L": 39,
+            "LL": 21,
+            "Cross+1": 14,
+            "ZBLS": 9,
+            "ZBLL": 21
+          },
+          "ETPS": {
+            "Total": 10.17,
+            "F2L": 9.29,
+            "LL": 12.35,
+            "Cross+1": 7.78,
+            "ZBLS": 11.69,
+            "ZBLL": 12.35
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:07.280Z",
+      "fetchMs": 272
+    },
+    {
+      "id": 12997,
+      "solveUrl": "https://reco.nz/solve/12997",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Yi Shen",
+        "result": "4.50",
+        "puzzle": "3x3",
+        "date": "2026-04-07",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B' R' U2 L2 U' L2 D R2 D' L B D R2 F' U F2 U2 L2",
+      "inspection": "x z'",
+      "algorithmAnnotated": "x z' // inspection\nD r D' U' R' D U y' R // cross\nU' R' U R // 1st pair\nU2' L' U L // 2nd pair\ny' L' U L U2' L' U L // 3rd pair\ny R U' R' U' R U' R' U F' U' F // 4th pair/ZBLS\nU2' F R' F' r U R U' r' // ZBLL",
+      "algorithmPlain": "x z' D r D' U' R' D U y' R U' R' U R U2' L' U L y' L' U L U2' L' U L y R U' R' U' R U' R' U F' U' F U2' F R' F' r U R U' r'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x z'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "D r D' U' R' D U y' R",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "U' R' U R",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U2' L' U L",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "y' L' U L U2' L' U L",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "4th pair/ZBLS",
+          "moves": "y R U' R' U' R U' R' U F' U' F",
+          "moveCount": 12
+        },
+        {
+          "order": 7,
+          "label": "ZBLL",
+          "moves": "U2' F R' F' r U R U' r'",
+          "moveCount": 9
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.5,
+            "F2L": 3.57,
+            "LL": 0.93,
+            "Cross+1": 1.53,
+            "ZBLS": 1.13,
+            "ZBLL": 0.93
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 79.3,
+            "LL": 20.7,
+            "Cross+1": 34,
+            "ZBLS": 25.1,
+            "ZBLL": 20.7
+          },
+          "STM": {
+            "Total": 43,
+            "F2L": 34,
+            "LL": 9,
+            "Cross+1": 12,
+            "ZBLS": 11,
+            "ZBLL": 9
+          },
+          "STPS": {
+            "Total": 9.56,
+            "F2L": 9.52,
+            "LL": 9.68,
+            "Cross+1": 7.84,
+            "ZBLS": 9.73,
+            "ZBLL": 9.68
+          },
+          "ETM": {
+            "Total": 46,
+            "F2L": 37,
+            "LL": 9,
+            "Cross+1": 13,
+            "ZBLS": 12,
+            "ZBLL": 9
+          },
+          "ETPS": {
+            "Total": 10.22,
+            "F2L": 10.36,
+            "LL": 9.68,
+            "Cross+1": 8.5,
+            "ZBLS": 10.62,
+            "ZBLL": 9.68
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:07.592Z",
+      "fetchMs": 192
+    },
+    {
+      "id": 12996,
+      "solveUrl": "https://reco.nz/solve/12996",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Yi Shen",
+        "result": "4.80",
+        "puzzle": "3x3",
+        "date": "2026-04-07",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 L2 D' L2 R2 D L2 F U' R2 B L' B' L2 B D2 L U'",
+      "inspection": "z2 y",
+      "algorithmAnnotated": "z2 y // inspection\nD R D' R' D F U' F R' F R D // xxcross\nD' R U R' D // 3rd pair\ny U F' L' U' L U L' U' L U2' F // 4th pair/ZBLS\nF U' R' U R U F' R' U R U' R' U2' R U2 // ZBLL",
+      "algorithmPlain": "z2 y D R D' R' D F U' F R' F R D D' R U R' D y U F' L' U' L U L' U' L U2' F F U' R' U R U F' R' U R U' R' U2' R U2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "D R D' R' D F U' F R' F R D",
+          "moveCount": 12
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "D' R U R' D",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "y U F' L' U' L U L' U' L U2' F",
+          "moveCount": 12
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "F U' R' U R U F' R' U R U' R' U2' R U2",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.8,
+            "F2L": 3.17,
+            "LL": 1.63,
+            "Cross+1": 1.53,
+            "ZBLS": 1.03,
+            "ZBLL": 1.63
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 66,
+            "LL": 34,
+            "Cross+1": 31.9,
+            "ZBLS": 21.5,
+            "ZBLL": 34
+          },
+          "STM": {
+            "Total": 43,
+            "F2L": 28,
+            "LL": 15,
+            "Cross+1": 12,
+            "ZBLS": 11,
+            "ZBLL": 15
+          },
+          "STPS": {
+            "Total": 8.96,
+            "F2L": 8.83,
+            "LL": 9.2,
+            "Cross+1": 7.84,
+            "ZBLS": 10.68,
+            "ZBLL": 9.2
+          },
+          "ETM": {
+            "Total": 44,
+            "F2L": 29,
+            "LL": 15,
+            "Cross+1": 12,
+            "ZBLS": 12,
+            "ZBLL": 15
+          },
+          "ETPS": {
+            "Total": 9.17,
+            "F2L": 9.15,
+            "LL": 9.2,
+            "Cross+1": 7.84,
+            "ZBLS": 11.65,
+            "ZBLL": 9.2
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:07.964Z",
+      "fetchMs": 251
+    },
+    {
+      "id": 12995,
+      "solveUrl": "https://reco.nz/solve/12995",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Yi Shen",
+        "result": "5.00",
+        "puzzle": "3x3",
+        "date": "2026-04-07",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 D B U2 L' F2 R U2 F2 U2 R' D' L' D B2 D' F D2",
+      "inspection": "x' z'",
+      "algorithmAnnotated": "x' z' // inspection\nr U R D L2 D' r U r' D' // xcross\nU2 R' U2' R2 U R' // 2nd pair\nU' y R U2' R' U L U L' // 3rd pair\nd R' U' R U' R' U R // 4th pair/ZBLS\nR U R' U R U2' R' U' R U2' R' U' R U' R' U2 // ZBLL",
+      "algorithmPlain": "x' z' r U R D L2 D' r U r' D' U2 R' U2' R2 U R' U' y R U2' R' U L U L' d R' U' R U' R' U R R U R' U R U2' R' U' R U2' R' U' R U' R' U2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "r U R D L2 D' r U r' D'",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U2 R' U2' R2 U R'",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' y R U2' R' U L U L'",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "d R' U' R U' R' U R",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "R U R' U R U2' R' U' R U2' R' U' R U' R' U2",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5,
+            "F2L": 3.4,
+            "LL": 1.6,
+            "Cross+1": 1.43,
+            "ZBLS": 0.6,
+            "ZBLL": 1.6
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 68,
+            "LL": 32,
+            "Cross+1": 28.6,
+            "ZBLS": 12,
+            "ZBLL": 32
+          },
+          "STM": {
+            "Total": 48,
+            "F2L": 32,
+            "LL": 16,
+            "Cross+1": 10,
+            "ZBLS": 8,
+            "ZBLL": 16
+          },
+          "STPS": {
+            "Total": 9.6,
+            "F2L": 9.41,
+            "LL": 10,
+            "Cross+1": 6.99,
+            "ZBLS": 13.33,
+            "ZBLL": 10
+          },
+          "ETM": {
+            "Total": 49,
+            "F2L": 33,
+            "LL": 16,
+            "Cross+1": 10,
+            "ZBLS": 8,
+            "ZBLL": 16
+          },
+          "ETPS": {
+            "Total": 9.8,
+            "F2L": 9.71,
+            "LL": 10,
+            "Cross+1": 6.99,
+            "ZBLS": 13.33,
+            "ZBLL": 10
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:08.506Z",
+      "fetchMs": 422
+    },
+    {
+      "id": 12994,
+      "solveUrl": "https://reco.nz/solve/12994",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Brian Johnson",
+        "result": "4.70",
+        "puzzle": "3x3",
+        "date": "2026-04-06",
+        "competition": "Racine Rendezvous 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F' U2 R2 D2 B2 D2 L D2 L2 D B' L2 R' B D' B2 L2 B2",
+      "inspection": "x",
+      "algorithmAnnotated": "x // inspection\nr U' R2' D R D // cross\nU2 L' U' L // 1st pair\nU2 R' U2' R2 U R' // 2nd pair\ny U R' U R U' R U R' // 3rd pair\ny R U' R' U R U R' // 4th pair\nU2 R U' R' U2 R U' R2' D' R U' R' D R U2 // ZBLL",
+      "algorithmPlain": "x r U' R2' D R D U2 L' U' L U2 R' U2' R2 U R' y U R' U R U' R U R' y R U' R' U R U R' U2 R U' R' U2 R U' R2' D' R U' R' D R U2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "r U' R2' D R D",
+          "moveCount": 6
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "U2 L' U' L",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U2 R' U2' R2 U R'",
+          "moveCount": 6
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "y U R' U R U' R U R'",
+          "moveCount": 9
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "y R U' R' U R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 7,
+          "label": "ZBLL",
+          "moves": "U2 R U' R' U2 R U' R2' D' R U' R' D R U2",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.7,
+            "F2L": 3.18,
+            "LL": 1.52,
+            "Cross+1": 1.4,
+            "OLS": 2.05,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 67.7,
+            "LL": 32.3,
+            "Cross+1": 29.8,
+            "OLS": 43.6,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 46,
+            "F2L": 31,
+            "LL": 15,
+            "Cross+1": 10,
+            "OLS": 22,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 9.79,
+            "F2L": 9.75,
+            "LL": 9.87,
+            "Cross+1": 7.14,
+            "OLS": 10.73,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 48,
+            "F2L": 33,
+            "LL": 15,
+            "Cross+1": 10,
+            "OLS": 23,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 10.21,
+            "F2L": 10.38,
+            "LL": 9.87,
+            "Cross+1": 7.14,
+            "OLS": 11.22,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:09.119Z",
+      "fetchMs": 493
+    },
+    {
+      "id": 12993,
+      "solveUrl": "https://reco.nz/solve/12993",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Brian Johnson",
+        "result": "5.14",
+        "puzzle": "3x3",
+        "date": "2026-04-06",
+        "competition": "Racine Rendezvous 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L' D' F' D' B' U2 F' L2 B L2 F' D U L F2 D' L D'",
+      "inspection": "z2 y",
+      "algorithmAnnotated": "z2 y // inspection\nF' R' F D D R D // xcross\nU2 L U' L' // 2nd pair\nU L' U L U' L' U' L // 3rd pair\nR' F R F' d' L' U' L // 4th pair\nF U R U' R' F' L' U' L U M' U' L' U l // ZBLL",
+      "algorithmPlain": "z2 y F' R' F D D R D U2 L U' L' U L' U L U' L' U' L R' F R F' d' L' U' L F U R U' R' F' L' U' L U M' U' L' U l",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "F' R' F D D R D",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U2 L U' L'",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U L' U L U' L' U' L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "R' F R F' d' L' U' L",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "F U R U' R' F' L' U' L U M' U' L' U l",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.14,
+            "F2L": 3.37,
+            "LL": 1.77,
+            "Cross+1": 1.47,
+            "OLS": 2.69,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 65.6,
+            "LL": 34.4,
+            "Cross+1": 28.6,
+            "OLS": 52.3,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 42,
+            "F2L": 27,
+            "LL": 15,
+            "Cross+1": 7,
+            "OLS": 23,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 8.17,
+            "F2L": 8.01,
+            "LL": 8.47,
+            "Cross+1": 4.76,
+            "OLS": 8.55,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 42,
+            "F2L": 27,
+            "LL": 15,
+            "Cross+1": 7,
+            "OLS": 23,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 8.17,
+            "F2L": 8.01,
+            "LL": 8.47,
+            "Cross+1": 4.76,
+            "OLS": 8.55,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:09.737Z",
+      "fetchMs": 497
+    },
+    {
+      "id": 12992,
+      "solveUrl": "https://reco.nz/solve/12992",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Brian Johnson",
+        "result": "5.31",
+        "puzzle": "3x3",
+        "date": "2026-04-06",
+        "competition": "Racine Rendezvous 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D R' U' D F2 B U' B F2 L' B2 U2 L2 B2 L2 B2 D' F'",
+      "inspection": "y2",
+      "algorithmAnnotated": "y2 // inspection\nD B R2' D R U' D2 // cross\nR' U R U' R' U' R2 // 1st pair\nU' R' L U' L' // 2nd pair\nU L' U' L U2' R U R' // 3rd pair\nF U' F' L' U L // 4th pair/ZBLS\nU U2 F R U R2' D' R U' R' D R2 U' R' U' R U R' F' U' // ZBLL",
+      "algorithmPlain": "y2 D B R2' D R U' D2 R' U R U' R' U' R2 U' R' L U' L' U L' U' L U2' R U R' F U' F' L' U L U U2 F R U R2' D' R U' R' D R2 U' R' U' R U R' F' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "D B R2' D R U' D2",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "R' U R U' R' U' R2",
+          "moveCount": 7
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U' R' L U' L'",
+          "moveCount": 5
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "U L' U' L U2' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "4th pair/ZBLS",
+          "moves": "F U' F' L' U L",
+          "moveCount": 6
+        },
+        {
+          "order": 7,
+          "label": "ZBLL",
+          "moves": "U U2 F R U R2' D' R U' R' D R2 U' R' U' R U R' F' U'",
+          "moveCount": 20
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.31,
+            "F2L": 3.23,
+            "LL": 2.08,
+            "Cross+1": 1.37,
+            "OLS": 2.76,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 60.8,
+            "LL": 39.2,
+            "Cross+1": 25.8,
+            "OLS": 52,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 53,
+            "F2L": 33,
+            "LL": 20,
+            "Cross+1": 14,
+            "OLS": 26,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 9.98,
+            "F2L": 10.22,
+            "LL": 9.62,
+            "Cross+1": 10.22,
+            "OLS": 9.42,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 53,
+            "F2L": 33,
+            "LL": 20,
+            "Cross+1": 14,
+            "OLS": 26,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 9.98,
+            "F2L": 10.22,
+            "LL": 9.62,
+            "Cross+1": 10.22,
+            "OLS": 9.42,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:10.349Z",
+      "fetchMs": 491
+    },
+    {
+      "id": 12991,
+      "solveUrl": "https://reco.nz/solve/12991",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Brian Johnson",
+        "result": "5.15",
+        "puzzle": "3x3",
+        "date": "2026-04-06",
+        "competition": "Racine Rendezvous 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R' F2 B' R' U F' D B2 D2 R' F2 R' L2 F2 R' D2 B' U' R'",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nU F D L' D' U' U' R2' D' // xcross\nU R' U R U' R U R' // 2nd pair\nU R' U R y' L U2 L' // 3rd pair\nU' F' U F R U2' R' // 4th pair\nU R2' F R U R U' R' F' R U' R' U R U' // ZBLL",
+      "algorithmPlain": "y U F D L' D' U' U' R2' D' U R' U R U' R U R' U R' U R y' L U2 L' U' F' U F R U2' R' U R2' F R U R U' R' F' R U' R' U R U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U F D L' D' U' U' R2' D'",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U R' U R U' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U R' U R y' L U2 L'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U' F' U F R U2' R'",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U R2' F R U R U' R' F' R U' R' U R U'",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.15,
+            "F2L": 3.43,
+            "LL": 1.72,
+            "Cross+1": 1.47,
+            "OLS": 2.4,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 66.6,
+            "LL": 33.4,
+            "Cross+1": 28.5,
+            "OLS": 46.6,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 46,
+            "F2L": 31,
+            "LL": 15,
+            "Cross+1": 9,
+            "OLS": 22,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 8.93,
+            "F2L": 9.04,
+            "LL": 8.72,
+            "Cross+1": 6.12,
+            "OLS": 9.17,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 47,
+            "F2L": 32,
+            "LL": 15,
+            "Cross+1": 9,
+            "OLS": 22,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 9.13,
+            "F2L": 9.33,
+            "LL": 8.72,
+            "Cross+1": 6.12,
+            "OLS": 9.17,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:11.013Z",
+      "fetchMs": 543
+    },
+    {
+      "id": 12990,
+      "solveUrl": "https://reco.nz/solve/12990",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Brian Johnson",
+        "result": "7.95",
+        "puzzle": "3x3",
+        "date": "2026-04-06",
+        "competition": "Racine Rendezvous 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "U' L' F2 L2 F2 L2 B U2 B2 L2 U' L' D B' D2 R2 D2 B L'",
+      "inspection": "y'",
+      "algorithmAnnotated": "y' // inspection\nD' L' F' L2 // cross\nR' U R F U F' // 1st pair\nU' R U R' L U' L' // 2nd pair\nU' y U2 L' U2 L U L' U2 L // 3rd pair\ny' U2 R' U' U R U R' U' R U' R' U' R // 4th pair\nU' U' R U R' U' R' F R F' R U R' U' M' U R U' r' // OLL\nU' R' U R' U' R D' R' D R' D' U R2 U' R2' D R2 U // PLL",
+      "algorithmPlain": "y' D' L' F' L2 R' U R F U F' U' R U R' L U' L' U' y U2 L' U2 L U L' U2 L y' U2 R' U' U R U R' U' R U' R' U' R U' U' R U R' U' R' F R F' R U R' U' M' U R U' r' U' R' U R' U' R D' R' D R' D' U R2 U' R2' D R2 U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y'",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "D' L' F' L2",
+          "moveCount": 4
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "R' U R F U F'",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U' R U R' L U' L'",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "U' y U2 L' U2 L U L' U2 L",
+          "moveCount": 10
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "y' U2 R' U' U R U R' U' R U' R' U' R",
+          "moveCount": 14
+        },
+        {
+          "order": 7,
+          "label": "OLL",
+          "moves": "U' U' R U R' U' R' F R F' R U R' U' M' U R U' r'",
+          "moveCount": 19
+        },
+        {
+          "order": 8,
+          "label": "PLL",
+          "moves": "U' R' U R' U' R D' R' D R' D' U R2 U' R2' D R2 U",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 7.95,
+            "F2L": 4.57,
+            "LL": 3.38,
+            "Cross+1": 1.25,
+            "OLS": 3.37,
+            "PLL": 1.67
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 57.5,
+            "LL": 42.5,
+            "Cross+1": 15.7,
+            "OLS": 42.4,
+            "PLL": 21
+          },
+          "STM": {
+            "Total": 76,
+            "F2L": 39,
+            "LL": 37,
+            "Cross+1": 10,
+            "OLS": 32,
+            "PLL": 18
+          },
+          "STPS": {
+            "Total": 9.56,
+            "F2L": 8.53,
+            "LL": 10.95,
+            "Cross+1": 8,
+            "OLS": 9.5,
+            "PLL": 10.78
+          },
+          "ETM": {
+            "Total": 78,
+            "F2L": 41,
+            "LL": 37,
+            "Cross+1": 10,
+            "OLS": 33,
+            "PLL": 18
+          },
+          "ETPS": {
+            "Total": 9.81,
+            "F2L": 8.97,
+            "LL": 10.95,
+            "Cross+1": 8,
+            "OLS": 9.79,
+            "PLL": 10.78
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:11.409Z",
+      "fetchMs": 275
+    },
+    {
+      "id": 12988,
+      "solveUrl": "https://reco.nz/solve/12988",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.31",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F2 L2 D B2 R2 U2 L2 U L2 U B L' B' R' D U' B2 L B' D2 R",
+      "inspection": "x' z2",
+      "algorithmAnnotated": "x' z2 // inspection\nD F R r' D R // cross\ny R' U2' R // 1st pair\nF U F' // 2nd pair\nU R U' R' y R' U' R // 3rd pair\nL' U' L U' F U F' // 4th pair/ZBLS\nU2' R U R' F' R U R' U' R' F R2 U' R' U // PLL",
+      "algorithmPlain": "x' z2 D F R r' D R y R' U2' R F U F' U R U' R' y R' U' R L' U' L U' F U F' U2' R U R' F' R U R' U' R' F R2 U' R' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z2",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "D F R r' D R",
+          "moveCount": 6
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "y R' U2' R",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "F U F'",
+          "moveCount": 3
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "U R U' R' y R' U' R",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "4th pair/ZBLS",
+          "moves": "L' U' L U' F U F'",
+          "moveCount": 7
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U2' R U R' F' R U R' U' R' F R2 U' R' U",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.31,
+            "F2L": 2.3,
+            "LL": 1.01,
+            "Cross+1": 1.03,
+            "ZBLS": 0.47,
+            "ZBLL": 1.01
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 69.5,
+            "LL": 30.5,
+            "Cross+1": 31.1,
+            "ZBLS": 14.2,
+            "ZBLL": 30.5
+          },
+          "STM": {
+            "Total": 41,
+            "F2L": 26,
+            "LL": 15,
+            "Cross+1": 9,
+            "ZBLS": 7,
+            "ZBLL": 15
+          },
+          "STPS": {
+            "Total": 12.39,
+            "F2L": 11.3,
+            "LL": 14.85,
+            "Cross+1": 8.74,
+            "ZBLS": 14.89,
+            "ZBLL": 14.85
+          },
+          "ETM": {
+            "Total": 43,
+            "F2L": 28,
+            "LL": 15,
+            "Cross+1": 10,
+            "ZBLS": 7,
+            "ZBLL": 15
+          },
+          "ETPS": {
+            "Total": 12.99,
+            "F2L": 12.17,
+            "LL": 14.85,
+            "Cross+1": 9.71,
+            "ZBLS": 14.89,
+            "ZBLL": 14.85
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:11.885Z",
+      "fetchMs": 356
+    },
+    {
+      "id": 12987,
+      "solveUrl": "https://reco.nz/solve/12987",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "4.72",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R2 D2 L2 B2 U B2 U' B2 D' F' L R' B U L' R2 B' L R2",
+      "inspection": "x z2",
+      "algorithmAnnotated": "x z2 // inspection\nU' R' F r D F R U' R // xcross\nD R U' R' U R U' R' u' // 2nd/3rd pairs\nU F' L F L' U L' U' L U2' L' U L // 4th pair/ZBLS\nU R U R' U R U' R' U' R' F' R U2 R U2' R' F U2' // ZBLL",
+      "algorithmPlain": "x z2 U' R' F r D F R U' R D R U' R' U R U' R' u' U F' L F L' U L' U' L U2' L' U L U R U R' U R U' R' U' R' F' R U2 R U2' R' F U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x z2",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U' R' F r D F R U' R",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "2nd/3rd pairs",
+          "moves": "D R U' R' U R U' R' u'",
+          "moveCount": 9
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "U F' L F L' U L' U' L U2' L' U L",
+          "moveCount": 13
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "U R U R' U R U' R' U' R' F' R U2 R U2' R' F U2'",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.72,
+            "F2L": 3.07,
+            "LL": 1.65,
+            "Cross+1": 1.07,
+            "ZBLS": 1.67,
+            "ZBLL": 1.65
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 65,
+            "LL": 35,
+            "Cross+1": 22.7,
+            "ZBLS": 35.4,
+            "ZBLL": 35
+          },
+          "STM": {
+            "Total": 49,
+            "F2L": 31,
+            "LL": 18,
+            "Cross+1": 9,
+            "ZBLS": 13,
+            "ZBLL": 18
+          },
+          "STPS": {
+            "Total": 10.38,
+            "F2L": 10.1,
+            "LL": 10.91,
+            "Cross+1": 8.41,
+            "ZBLS": 7.78,
+            "ZBLL": 10.91
+          },
+          "ETM": {
+            "Total": 49,
+            "F2L": 31,
+            "LL": 18,
+            "Cross+1": 9,
+            "ZBLS": 13,
+            "ZBLL": 18
+          },
+          "ETPS": {
+            "Total": 10.38,
+            "F2L": 10.1,
+            "LL": 10.91,
+            "Cross+1": 8.41,
+            "ZBLS": 7.78,
+            "ZBLL": 10.91
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:12.501Z",
+      "fetchMs": 496
+    },
+    {
+      "id": 12986,
+      "solveUrl": "https://reco.nz/solve/12986",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.46",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 L2 F2 D L2 B2 U F2 U2 L2 F' R U' R2 F2 R2 B R' D B",
+      "inspection": "",
+      "algorithmAnnotated": "L R' D' F R2 U' R' // pseudo xcross\nL U2 L' y D' L' U' L // 2nd pair\nR U2' R' D' // 3rd pair\nr U' R' U' R U r' // 4th pair/ZBLS\nU' R U R' U' R' F R2 U' R' U' R U R' F' U' // PLL",
+      "algorithmPlain": "L R' D' F R2 U' R' L U2 L' y D' L' U' L R U2' R' D' r U' R' U' R U r' U' R U R' U' R' F R2 U' R' U' R U R' F' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "pseudo xcross",
+          "moves": "L R' D' F R2 U' R'",
+          "moveCount": 7
+        },
+        {
+          "order": 2,
+          "label": "2nd pair",
+          "moves": "L U2 L' y D' L' U' L",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "R U2' R' D'",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "r U' R' U' R U r'",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "PLL",
+          "moves": "U' R U R' U' R' F R2 U' R' U' R U R' F' U'",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.46,
+            "F2L": 2.3,
+            "LL": 1.16,
+            "Cross+1": 0.67,
+            "ZBLS": 0.4,
+            "ZBLL": 1.16
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 66.5,
+            "LL": 33.5,
+            "Cross+1": 19.4,
+            "ZBLS": 11.6,
+            "ZBLL": 33.5
+          },
+          "STM": {
+            "Total": 41,
+            "F2L": 25,
+            "LL": 16,
+            "Cross+1": 7,
+            "ZBLS": 7,
+            "ZBLL": 16
+          },
+          "STPS": {
+            "Total": 11.85,
+            "F2L": 10.87,
+            "LL": 13.79,
+            "Cross+1": 10.45,
+            "ZBLS": 17.5,
+            "ZBLL": 13.79
+          },
+          "ETM": {
+            "Total": 42,
+            "F2L": 26,
+            "LL": 16,
+            "Cross+1": 7,
+            "ZBLS": 7,
+            "ZBLL": 16
+          },
+          "ETPS": {
+            "Total": 12.14,
+            "F2L": 11.3,
+            "LL": 13.79,
+            "Cross+1": 10.45,
+            "ZBLS": 17.5,
+            "ZBLL": 13.79
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:13.382Z",
+      "fetchMs": 760
+    },
+    {
+      "id": 12985,
+      "solveUrl": "https://reco.nz/solve/12985",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.57",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "U' F2 R2 D' L2 D B2 R2 D' B2 F' D2 R2 U B U2 R U' B' U2",
+      "inspection": "x2 y",
+      "algorithmAnnotated": "x2 y // inspection\nD U' r2' U R2' D' R2 // xcross\nU2' R' f R f' // 2nd pair\nU' R U2' R' U2 L' U' L // 3rd pair\nU' r U' r' U r U r' // 4th pair/ZBLS\nU2' R' U' R U R U2' R' U' R' U R U' R U' R' // ZBLL",
+      "algorithmPlain": "x2 y D U' r2' U R2' D' R2 U2' R' f R f' U' R U2' R' U2 L' U' L U' r U' r' U r U r' U2' R' U' R U R U2' R' U' R' U R U' R U' R'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D U' r2' U R2' D' R2",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U2' R' f R f'",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' R U2' R' U2 L' U' L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "U' r U' r' U r U r'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U2' R' U' R U R U2' R' U' R' U R U' R U' R'",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.57,
+            "F2L": 2.33,
+            "LL": 1.24,
+            "Cross+1": 0.83,
+            "ZBLS": 0.6,
+            "ZBLL": 1.24
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 65.3,
+            "LL": 34.7,
+            "Cross+1": 23.2,
+            "ZBLS": 16.8,
+            "ZBLL": 34.7
+          },
+          "STM": {
+            "Total": 44,
+            "F2L": 28,
+            "LL": 16,
+            "Cross+1": 7,
+            "ZBLS": 8,
+            "ZBLL": 16
+          },
+          "STPS": {
+            "Total": 12.32,
+            "F2L": 12.02,
+            "LL": 12.9,
+            "Cross+1": 8.43,
+            "ZBLS": 13.33,
+            "ZBLL": 12.9
+          },
+          "ETM": {
+            "Total": 44,
+            "F2L": 28,
+            "LL": 16,
+            "Cross+1": 7,
+            "ZBLS": 8,
+            "ZBLL": 16
+          },
+          "ETPS": {
+            "Total": 12.32,
+            "F2L": 12.02,
+            "LL": 12.9,
+            "Cross+1": 8.43,
+            "ZBLS": 13.33,
+            "ZBLL": 12.9
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:13.730Z",
+      "fetchMs": 227
+    },
+    {
+      "id": 12984,
+      "solveUrl": "https://reco.nz/solve/12984",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.85",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D F2 D' B2 U' L2 U' L2 U' R U' R D F L' D2 L B' F2 L",
+      "inspection": "x",
+      "algorithmAnnotated": "x // inspection\nL D R U' r' D R // cross\nU' R U R' // 1st pair\ny R U' R' // 2nd pair\ny R' U' R // 3rd pair\nR U' R2' F R F' R U' R' // 4th pair/ZBLS\nF R U' R' U' R U2' R' U' F' R' U' R U' R' U2 R U2' // ZBLL",
+      "algorithmPlain": "x L D R U' r' D R U' R U R' y R U' R' y R' U' R R U' R2' F R F' R U' R' F R U' R' U' R U2' R' U' F' R' U' R U' R' U2 R U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "L D R U' r' D R",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "U' R U R'",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "y R U' R'",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "y R' U' R",
+          "moveCount": 4
+        },
+        {
+          "order": 6,
+          "label": "4th pair/ZBLS",
+          "moves": "R U' R2' F R F' R U' R'",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "ZBLL",
+          "moves": "F R U' R' U' R U2' R' U' F' R' U' R U' R' U2 R U2'",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.85,
+            "F2L": 2.1,
+            "LL": 1.75,
+            "Cross+1": 0.97,
+            "ZBLS": 0.53,
+            "ZBLL": 1.75
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 54.5,
+            "LL": 45.5,
+            "Cross+1": 25.2,
+            "ZBLS": 13.8,
+            "ZBLL": 45.5
+          },
+          "STM": {
+            "Total": 44,
+            "F2L": 26,
+            "LL": 18,
+            "Cross+1": 11,
+            "ZBLS": 9,
+            "ZBLL": 18
+          },
+          "STPS": {
+            "Total": 11.43,
+            "F2L": 12.38,
+            "LL": 10.29,
+            "Cross+1": 11.34,
+            "ZBLS": 16.98,
+            "ZBLL": 10.29
+          },
+          "ETM": {
+            "Total": 46,
+            "F2L": 28,
+            "LL": 18,
+            "Cross+1": 11,
+            "ZBLS": 9,
+            "ZBLL": 18
+          },
+          "ETPS": {
+            "Total": 11.95,
+            "F2L": 13.33,
+            "LL": 10.29,
+            "Cross+1": 11.34,
+            "ZBLS": 16.98,
+            "ZBLL": 10.29
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:14.118Z",
+      "fetchMs": 267
+    },
+    {
+      "id": 12983,
+      "solveUrl": "https://reco.nz/solve/12983",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.83",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D F2 D' B2 U' L2 U' L2 U' R U' R D F L' D2 L B' F2 L",
+      "inspection": "x z",
+      "algorithmAnnotated": "x z // inspection\nU' r D R' D' L U' L2' // xxcross\nU F' L F L' // 3rd pair\ny U R U R' U R U' R' // 4th pair\nU r' U r2 U' r2' U' r2 U r' // OLL\nU2' x R' U R' D2 R U' R' D2 R2 x' U' // PLL",
+      "algorithmPlain": "x z U' r D R' D' L U' L2' U F' L F L' y U R U R' U R U' R' U r' U r2 U' r2' U' r2 U r' U2' x R' U R' D2 R U' R' D2 R2 x' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x z",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "U' r D R' D' L U' L2'",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "U F' L F L'",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "4th pair",
+          "moves": "y U R U R' U R U' R'",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "OLL",
+          "moves": "U r' U r2 U' r2' U' r2 U r'",
+          "moveCount": 10
+        },
+        {
+          "order": 6,
+          "label": "PLL",
+          "moves": "U2' x R' U R' D2 R U' R' D2 R2 x' U'",
+          "moveCount": 13
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.83,
+            "F2L": 1.87,
+            "LL": 1.96,
+            "Cross+1": 0.73,
+            "OLS": 1.83,
+            "PLL": 0.9
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 48.8,
+            "LL": 51.2,
+            "Cross+1": 19.1,
+            "OLS": 47.8,
+            "PLL": 23.5
+          },
+          "STM": {
+            "Total": 42,
+            "F2L": 21,
+            "LL": 21,
+            "Cross+1": 8,
+            "OLS": 18,
+            "PLL": 11
+          },
+          "STPS": {
+            "Total": 10.97,
+            "F2L": 11.23,
+            "LL": 10.71,
+            "Cross+1": 10.96,
+            "OLS": 9.84,
+            "PLL": 12.22
+          },
+          "ETM": {
+            "Total": 45,
+            "F2L": 22,
+            "LL": 23,
+            "Cross+1": 8,
+            "OLS": 19,
+            "PLL": 13
+          },
+          "ETPS": {
+            "Total": 11.75,
+            "F2L": 11.76,
+            "LL": 11.73,
+            "Cross+1": 10.96,
+            "OLS": 10.38,
+            "PLL": 14.44
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:14.649Z",
+      "fetchMs": 411
+    },
+    {
+      "id": 12982,
+      "solveUrl": "https://reco.nz/solve/12982",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "4.57",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L2 B2 U R2 F2 R2 D' F2 D U R' D U F R' U' F L D' F U'",
+      "inspection": "y2",
+      "algorithmAnnotated": "y2 // inspection\nR2 r' U r D R2' F R2 // xcross\ny U R U R2' U' R // 2nd pair\nL U2 L' // 3rd pair\nU' F' U' L' U L U' F // 4th pair/ZBLS\nU2' F U R' U' R F' R' U' R U R' U R // ZBLL",
+      "algorithmPlain": "y2 R2 r' U r D R2' F R2 y U R U R2' U' R L U2 L' U' F' U' L' U L U' F U2' F U R' U' R F' R' U' R U R' U R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "R2 r' U r D R2' F R2",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "y U R U R2' U' R",
+          "moveCount": 7
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "L U2 L'",
+          "moveCount": 3
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "U' F' U' L' U L U' F",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U2' F U R' U' R F' R' U' R U R' U R",
+          "moveCount": 14
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.57,
+            "F2L": 3.23,
+            "LL": 1.34,
+            "Cross+1": 1.67,
+            "ZBLS": 0.7,
+            "ZBLL": 1.34
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 70.7,
+            "LL": 29.3,
+            "Cross+1": 36.5,
+            "ZBLS": 15.3,
+            "ZBLL": 29.3
+          },
+          "STM": {
+            "Total": 39,
+            "F2L": 25,
+            "LL": 14,
+            "Cross+1": 8,
+            "ZBLS": 8,
+            "ZBLL": 14
+          },
+          "STPS": {
+            "Total": 8.53,
+            "F2L": 7.74,
+            "LL": 10.45,
+            "Cross+1": 4.79,
+            "ZBLS": 11.43,
+            "ZBLL": 10.45
+          },
+          "ETM": {
+            "Total": 40,
+            "F2L": 26,
+            "LL": 14,
+            "Cross+1": 8,
+            "ZBLS": 8,
+            "ZBLL": 14
+          },
+          "ETPS": {
+            "Total": 8.75,
+            "F2L": 8.05,
+            "LL": 10.45,
+            "Cross+1": 4.79,
+            "ZBLS": 11.43,
+            "ZBLL": 10.45
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:15.007Z",
+      "fetchMs": 237
+    },
+    {
+      "id": 12981,
+      "solveUrl": "https://reco.nz/solve/12981",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "4.63",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D' L2 R2 D' F2 D2 R2 F2 L2 D' B' D' U' B' R' B' L' F' U L' U",
+      "inspection": "x' z'",
+      "algorithmAnnotated": "x' z' // inspection\nr' D R D' R U R' y' R U' R' D' U l L' U2 l' L2 // xxcross\nU L' // 3rd pair\nU2 F' L F L' F U' F' // 4th pair/ZBLS\nU F R U' R' U' R U2' R' U' F' U R U R' U R U2' R' U // ZBLL",
+      "algorithmPlain": "x' z' r' D R D' R U R' y' R U' R' D' U l L' U2 l' L2 U L' U2 F' L F L' F U' F' U F R U' R' U' R U2' R' U' F' U R U R' U R U2' R' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "r' D R D' R U R' y' R U' R' D' U l L' U2 l' L2",
+          "moveCount": 18
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "U L'",
+          "moveCount": 2
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "U2 F' L F L' F U' F'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "U F R U' R' U' R U2' R' U' F' U R U R' U R U2' R' U",
+          "moveCount": 20
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.63,
+            "F2L": 2.63,
+            "LL": 2,
+            "Cross+1": 1.67,
+            "ZBLS": 0.83,
+            "ZBLL": 2
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 56.8,
+            "LL": 43.2,
+            "Cross+1": 36.1,
+            "ZBLS": 17.9,
+            "ZBLL": 43.2
+          },
+          "STM": {
+            "Total": 47,
+            "F2L": 27,
+            "LL": 20,
+            "Cross+1": 17,
+            "ZBLS": 8,
+            "ZBLL": 20
+          },
+          "STPS": {
+            "Total": 10.15,
+            "F2L": 10.27,
+            "LL": 10,
+            "Cross+1": 10.18,
+            "ZBLS": 9.64,
+            "ZBLL": 10
+          },
+          "ETM": {
+            "Total": 48,
+            "F2L": 28,
+            "LL": 20,
+            "Cross+1": 18,
+            "ZBLS": 8,
+            "ZBLL": 20
+          },
+          "ETPS": {
+            "Total": 10.37,
+            "F2L": 10.65,
+            "LL": 10,
+            "Cross+1": 10.78,
+            "ZBLS": 9.64,
+            "ZBLL": 10
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:15.571Z",
+      "fetchMs": 443
+    },
+    {
+      "id": 12980,
+      "solveUrl": "https://reco.nz/solve/12980",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.72",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "U' B2 L2 U R2 U L2 U' R2 U2 B' L' D L U' B U' B' F2 D' R'",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nF U' R2' D' R L' U2 L D // xcross\nU L' U' L2 U2 L2' // 2nd pair\nU' L U2' L' U L // 3rd pair\ny R U R2' F R F' // 4th pair/ZBLS\nU' R U' R2' D' r U2 r' D R2 U R' U' // ZBLL",
+      "algorithmPlain": "y F U' R2' D' R L' U2 L D U L' U' L2 U2 L2' U' L U2' L' U L y R U R2' F R F' U' R U' R2' D' r U2 r' D R2 U R' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "F U' R2' D' R L' U2 L D",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U L' U' L2 U2 L2'",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' L U2' L' U L",
+          "moveCount": 6
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "y R U R2' F R F'",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U' R U' R2' D' r U2 r' D R2 U R' U'",
+          "moveCount": 13
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.72,
+            "F2L": 2.37,
+            "LL": 1.35,
+            "Cross+1": 1,
+            "ZBLS": 0.47,
+            "ZBLL": 1.35
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 63.7,
+            "LL": 36.3,
+            "Cross+1": 26.9,
+            "ZBLS": 12.6,
+            "ZBLL": 36.3
+          },
+          "STM": {
+            "Total": 40,
+            "F2L": 27,
+            "LL": 13,
+            "Cross+1": 9,
+            "ZBLS": 6,
+            "ZBLL": 13
+          },
+          "STPS": {
+            "Total": 10.75,
+            "F2L": 11.39,
+            "LL": 9.63,
+            "Cross+1": 9,
+            "ZBLS": 12.77,
+            "ZBLL": 9.63
+          },
+          "ETM": {
+            "Total": 41,
+            "F2L": 28,
+            "LL": 13,
+            "Cross+1": 9,
+            "ZBLS": 7,
+            "ZBLL": 13
+          },
+          "ETPS": {
+            "Total": 11.02,
+            "F2L": 11.81,
+            "LL": 9.63,
+            "Cross+1": 9,
+            "ZBLS": 14.89,
+            "ZBLL": 9.63
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:16.186Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12979,
+      "solveUrl": "https://reco.nz/solve/12979",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.54",
+        "puzzle": "3x3",
+        "date": "2026-04-05",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F2 D B2 F2 U2 B2 D' F2 L2 F2 L F' D2 R2 B2 U L B2 U L R2",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nF' U D' R U R' F R U' R U' R' D' // xcross\nR' U R // 2nd pair\ny' R' U' R2 // 3rd pair\nU' R' U R U' R' U R U' R' // 4th pair/ZBLS\nU' L R U' R' U L' R U R' U R U' R' // ZBLL",
+      "algorithmPlain": "y F' U D' R U R' F R U' R U' R' D' R' U R y' R' U' R2 U' R' U R U' R' U R U' R' U' L R U' R' U L' R U R' U R U' R'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "F' U D' R U R' F R U' R U' R' D'",
+          "moveCount": 13
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "R' U R",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y' R' U' R2",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "U' R' U R U' R' U R U' R'",
+          "moveCount": 10
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U' L R U' R' U L' R U R' U R U' R'",
+          "moveCount": 14
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.54,
+            "F2L": 2.3,
+            "LL": 1.24,
+            "Cross+1": 1.27,
+            "ZBLS": 0.4,
+            "ZBLL": 1.24
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 65,
+            "LL": 35,
+            "Cross+1": 35.9,
+            "ZBLS": 11.3,
+            "ZBLL": 35
+          },
+          "STM": {
+            "Total": 43,
+            "F2L": 29,
+            "LL": 14,
+            "Cross+1": 13,
+            "ZBLS": 10,
+            "ZBLL": 14
+          },
+          "STPS": {
+            "Total": 12.15,
+            "F2L": 12.61,
+            "LL": 11.29,
+            "Cross+1": 10.24,
+            "ZBLS": 25,
+            "ZBLL": 11.29
+          },
+          "ETM": {
+            "Total": 44,
+            "F2L": 30,
+            "LL": 14,
+            "Cross+1": 13,
+            "ZBLS": 10,
+            "ZBLL": 14
+          },
+          "ETPS": {
+            "Total": 12.43,
+            "F2L": 13.04,
+            "LL": 11.29,
+            "Cross+1": 10.24,
+            "ZBLS": 25,
+            "ZBLL": 11.29
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:16.799Z",
+      "fetchMs": 492
+    },
+    {
+      "id": 12977,
+      "solveUrl": "https://reco.nz/solve/12977",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.95",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D2 F2 U F2 R2 U' R2 D R2 F2 L' U' R2 B' L2 D' U' R' F2 D' R'",
+      "inspection": "x'",
+      "algorithmAnnotated": "x' // inspection\nF' R2' D2 r R' U' F' U' F' R // xxcross\nU2' R U R2' U' R // 3rd pair\nU' R U R' U' R U R' // 4th pair\nU' r' F R F' r U R' r U R' U' r' R U R U' R2' // OLL\nx U R' D2 R U' R' D2 R2 x' U // PLL",
+      "algorithmPlain": "x' F' R2' D2 r R' U' F' U' F' R U2' R U R2' U' R U' R U R' U' R U R' U' r' F R F' r U R' r U R' U' r' R U R U' R2' x U R' D2 R U' R' D2 R2 x' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x'",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "F' R2' D2 r R' U' F' U' F' R",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "U2' R U R2' U' R",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "4th pair",
+          "moves": "U' R U R' U' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "OLL",
+          "moves": "U' r' F R F' r U R' r U R' U' r' R U R U' R2'",
+          "moveCount": 18
+        },
+        {
+          "order": 6,
+          "label": "PLL",
+          "moves": "x U R' D2 R U' R' D2 R2 x' U",
+          "moveCount": 11
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.95,
+            "F2L": 1.8,
+            "LL": 2.15,
+            "Cross+1": 1.03,
+            "OLS": 1.77,
+            "PLL": 0.75
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 45.6,
+            "LL": 54.4,
+            "Cross+1": 26.1,
+            "OLS": 44.8,
+            "PLL": 19
+          },
+          "STM": {
+            "Total": 51,
+            "F2L": 24,
+            "LL": 27,
+            "Cross+1": 10,
+            "OLS": 26,
+            "PLL": 9
+          },
+          "STPS": {
+            "Total": 12.91,
+            "F2L": 13.33,
+            "LL": 12.56,
+            "Cross+1": 9.71,
+            "OLS": 14.69,
+            "PLL": 12
+          },
+          "ETM": {
+            "Total": 53,
+            "F2L": 24,
+            "LL": 29,
+            "Cross+1": 10,
+            "OLS": 26,
+            "PLL": 11
+          },
+          "ETPS": {
+            "Total": 13.42,
+            "F2L": 13.33,
+            "LL": 13.49,
+            "Cross+1": 9.71,
+            "OLS": 14.69,
+            "PLL": 14.67
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:17.412Z",
+      "fetchMs": 488
+    },
+    {
+      "id": 12976,
+      "solveUrl": "https://reco.nz/solve/12976",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.95",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 U2 L2 F2 D2 L2 F2 U' B2 D F R D2 F' R2 D B2 D U L D'",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nD' B' U' r U' r' D' R' F R // xcross\nU' D L' U L D' U R' U' R // 2nd pair\ny' D' L' U' L U' D // 3rd pair\nR U' R' U' R U R' // 4th pair\nU' x R' U R' D2 R U' R' D2 R2 // PLL",
+      "algorithmPlain": "y D' B' U' r U' r' D' R' F R U' D L' U L D' U R' U' R y' D' L' U' L U' D R U' R' U' R U R' U' x R' U R' D2 R U' R' D2 R2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D' B' U' r U' r' D' R' F R",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' D L' U L D' U R' U' R",
+          "moveCount": 10
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y' D' L' U' L U' D",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "R U' R' U' R U R'",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "PLL",
+          "moves": "U' x R' U R' D2 R U' R' D2 R2",
+          "moveCount": 11
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.95,
+            "F2L": 3.07,
+            "LL": 0.88,
+            "Cross+1": 0.93,
+            "OLS": 0.33,
+            "PLL": 0.88
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 77.7,
+            "LL": 22.3,
+            "Cross+1": 23.5,
+            "OLS": 8.4,
+            "PLL": 22.3
+          },
+          "STM": {
+            "Total": 43,
+            "F2L": 33,
+            "LL": 10,
+            "Cross+1": 10,
+            "OLS": 7,
+            "PLL": 10
+          },
+          "STPS": {
+            "Total": 10.89,
+            "F2L": 10.75,
+            "LL": 11.36,
+            "Cross+1": 10.75,
+            "OLS": 21.21,
+            "PLL": 11.36
+          },
+          "ETM": {
+            "Total": 45,
+            "F2L": 34,
+            "LL": 11,
+            "Cross+1": 10,
+            "OLS": 7,
+            "PLL": 11
+          },
+          "ETPS": {
+            "Total": 11.39,
+            "F2L": 11.07,
+            "LL": 12.5,
+            "Cross+1": 10.75,
+            "OLS": 21.21,
+            "PLL": 12.5
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:18.028Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12975,
+      "solveUrl": "https://reco.nz/solve/12975",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.31",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L2 B2 R2 D' B2 D F2 D B2 D B U' F R' D' L' B2 F2 L F' U2",
+      "inspection": "x' z'",
+      "algorithmAnnotated": "x' z' // inspection\nr B2 U' R U' D L U L' R' F R2 // xcross\nU R2' // 2nd pair\nU2' R U R' U' R // 3rd pair\nU' L' U L U' L' U L // 4th pair\nU' L' U' L U' L' U L U L F' L' F // OLL\nU' R U R' F' R U R' U' R' F R2 U' R' U2' // PLL",
+      "algorithmPlain": "x' z' r B2 U' R U' D L U L' R' F R2 U R2' U2' R U R' U' R U' L' U L U' L' U L U' L' U' L U' L' U L U L F' L' F U' R U R' F' R U R' U' R' F R2 U' R' U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "r B2 U' R U' D L U L' R' F R2",
+          "moveCount": 12
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U R2'",
+          "moveCount": 2
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U2' R U R' U' R",
+          "moveCount": 6
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U' L' U L U' L' U L",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U' L' U' L U' L' U L U L F' L' F",
+          "moveCount": 13
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' R U R' F' R U R' U' R' F R2 U' R' U2'",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.31,
+            "F2L": 1.9,
+            "LL": 1.41,
+            "Cross+1": 1.07,
+            "OLS": 1.1,
+            "PLL": 0.64
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 57.4,
+            "LL": 42.6,
+            "Cross+1": 32.3,
+            "OLS": 33.2,
+            "PLL": 19.3
+          },
+          "STM": {
+            "Total": 56,
+            "F2L": 28,
+            "LL": 28,
+            "Cross+1": 12,
+            "OLS": 21,
+            "PLL": 15
+          },
+          "STPS": {
+            "Total": 16.92,
+            "F2L": 14.74,
+            "LL": 19.86,
+            "Cross+1": 11.21,
+            "OLS": 19.09,
+            "PLL": 23.44
+          },
+          "ETM": {
+            "Total": 56,
+            "F2L": 28,
+            "LL": 28,
+            "Cross+1": 12,
+            "OLS": 21,
+            "PLL": 15
+          },
+          "ETPS": {
+            "Total": 16.92,
+            "F2L": 14.74,
+            "LL": 19.86,
+            "Cross+1": 11.21,
+            "OLS": 19.09,
+            "PLL": 23.44
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:18.640Z",
+      "fetchMs": 492
+    },
+    {
+      "id": 12974,
+      "solveUrl": "https://reco.nz/solve/12974",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "4.02",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "U' F2 R2 F2 D' B2 D L2 U' L' F U2 L R D' U L B2 F D2 U2",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nL F' L2' U L D' U r U' r' // xcross\ny R R' R U R2' U' R // 2nd pair\ny' R U' R' U R U R2' // 3rd pair\nU R // 4th pair\nU R' U' R' F R F' U R // OLL\nU2 L' U' L F L' U' L U L F' L2' U L U2' // PLL",
+      "algorithmPlain": "y L F' L2' U L D' U r U' r' y R R' R U R2' U' R y' R U' R' U R U R2' U R U R' U' R' F R F' U R U2 L' U' L F L' U' L U L F' L2' U L U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "L F' L2' U L D' U r U' r'",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "y R R' R U R2' U' R",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y' R U' R' U R U R2'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U R",
+          "moveCount": 2
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U R' U' R' F R F' U R",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U2 L' U' L F L' U' L U L F' L2' U L U2'",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.02,
+            "F2L": 2.07,
+            "LL": 1.95,
+            "Cross+1": 0.7,
+            "OLS": 1.23,
+            "PLL": 0.92
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 51.5,
+            "LL": 48.5,
+            "Cross+1": 17.4,
+            "OLS": 30.6,
+            "PLL": 22.9
+          },
+          "STM": {
+            "Total": 50,
+            "F2L": 26,
+            "LL": 24,
+            "Cross+1": 10,
+            "OLS": 11,
+            "PLL": 15
+          },
+          "STPS": {
+            "Total": 12.44,
+            "F2L": 12.56,
+            "LL": 12.31,
+            "Cross+1": 14.29,
+            "OLS": 8.94,
+            "PLL": 16.3
+          },
+          "ETM": {
+            "Total": 52,
+            "F2L": 28,
+            "LL": 24,
+            "Cross+1": 10,
+            "OLS": 11,
+            "PLL": 15
+          },
+          "ETPS": {
+            "Total": 12.94,
+            "F2L": 13.53,
+            "LL": 12.31,
+            "Cross+1": 14.29,
+            "OLS": 8.94,
+            "PLL": 16.3
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:19.257Z",
+      "fetchMs": 496
+    },
+    {
+      "id": 12968,
+      "solveUrl": "https://reco.nz/solve/12968",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "4.37",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "D' R2 D2 F2 R2 B2 D R D2 F U R' U' L D2 R2 B' U R'",
+      "inspection": "y2",
+      "algorithmAnnotated": "y2 // inspection\nR' U r' R2 U2' r' U R' U' R u' // xcross\nU L' U L U L' U' L // 2nd pair\ny U2' L' U L R' U2' R // 3rd pair\nU' r R' U R r' U2' R' F R // ZBLS\nU' R' U' R U' R' U2' R U' L' U R U' L U R' U // ZBLL",
+      "algorithmPlain": "y2 R' U r' R2 U2' r' U R' U' R u' U L' U L U L' U' L y U2' L' U L R' U2' R U' r R' U R r' U2' R' F R U' R' U' R U' R' U2' R U' L' U R U' L U R' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "R' U r' R2 U2' r' U R' U' R u'",
+          "moveCount": 11
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U L' U L U L' U' L",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y U2' L' U L R' U2' R",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "ZBLS",
+          "moves": "U' r R' U R r' U2' R' F R",
+          "moveCount": 10
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U' R' U' R U' R' U2' R U' L' U R U' L U R' U",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.37,
+            "F2L": 2.85,
+            "LL": 1.52,
+            "Cross+1": 1.1,
+            "ZBLS": 0.55,
+            "ZBLL": 1.52
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 65.2,
+            "LL": 34.8,
+            "Cross+1": 25.2,
+            "ZBLS": 12.6,
+            "ZBLL": 34.8
+          },
+          "STM": {
+            "Total": 53,
+            "F2L": 36,
+            "LL": 17,
+            "Cross+1": 11,
+            "ZBLS": 10,
+            "ZBLL": 17
+          },
+          "STPS": {
+            "Total": 12.13,
+            "F2L": 12.63,
+            "LL": 11.18,
+            "Cross+1": 10,
+            "ZBLS": 18.18,
+            "ZBLL": 11.18
+          },
+          "ETM": {
+            "Total": 54,
+            "F2L": 37,
+            "LL": 17,
+            "Cross+1": 11,
+            "ZBLS": 10,
+            "ZBLL": 17
+          },
+          "ETPS": {
+            "Total": 12.36,
+            "F2L": 12.98,
+            "LL": 11.18,
+            "Cross+1": 10,
+            "ZBLS": 18.18,
+            "ZBLL": 11.18
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:19.872Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12967,
+      "solveUrl": "https://reco.nz/solve/12967",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "4.63",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "D2 R2 U2 B' D' R' B' D' R2 U' F2 D' R B' D R B' F2",
+      "inspection": "x2 y",
+      "algorithmAnnotated": "x2 y // inspection\nD R D R' U2 R U L F' L' U L' u' // xcross\nU' L' U L // 2nd pair\nR' U R U' U' f R f' // 3rd pair\nU2 R U2' R' U r U' r' U' r U r' // ZBLS\nU2' R U2 R' U' R U R D R' U2 R D' R2' U2' // ZBLL",
+      "algorithmPlain": "x2 y D R D R' U2 R U L F' L' U L' u' U' L' U L R' U R U' U' f R f' U2 R U2' R' U r U' r' U' r U r' U2' R U2 R' U' R U R D R' U2 R D' R2' U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D R D R' U2 R U L F' L' U L' u'",
+          "moveCount": 13
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' L' U L",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "R' U R U' U' f R f'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "ZBLS",
+          "moves": "U2 R U2' R' U r U' r' U' r U r'",
+          "moveCount": 12
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U2' R U2 R' U' R U R D R' U2 R D' R2' U2'",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.63,
+            "F2L": 3.32,
+            "LL": 1.31,
+            "Cross+1": 1.4,
+            "ZBLS": 0.77,
+            "ZBLL": 1.31
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 71.7,
+            "LL": 28.3,
+            "Cross+1": 30.2,
+            "ZBLS": 16.6,
+            "ZBLL": 28.3
+          },
+          "STM": {
+            "Total": 52,
+            "F2L": 37,
+            "LL": 15,
+            "Cross+1": 13,
+            "ZBLS": 12,
+            "ZBLL": 15
+          },
+          "STPS": {
+            "Total": 11.23,
+            "F2L": 11.14,
+            "LL": 11.45,
+            "Cross+1": 9.29,
+            "ZBLS": 15.58,
+            "ZBLL": 11.45
+          },
+          "ETM": {
+            "Total": 52,
+            "F2L": 37,
+            "LL": 15,
+            "Cross+1": 13,
+            "ZBLS": 12,
+            "ZBLL": 15
+          },
+          "ETPS": {
+            "Total": 11.23,
+            "F2L": 11.14,
+            "LL": 11.45,
+            "Cross+1": 9.29,
+            "ZBLS": 15.58,
+            "ZBLL": 11.45
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:20.489Z",
+      "fetchMs": 497
+    },
+    {
+      "id": 12966,
+      "solveUrl": "https://reco.nz/solve/12966",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.90",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "F' R2 B' F L2 F2 R D2 R' F' L F2 L' B U L' D R' F2",
+      "inspection": "x",
+      "algorithmAnnotated": "x // inspection\nl D' R' D2 L U L2' U' L U R' U F R // xxcross\nD R U R' U' R U R' D' // 3rd pair\nr R' U' R r' U2 r U' r' // ZBLS\nR' U2' R U R' U R' D' R U2 R' D R U2 R // ZBLL",
+      "algorithmPlain": "x l D' R' D2 L U L2' U' L U R' U F R D R U R' U' R U R' D' r R' U' R r' U2 r U' r' R' U2' R U R' U R' D' R U2 R' D R U2 R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "l D' R' D2 L U L2' U' L U R' U F R",
+          "moveCount": 14
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "D R U R' U' R U R' D'",
+          "moveCount": 9
+        },
+        {
+          "order": 4,
+          "label": "ZBLS",
+          "moves": "r R' U' R r' U2 r U' r'",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "R' U2' R U R' U R' D' R U2 R' D R U2 R",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.9,
+            "F2L": 2.35,
+            "LL": 1.55,
+            "Cross+1": 1.3,
+            "ZBLS": 0.55,
+            "ZBLL": 1.55
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 60.3,
+            "LL": 39.7,
+            "Cross+1": 33.3,
+            "ZBLS": 14.1,
+            "ZBLL": 39.7
+          },
+          "STM": {
+            "Total": 47,
+            "F2L": 32,
+            "LL": 15,
+            "Cross+1": 14,
+            "ZBLS": 9,
+            "ZBLL": 15
+          },
+          "STPS": {
+            "Total": 12.05,
+            "F2L": 13.62,
+            "LL": 9.68,
+            "Cross+1": 10.77,
+            "ZBLS": 16.36,
+            "ZBLL": 9.68
+          },
+          "ETM": {
+            "Total": 47,
+            "F2L": 32,
+            "LL": 15,
+            "Cross+1": 14,
+            "ZBLS": 9,
+            "ZBLL": 15
+          },
+          "ETPS": {
+            "Total": 12.05,
+            "F2L": 13.62,
+            "LL": 9.68,
+            "Cross+1": 10.77,
+            "ZBLS": 16.36,
+            "ZBLL": 9.68
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:21.100Z",
+      "fetchMs": 491
+    },
+    {
+      "id": 12965,
+      "solveUrl": "https://reco.nz/solve/12965",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.94",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "B F' L2 F' R2 D' B' D L' B' R2 D U' B' L B' R' U2 B2",
+      "inspection": "z2",
+      "algorithmAnnotated": "z2 // inspection\nF L R D R2' F' // xcross\nU' R U2' R' U R U' R' // 2nd pair\nU L' U2 L // 3rd pair\ny' U' F U R U R' U' R U2' R' F' // ZBLS\nU R U R' U' R' U2' R U R U' R' U R' U R // ZBLL",
+      "algorithmPlain": "z2 F L R D R2' F' U' R U2' R' U R U' R' U L' U2 L y' U' F U R U R' U' R U2' R' F' U R U R' U' R' U2' R U R U' R' U R' U R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "F L R D R2' F'",
+          "moveCount": 6
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' R U2' R' U R U' R'",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U L' U2 L",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "ZBLS",
+          "moves": "y' U' F U R U R' U' R U2' R' F'",
+          "moveCount": 12
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U R U R' U' R' U2' R U R U' R' U R' U R",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.94,
+            "F2L": 2.8,
+            "LL": 1.14,
+            "Cross+1": 0.87,
+            "ZBLS": 0.93,
+            "ZBLL": 1.14
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 71.1,
+            "LL": 28.9,
+            "Cross+1": 22.1,
+            "ZBLS": 23.6,
+            "ZBLL": 28.9
+          },
+          "STM": {
+            "Total": 45,
+            "F2L": 29,
+            "LL": 16,
+            "Cross+1": 6,
+            "ZBLS": 11,
+            "ZBLL": 16
+          },
+          "STPS": {
+            "Total": 11.42,
+            "F2L": 10.36,
+            "LL": 14.04,
+            "Cross+1": 6.9,
+            "ZBLS": 11.83,
+            "ZBLL": 14.04
+          },
+          "ETM": {
+            "Total": 46,
+            "F2L": 30,
+            "LL": 16,
+            "Cross+1": 6,
+            "ZBLS": 12,
+            "ZBLL": 16
+          },
+          "ETPS": {
+            "Total": 11.68,
+            "F2L": 10.71,
+            "LL": 14.04,
+            "Cross+1": 6.9,
+            "ZBLS": 12.9,
+            "ZBLL": 14.04
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:21.715Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12964,
+      "solveUrl": "https://reco.nz/solve/12964",
+      "sourcePage": 1,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.57",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "R' B2 R2 D2 U2 L' R' F' R F' U' R D2 B R2 D2 U F'",
+      "inspection": "x2 y'",
+      "algorithmAnnotated": "x2 y' // inspection\nD r U r' D r' U2 r2' U2' r' // xcross\nR' U2' R // 2nd pair\nU' y' R' U' R // 3rd pair\nU R U2' R' U' R U' R2' F R F' // ZBLS\nU' R' U' R U' R' U R U' R' U2 R // ZBLL",
+      "algorithmPlain": "x2 y' D r U r' D r' U2 r2' U2' r' R' U2' R U' y' R' U' R U R U2' R' U' R U' R2' F R F' U' R' U' R U' R' U R U' R' U2 R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x2 y'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D r U r' D r' U2 r2' U2' r'",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "R' U2' R",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' y' R' U' R",
+          "moveCount": 5
+        },
+        {
+          "order": 5,
+          "label": "ZBLS",
+          "moves": "U R U2' R' U' R U' R2' F R F'",
+          "moveCount": 11
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U' R' U' R U' R' U R U' R' U2 R",
+          "moveCount": 12
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.57,
+            "F2L": 2.57,
+            "LL": 1,
+            "Cross+1": 1.2,
+            "ZBLS": 0.58,
+            "ZBLL": 1
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 72,
+            "LL": 28,
+            "Cross+1": 33.6,
+            "ZBLS": 16.2,
+            "ZBLL": 28
+          },
+          "STM": {
+            "Total": 40,
+            "F2L": 28,
+            "LL": 12,
+            "Cross+1": 10,
+            "ZBLS": 11,
+            "ZBLL": 12
+          },
+          "STPS": {
+            "Total": 11.2,
+            "F2L": 10.89,
+            "LL": 12,
+            "Cross+1": 8.33,
+            "ZBLS": 18.97,
+            "ZBLL": 12
+          },
+          "ETM": {
+            "Total": 41,
+            "F2L": 29,
+            "LL": 12,
+            "Cross+1": 10,
+            "ZBLS": 11,
+            "ZBLL": 12
+          },
+          "ETPS": {
+            "Total": 11.48,
+            "F2L": 11.28,
+            "LL": 12,
+            "Cross+1": 8.33,
+            "ZBLS": 18.97,
+            "ZBLL": 12
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:22.329Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12963,
+      "solveUrl": "https://reco.nz/solve/12963",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.73",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "B F D2 B2 F' D2 L' F' D U R' B R' D' F U' L2 B2",
+      "inspection": "x2 y'",
+      "algorithmAnnotated": "x2 y' // inspection\nD' L U2 L D R2' D R U' R' F // xcross\nL U' L' // 2nd pair\nU L' U' L y' U R' U' R // 3rd pair\nU' R U2' R' U' R U R2' // 4th pair\nU' R' F R F' R' F R F' U R // OLL\nU' R U' R' U' R U R D R' U' R D' R' U2 R' U // PLL",
+      "algorithmPlain": "x2 y' D' L U2 L D R2' D R U' R' F L U' L' U L' U' L y' U R' U' R U' R U2' R' U' R U R2' U' R' F R F' R' F R F' U R U' R U' R' U' R U R D R' U' R D' R' U2 R' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x2 y'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D' L U2 L D R2' D R U' R' F",
+          "moveCount": 11
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "L U' L'",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U L' U' L y' U R' U' R",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U' R U2' R' U' R U R2'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U' R' F R F' R' F R F' U R",
+          "moveCount": 11
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' R U' R' U' R U R D R' U' R D' R' U2 R' U",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.73,
+            "F2L": 2.33,
+            "LL": 1.4,
+            "Cross+1": 1.03,
+            "OLS": 1.12,
+            "PLL": 0.86
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 62.5,
+            "LL": 37.5,
+            "Cross+1": 27.6,
+            "OLS": 30,
+            "PLL": 23.1
+          },
+          "STM": {
+            "Total": 58,
+            "F2L": 30,
+            "LL": 28,
+            "Cross+1": 11,
+            "OLS": 19,
+            "PLL": 17
+          },
+          "STPS": {
+            "Total": 15.55,
+            "F2L": 12.88,
+            "LL": 20,
+            "Cross+1": 10.68,
+            "OLS": 16.96,
+            "PLL": 19.77
+          },
+          "ETM": {
+            "Total": 59,
+            "F2L": 31,
+            "LL": 28,
+            "Cross+1": 11,
+            "OLS": 19,
+            "PLL": 17
+          },
+          "ETPS": {
+            "Total": 15.82,
+            "F2L": 13.3,
+            "LL": 20,
+            "Cross+1": 10.68,
+            "OLS": 16.96,
+            "PLL": 19.77
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:22.944Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12962,
+      "solveUrl": "https://reco.nz/solve/12962",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.95",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "B2 R' F2 L' F2 D L' B' D2 U B' L2 B2 L2 D2 B2 U2 F",
+      "inspection": "x",
+      "algorithmAnnotated": "x // inspection\nR' B' r' U' D R F D' // xcross\nL' U' L // 2nd pair\ny L' U L U2' L' U L // 3rd pair\nU2 R U2' R' U' R U R' // 4th pair\nU R U R' U' R' F R F' R U R' U' M' U R U' r' // OLL\nU' D' R U R' U' D R2 U' R U' R' U R' U R2 // PLL",
+      "algorithmPlain": "x R' B' r' U' D R F D' L' U' L y L' U L U2' L' U L U2 R U2' R' U' R U R' U R U R' U' R' F R F' R U R' U' M' U R U' r' U' D' R U R' U' D R2 U' R U' R' U R' U R2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "R' B' r' U' D R F D'",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "L' U' L",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y L' U L U2' L' U L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U2 R U2' R' U' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U R U R' U' R' F R F' R U R' U' M' U R U' r'",
+          "moveCount": 18
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' D' R U R' U' D R2 U' R U' R' U R' U R2",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.95,
+            "F2L": 2.18,
+            "LL": 1.77,
+            "Cross+1": 0.95,
+            "OLS": 1.27,
+            "PLL": 0.95
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 55.2,
+            "LL": 44.8,
+            "Cross+1": 24.1,
+            "OLS": 32.2,
+            "PLL": 24.1
+          },
+          "STM": {
+            "Total": 60,
+            "F2L": 26,
+            "LL": 34,
+            "Cross+1": 8,
+            "OLS": 26,
+            "PLL": 16
+          },
+          "STPS": {
+            "Total": 15.19,
+            "F2L": 11.93,
+            "LL": 19.21,
+            "Cross+1": 8.42,
+            "OLS": 20.47,
+            "PLL": 16.84
+          },
+          "ETM": {
+            "Total": 61,
+            "F2L": 27,
+            "LL": 34,
+            "Cross+1": 8,
+            "OLS": 26,
+            "PLL": 16
+          },
+          "ETPS": {
+            "Total": 15.44,
+            "F2L": 12.39,
+            "LL": 19.21,
+            "Cross+1": 8.42,
+            "OLS": 20.47,
+            "PLL": 16.84
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:23.562Z",
+      "fetchMs": 498
+    },
+    {
+      "id": 12961,
+      "solveUrl": "https://reco.nz/solve/12961",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "4.13",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "B2 R' B2 R2 F2 D' R' B U' R2 F U R2 F' R U2 R2 F",
+      "inspection": "z2",
+      "algorithmAnnotated": "z2 // inspection\nL' B' U D' F' R' U' R D F' // xcross\nU' L U L2' U' L2 // 2nd pair\nU' L' // 3rd pair\nU R U R' F R' F' R // 4th pair\nU2' F' r U R' U' r' F R // OLL\nU' R2' F2 R U2 R U2' R' F R U R' U' R' F R2 U // PLL",
+      "algorithmPlain": "z2 L' B' U D' F' R' U' R D F' U' L U L2' U' L2 U' L' U R U R' F R' F' R U2' F' r U R' U' r' F R U' R2' F2 R U2 R U2' R' F R U R' U' R' F R2 U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "L' B' U D' F' R' U' R D F'",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' L U L2' U' L2",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' L'",
+          "moveCount": 2
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U R U R' F R' F' R",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U2' F' r U R' U' r' F R",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' R2' F2 R U2 R U2' R' F R U R' U' R' F R2 U",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.13,
+            "F2L": 2.45,
+            "LL": 1.68,
+            "Cross+1": 1.45,
+            "OLS": 1.03,
+            "PLL": 1.08
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 59.3,
+            "LL": 40.7,
+            "Cross+1": 35.1,
+            "OLS": 24.9,
+            "PLL": 26.2
+          },
+          "STM": {
+            "Total": 52,
+            "F2L": 26,
+            "LL": 26,
+            "Cross+1": 10,
+            "OLS": 17,
+            "PLL": 17
+          },
+          "STPS": {
+            "Total": 12.59,
+            "F2L": 10.61,
+            "LL": 15.48,
+            "Cross+1": 6.9,
+            "OLS": 16.5,
+            "PLL": 15.74
+          },
+          "ETM": {
+            "Total": 52,
+            "F2L": 26,
+            "LL": 26,
+            "Cross+1": 10,
+            "OLS": 17,
+            "PLL": 17
+          },
+          "ETPS": {
+            "Total": 12.59,
+            "F2L": 10.61,
+            "LL": 15.48,
+            "Cross+1": 6.9,
+            "OLS": 16.5,
+            "PLL": 15.74
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:24.151Z",
+      "fetchMs": 468
+    },
+    {
+      "id": 12960,
+      "solveUrl": "https://reco.nz/solve/12960",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "4.79",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "F2 L' B2 L2 R' D2 L F2 U R F' U' B' U2 R D2 U L2 R",
+      "inspection": "y2 x",
+      "algorithmAnnotated": "y2 x // inspection\nD F' R' U' R2 r' D' L' // xcross\nD' U' R U R' D // 2nd pair\nU L' U' L R' F R U' F' // 3rd/4th pairs\nL' U' L U' L' U2 L // OLL\nR U R' F' R U R' U' R' F R2 U' R' U' L' L // PLL",
+      "algorithmPlain": "y2 x D F' R' U' R2 r' D' L' D' U' R U R' D U L' U' L R' F R U' F' L' U' L U' L' U2 L R U R' F' R U R' U' R' F R2 U' R' U' L' L",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y2 x",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D F' R' U' R2 r' D' L'",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "D' U' R U R' D",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "3rd/4th pairs",
+          "moves": "U L' U' L R' F R U' F'",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "OLL",
+          "moves": "L' U' L U' L' U2 L",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "PLL",
+          "moves": "R U R' F' R U R' U' R' F R2 U' R' U' L' L",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.79,
+            "F2L": 1.93,
+            "LL": 2.86,
+            "Cross+1": 0.93,
+            "OLS": 0.82,
+            "PLL": 2.04
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 40.3,
+            "LL": 59.7,
+            "Cross+1": 19.4,
+            "OLS": 17.1,
+            "PLL": 42.6
+          },
+          "STM": {
+            "Total": 46,
+            "F2L": 23,
+            "LL": 23,
+            "Cross+1": 8,
+            "OLS": 7,
+            "PLL": 16
+          },
+          "STPS": {
+            "Total": 9.6,
+            "F2L": 11.92,
+            "LL": 8.04,
+            "Cross+1": 8.6,
+            "OLS": 8.54,
+            "PLL": 7.84
+          },
+          "ETM": {
+            "Total": 46,
+            "F2L": 23,
+            "LL": 23,
+            "Cross+1": 8,
+            "OLS": 7,
+            "PLL": 16
+          },
+          "ETPS": {
+            "Total": 9.6,
+            "F2L": 11.92,
+            "LL": 8.04,
+            "Cross+1": 8.6,
+            "OLS": 8.54,
+            "PLL": 7.84
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:24.479Z",
+      "fetchMs": 207
+    },
+    {
+      "id": 12959,
+      "solveUrl": "https://reco.nz/solve/12959",
+      "sourcePage": 1,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.73",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Xi'an Cherry Blossom 2026",
+        "reconstructor": "eff"
+      },
+      "scramble": "F' D2 F2 D2 B D2 B L' U2 L2 B2 F R' B2 D' L2 D L U'",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nU L' F2 L2 U' U R' U' R' // xcross\nf R f' // 2nd pair\nR U' R' U' R U R' // 3rd pair\ny' U2' R' F R F' // 4th pair\nU2' R U R' U' R' F R F' // OLL\nU' R' U2' R U2' R' F R U R' U' R' F' R2 // PLL",
+      "algorithmPlain": "y U L' F2 L2 U' U R' U' R' f R f' R U' R' U' R U R' y' U2' R' F R F' U2' R U R' U' R' F R F' U' R' U2' R U2' R' F R U R' U' R' F' R2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U L' F2 L2 U' U R' U' R'",
+          "moveCount": 9
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "f R f'",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "R U' R' U' R U R'",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "y' U2' R' F R F'",
+          "moveCount": 6
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U2' R U R' U' R' F R F'",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' R' U2' R U2' R' F R U R' U' R' F' R2",
+          "moveCount": 14
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.73,
+            "F2L": 2.22,
+            "LL": 1.51,
+            "Cross+1": 1.08,
+            "OLS": 0.95,
+            "PLL": 1.03
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 59.5,
+            "LL": 40.5,
+            "Cross+1": 29,
+            "OLS": 25.5,
+            "PLL": 27.6
+          },
+          "STM": {
+            "Total": 47,
+            "F2L": 24,
+            "LL": 23,
+            "Cross+1": 9,
+            "OLS": 14,
+            "PLL": 14
+          },
+          "STPS": {
+            "Total": 12.6,
+            "F2L": 10.81,
+            "LL": 15.23,
+            "Cross+1": 8.33,
+            "OLS": 14.74,
+            "PLL": 13.59
+          },
+          "ETM": {
+            "Total": 48,
+            "F2L": 25,
+            "LL": 23,
+            "Cross+1": 9,
+            "OLS": 15,
+            "PLL": 14
+          },
+          "ETPS": {
+            "Total": 12.87,
+            "F2L": 11.26,
+            "LL": 15.23,
+            "Cross+1": 8.33,
+            "OLS": 15.79,
+            "PLL": 13.59
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:25.094Z",
+      "fetchMs": 496
+    },
+    {
+      "id": 12943,
+      "solveUrl": "https://reco.nz/solve/12943",
+      "sourcePage": 2,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "3.45",
+        "puzzle": "3x3",
+        "date": "2026-04-04",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+      "inspection": "x' z2",
+      "algorithmAnnotated": "x' z2 // inspection\nU D r R' D U2 r U' r' U' D // xcross\nR' U' R // 2nd pair\nU F' U2 F // 3rd pair\nL' U L // 4th pair/ZBLS\nF U R U2' R' U R U2' R' U' R' F' R U2 R U2' R' U' // ZBLL",
+      "algorithmPlain": "x' z2 U D r R' D U2 r U' r' U' D R' U' R U F' U2 F L' U L F U R U2' R' U R U2' R' U' R' F' R U2 R U2' R' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z2",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U D r R' D U2 r U' r' U' D",
+          "moveCount": 11
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "R' U' R",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U F' U2 F",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "L' U L",
+          "moveCount": 3
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "F U R U2' R' U R U2' R' U' R' F' R U2 R U2' R' U'",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.45,
+            "F2L": 1.6,
+            "LL": 1.85,
+            "Cross+1": 0.8,
+            "ZBLS": 0.23,
+            "ZBLL": 1.85
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 46.4,
+            "LL": 53.6,
+            "Cross+1": 23.2,
+            "ZBLS": 6.7,
+            "ZBLL": 53.6
+          },
+          "STM": {
+            "Total": 39,
+            "F2L": 21,
+            "LL": 18,
+            "Cross+1": 11,
+            "ZBLS": 3,
+            "ZBLL": 18
+          },
+          "STPS": {
+            "Total": 11.3,
+            "F2L": 13.13,
+            "LL": 9.73,
+            "Cross+1": 13.75,
+            "ZBLS": 13.04,
+            "ZBLL": 9.73
+          },
+          "ETM": {
+            "Total": 39,
+            "F2L": 21,
+            "LL": 18,
+            "Cross+1": 11,
+            "ZBLS": 3,
+            "ZBLL": 18
+          },
+          "ETPS": {
+            "Total": 11.3,
+            "F2L": 13.13,
+            "LL": 9.73,
+            "Cross+1": 13.75,
+            "ZBLS": 13.04,
+            "ZBLL": 9.73
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:25.707Z",
+      "fetchMs": 493
+    },
+    {
+      "id": 12937,
+      "solveUrl": "https://reco.nz/solve/12937",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Ruihang Xu",
+        "result": "4.69",
+        "puzzle": "3x3",
+        "date": "2026-04-02",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D' F2 L2 D L2 F2 U' R2 B2 D' B2 R' D' R2 D2 B D' B F2 D R'",
+      "inspection": "z2 y",
+      "algorithmAnnotated": "z2 y // inspection\nD' F' U' R2 U D D // xcross\nL U L' // 2nd pair\ny' y U' R U R' U' R U R2' // 3rd pair\nx U L U' L' U' l // 4th pair\nU2' R U R' U' R' F R2 U R' U' F' // OLL\nU x R2' D2 R U R' D2 R U' R // PLL",
+      "algorithmPlain": "z2 y D' F' U' R2 U D D L U L' y' y U' R U R' U' R U R2' x U L U' L' U' l U2' R U R' U' R' F R2 U R' U' F' U x R2' D2 R U R' D2 R U' R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D' F' U' R2 U D D",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "L U L'",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y' y U' R U R' U' R U R2'",
+          "moveCount": 10
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "x U L U' L' U' l",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U2' R U R' U' R' F R2 U R' U' F'",
+          "moveCount": 12
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U x R2' D2 R U R' D2 R U' R",
+          "moveCount": 11
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.69,
+            "F2L": 2.97,
+            "LL": 1.72,
+            "Cross+1": 0.97,
+            "OLS": 1.77,
+            "PLL": 1.02
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 63.3,
+            "LL": 36.7,
+            "Cross+1": 20.7,
+            "OLS": 37.7,
+            "PLL": 21.7
+          },
+          "STM": {
+            "Total": 46,
+            "F2L": 24,
+            "LL": 22,
+            "Cross+1": 7,
+            "OLS": 18,
+            "PLL": 10
+          },
+          "STPS": {
+            "Total": 9.81,
+            "F2L": 8.08,
+            "LL": 12.79,
+            "Cross+1": 7.22,
+            "OLS": 10.17,
+            "PLL": 9.8
+          },
+          "ETM": {
+            "Total": 50,
+            "F2L": 27,
+            "LL": 23,
+            "Cross+1": 7,
+            "OLS": 19,
+            "PLL": 11
+          },
+          "ETPS": {
+            "Total": 10.66,
+            "F2L": 9.09,
+            "LL": 13.37,
+            "Cross+1": 7.22,
+            "OLS": 10.73,
+            "PLL": 10.78
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:26.322Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12936,
+      "solveUrl": "https://reco.nz/solve/12936",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Ruihang Xu",
+        "result": "4.65",
+        "puzzle": "3x3",
+        "date": "2026-04-02",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "U2 F' D2 L2 F' L2 D2 B2 D2 L' U2 L2 F2 R' D F R' U' R' F2",
+      "inspection": "z2 y",
+      "algorithmAnnotated": "z2 y // inspection\nD L' D' R D R L' U L D // xcross\nU U R U' R' // 2nd pair\ny R' U2' R // 3rd pair\nU R U2' R' U F' U' F // 4th pair\nR' F R F' R' F R F' R U R' U' R U R' // OLL(CP)\nU' R' U R' U' R3 U' R' U R U R2' U // EPLL",
+      "algorithmPlain": "z2 y D L' D' R D R L' U L D U U R U' R' y R' U2' R U R U2' R' U F' U' F R' F R F' R' F R F' R U R' U' R U R' U' R' U R' U' R3 U' R' U R U R2' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D L' D' R D R L' U L D",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U U R U' R'",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y R' U2' R",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U R U2' R' U F' U' F",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL(CP)",
+          "moves": "R' F R F' R' F R F' R U R' U' R U R'",
+          "moveCount": 15
+        },
+        {
+          "order": 7,
+          "label": "EPLL",
+          "moves": "U' R' U R' U' R3 U' R' U R U R2' U",
+          "moveCount": 13
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.65,
+            "F2L": 2.73,
+            "LL": 1.92,
+            "Cross+1": 1.23,
+            "OLS": 1.57,
+            "PLL": 1.02
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 58.7,
+            "LL": 41.3,
+            "Cross+1": 26.5,
+            "OLS": 33.8,
+            "PLL": 21.9
+          },
+          "STM": {
+            "Total": 54,
+            "F2L": 26,
+            "LL": 28,
+            "Cross+1": 10,
+            "OLS": 23,
+            "PLL": 13
+          },
+          "STPS": {
+            "Total": 11.61,
+            "F2L": 9.52,
+            "LL": 14.58,
+            "Cross+1": 8.13,
+            "OLS": 14.65,
+            "PLL": 12.75
+          },
+          "ETM": {
+            "Total": 55,
+            "F2L": 27,
+            "LL": 28,
+            "Cross+1": 10,
+            "OLS": 23,
+            "PLL": 13
+          },
+          "ETPS": {
+            "Total": 11.83,
+            "F2L": 9.89,
+            "LL": 14.58,
+            "Cross+1": 8.13,
+            "OLS": 14.65,
+            "PLL": 12.75
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:26.938Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12935,
+      "solveUrl": "https://reco.nz/solve/12935",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Ruihang Xu",
+        "result": "3.83",
+        "puzzle": "3x3",
+        "date": "2026-04-02",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "B2 L' D2 L U2 L F2 D2 L2 D' L' U2 L' B2 U B' D U",
+      "inspection": "z2",
+      "algorithmAnnotated": "z2 // inspection\nU' D2' B' L2 U2 L' R // xcross\nD R U R' U D' // 2nd pair\nL' U L // 3rd pair\nR' U R y U R U' R' // 4th pair\nU R U R' U R U2' R' F R U R' U' F' // OLL\nR' D R U2 R' D' R U' R' D R U' R' D' R U' // PLL",
+      "algorithmPlain": "z2 U' D2' B' L2 U2 L' R D R U R' U D' L' U L R' U R y U R U' R' U R U R' U R U2' R' F R U R' U' F' R' D R U2 R' D' R U' R' D R U' R' D' R U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U' D2' B' L2 U2 L' R",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "D R U R' U D'",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "L' U L",
+          "moveCount": 3
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "R' U R y U R U' R'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U R U R' U R U2' R' F R U R' U' F'",
+          "moveCount": 14
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "R' D R U2 R' D' R U' R' D R U' R' D' R U'",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.83,
+            "F2L": 1.97,
+            "LL": 1.86,
+            "Cross+1": 0.83,
+            "OLS": 1.33,
+            "PLL": 1.03
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 51.4,
+            "LL": 48.6,
+            "Cross+1": 21.7,
+            "OLS": 34.7,
+            "PLL": 26.9
+          },
+          "STM": {
+            "Total": 53,
+            "F2L": 23,
+            "LL": 30,
+            "Cross+1": 7,
+            "OLS": 21,
+            "PLL": 16
+          },
+          "STPS": {
+            "Total": 13.84,
+            "F2L": 11.68,
+            "LL": 16.13,
+            "Cross+1": 8.43,
+            "OLS": 15.79,
+            "PLL": 15.53
+          },
+          "ETM": {
+            "Total": 54,
+            "F2L": 24,
+            "LL": 30,
+            "Cross+1": 7,
+            "OLS": 22,
+            "PLL": 16
+          },
+          "ETPS": {
+            "Total": 14.1,
+            "F2L": 12.18,
+            "LL": 16.13,
+            "Cross+1": 8.43,
+            "OLS": 16.54,
+            "PLL": 15.53
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:27.550Z",
+      "fetchMs": 492
+    },
+    {
+      "id": 12934,
+      "solveUrl": "https://reco.nz/solve/12934",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Ruihang Xu",
+        "result": "5.14",
+        "puzzle": "3x3",
+        "date": "2026-04-02",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R' U' R' D2 L' D' B U' F' R F2 L2 F' B' D2 B U2 R2 D2 R2",
+      "inspection": "x'",
+      "algorithmAnnotated": "x' // inspection\nU r' R' D R2 U' D r U' r' // cross\nU L U' L' // 1st pair\nR' U' R L' U L // 2nd pair\nU R U R' // 3rd pair\nd' R' F R F' U R U R' // 4th pair\nr U R' U R U2' r' // EO\nU U2 R U' R2' F R U R U' R2' F' R U' F' U F // ZBLL",
+      "algorithmPlain": "x' U r' R' D R2 U' D r U' r' U L U' L' R' U' R L' U L U R U R' d' R' F R F' U R U R' r U R' U R U2' r' U U2 R U' R2' F R U R U' R2' F' R U' F' U F",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x'",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "U r' R' D R2 U' D r U' r'",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "U L U' L'",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "R' U' R L' U L",
+          "moveCount": 6
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "U R U R'",
+          "moveCount": 4
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "d' R' F R F' U R U R'",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "EO",
+          "moves": "r U R' U R U2' r'",
+          "moveCount": 7
+        },
+        {
+          "order": 8,
+          "label": "ZBLL",
+          "moves": "U U2 R U' R2' F R U R U' R2' F' R U' F' U F",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.14,
+            "F2L": 2.4,
+            "LL": 2.74,
+            "Cross+1": 1.1,
+            "OLS": 1.03,
+            "PLL": 2.24
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 46.7,
+            "LL": 53.3,
+            "Cross+1": 21.4,
+            "OLS": 20,
+            "PLL": 43.6
+          },
+          "STM": {
+            "Total": 57,
+            "F2L": 33,
+            "LL": 24,
+            "Cross+1": 14,
+            "OLS": 16,
+            "PLL": 17
+          },
+          "STPS": {
+            "Total": 11.09,
+            "F2L": 13.75,
+            "LL": 8.76,
+            "Cross+1": 12.73,
+            "OLS": 15.53,
+            "PLL": 7.59
+          },
+          "ETM": {
+            "Total": 57,
+            "F2L": 33,
+            "LL": 24,
+            "Cross+1": 14,
+            "OLS": 16,
+            "PLL": 17
+          },
+          "ETPS": {
+            "Total": 11.09,
+            "F2L": 13.75,
+            "LL": 8.76,
+            "Cross+1": 12.73,
+            "OLS": 15.53,
+            "PLL": 7.59
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:28.166Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12933,
+      "solveUrl": "https://reco.nz/solve/12933",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Ruihang Xu",
+        "result": "4.85",
+        "puzzle": "3x3",
+        "date": "2026-04-02",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R' L' B' R' D2 B2 U' B2 D L' U L2 F2 U' F2 D' R2 D2",
+      "inspection": "z2 y",
+      "algorithmAnnotated": "z2 y // inspection\nU' R' U D' R' D U R' U2' R U R' F R // xcross\ny' D U2 R U' R' D' // 2nd pair\nR' U R U R' U' R // 3rd pair\nR' F' R U R U' R' F // 4th pair\nU' r U R' U' r' F R F' // OLL\nU' R' U R' U' R D' R' D R' U D' R2 U' R2' D R2 U' U' // PLL",
+      "algorithmPlain": "z2 y U' R' U D' R' D U R' U2' R U R' F R y' D U2 R U' R' D' R' U R U R' U' R R' F' R U R U' R' F U' r U R' U' r' F R F' U' R' U R' U' R D' R' D R' U D' R2 U' R2' D R2 U' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U' R' U D' R' D U R' U2' R U R' F R",
+          "moveCount": 14
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "y' D U2 R U' R' D'",
+          "moveCount": 7
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "R' U R U R' U' R",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "R' F' R U R U' R' F",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U' r U R' U' r' F R F'",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' R' U R' U' R D' R' D R' U D' R2 U' R2' D R2 U' U'",
+          "moveCount": 19
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.85,
+            "F2L": 2.93,
+            "LL": 1.92,
+            "Cross+1": 1.5,
+            "OLS": 1.1,
+            "PLL": 1.25
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 60.4,
+            "LL": 39.6,
+            "Cross+1": 30.9,
+            "OLS": 22.7,
+            "PLL": 25.8
+          },
+          "STM": {
+            "Total": 63,
+            "F2L": 35,
+            "LL": 28,
+            "Cross+1": 14,
+            "OLS": 17,
+            "PLL": 19
+          },
+          "STPS": {
+            "Total": 12.99,
+            "F2L": 11.95,
+            "LL": 14.58,
+            "Cross+1": 9.33,
+            "OLS": 15.45,
+            "PLL": 15.2
+          },
+          "ETM": {
+            "Total": 64,
+            "F2L": 36,
+            "LL": 28,
+            "Cross+1": 14,
+            "OLS": 17,
+            "PLL": 19
+          },
+          "ETPS": {
+            "Total": 13.2,
+            "F2L": 12.29,
+            "LL": 14.58,
+            "Cross+1": 9.33,
+            "OLS": 15.45,
+            "PLL": 15.2
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:28.781Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12932,
+      "solveUrl": "https://reco.nz/solve/12932",
+      "sourcePage": 2,
+      "method": "ZB",
+      "tags": "",
+      "meta": {
+        "solver": "Xuanyi Geng",
+        "result": "4.28",
+        "puzzle": "3x3",
+        "date": "2026-04-01",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "D' R2 D2 U' R2 U L2 F2 L2 R2 F' L D' R U B U' B2 U L' B2 U'",
+      "inspection": "",
+      "algorithmAnnotated": "R' F R r2' F r2 U2' R2' U' R2 // xcross\nU2' R' L U L' // 2nd pair\nR U' R' F' U' F // 3rd pair\nU' S L' U L S' // 4th pair/ZBLS\nM2' U M2' U M' U2 M2' U2 M' // EPLL",
+      "algorithmPlain": "R' F R r2' F r2 U2' R2' U' R2 U2' R' L U L' R U' R' F' U' F U' S L' U L S' M2' U M2' U M' U2 M2' U2 M'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "xcross",
+          "moves": "R' F R r2' F r2 U2' R2' U' R2",
+          "moveCount": 10
+        },
+        {
+          "order": 2,
+          "label": "2nd pair",
+          "moves": "U2' R' L U L'",
+          "moveCount": 5
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "R U' R' F' U' F",
+          "moveCount": 6
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "U' S L' U L S'",
+          "moveCount": 6
+        },
+        {
+          "order": 5,
+          "label": "EPLL",
+          "moves": "M2' U M2' U M' U2 M2' U2 M'",
+          "moveCount": 9
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "ZBLS",
+          "ZBLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.28,
+            "F2L": 2.33,
+            "LL": 1.95,
+            "Cross+1": 1,
+            "ZBLS": 0.6,
+            "ZBLL": 1.95
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 54.4,
+            "LL": 45.6,
+            "Cross+1": 23.4,
+            "ZBLS": 14,
+            "ZBLL": 45.6
+          },
+          "STM": {
+            "Total": 36,
+            "F2L": 27,
+            "LL": 9,
+            "Cross+1": 10,
+            "ZBLS": 6,
+            "ZBLL": 9
+          },
+          "STPS": {
+            "Total": 8.41,
+            "F2L": 11.59,
+            "LL": 4.62,
+            "Cross+1": 10,
+            "ZBLS": 10,
+            "ZBLL": 4.62
+          },
+          "ETM": {
+            "Total": 36,
+            "F2L": 27,
+            "LL": 9,
+            "Cross+1": 10,
+            "ZBLS": 6,
+            "ZBLL": 9
+          },
+          "ETPS": {
+            "Total": 8.41,
+            "F2L": 11.59,
+            "LL": 4.62,
+            "Cross+1": 10,
+            "ZBLS": 10,
+            "ZBLL": 4.62
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:29.084Z",
+      "fetchMs": 181
+    },
+    {
+      "id": 12931,
+      "solveUrl": "https://reco.nz/solve/12931",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "4.57",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F B2 D' L' F' R B R F' R' U2 D' R2 U D L2 B2 L2 B2",
+      "inspection": "x' z",
+      "algorithmAnnotated": "x' z // inspection\nU' B' r' U D F' L U' R B' U' R2' // xcross\nU' R2 // 2nd pair\nU' R' D2 L U' L' U' D2' // 3rd pair\nR' F R F' U2' R U R' // 4th pair\nU' r R2' U' R U' R' U2 R U' r' R // OLL(CP)\nM2' U2 M2' U M2' U2 M2' // EPLL",
+      "algorithmPlain": "x' z U' B' r' U D F' L U' R B' U' R2' U' R2 U' R' D2 L U' L' U' D2' R' F R F' U2' R U R' U' r R2' U' R U' R' U2 R U' r' R M2' U2 M2' U M2' U2 M2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' z",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U' B' r' U D F' L U' R B' U' R2'",
+          "moveCount": 12
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' R2",
+          "moveCount": 2
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' R' D2 L U' L' U' D2'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "R' F R F' U2' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL(CP)",
+          "moves": "U' r R2' U' R U' R' U2 R U' r' R",
+          "moveCount": 12
+        },
+        {
+          "order": 7,
+          "label": "EPLL",
+          "moves": "M2' U2 M2' U M2' U2 M2'",
+          "moveCount": 7
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.57,
+            "F2L": 2.83,
+            "LL": 1.74,
+            "Cross+1": 1.43,
+            "OLS": 1.4,
+            "PLL": 0.87
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 61.9,
+            "LL": 38.1,
+            "Cross+1": 31.3,
+            "OLS": 30.6,
+            "PLL": 19
+          },
+          "STM": {
+            "Total": 49,
+            "F2L": 30,
+            "LL": 19,
+            "Cross+1": 12,
+            "OLS": 20,
+            "PLL": 7
+          },
+          "STPS": {
+            "Total": 10.72,
+            "F2L": 10.6,
+            "LL": 10.92,
+            "Cross+1": 8.39,
+            "OLS": 14.29,
+            "PLL": 8.05
+          },
+          "ETM": {
+            "Total": 49,
+            "F2L": 30,
+            "LL": 19,
+            "Cross+1": 12,
+            "OLS": 20,
+            "PLL": 7
+          },
+          "ETPS": {
+            "Total": 10.72,
+            "F2L": 10.6,
+            "LL": 10.92,
+            "Cross+1": 8.39,
+            "OLS": 14.29,
+            "PLL": 8.05
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:29.702Z",
+      "fetchMs": 498
+    },
+    {
+      "id": 12930,
+      "solveUrl": "https://reco.nz/solve/12930",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.99",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F2 L2 U B2 R2 U B2 U' L2 D2 F L' R2 F' R D' F' U2 B U' R",
+      "inspection": "x2 y",
+      "algorithmAnnotated": "x2 y // inspection\nr' U x U' L' D' F R' U R U' D // xcross\nR U' R' U' L U L2' // 2nd pair\nU L R U R' // 3rd pair\nU' L' U2 L U' F U F' // 4th pair\nU' R U R' U' R' F R F' // OLL\nR U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R' U' // PLL",
+      "algorithmPlain": "x2 y r' U x U' L' D' F R' U R U' D R U' R' U' L U L2' U L R U R' U' L' U2 L U' F U F' U' R U R' U' R' F R F' R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "r' U x U' L' D' F R' U R U' D",
+          "moveCount": 12
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "R U' R' U' L U L2'",
+          "moveCount": 7
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U L R U R'",
+          "moveCount": 5
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U' L' U2 L U' F U F'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U' R U R' U' R' F R F'",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R' U'",
+          "moveCount": 22
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.99,
+            "F2L": 2.33,
+            "LL": 1.66,
+            "Cross+1": 1.13,
+            "OLS": 1.2,
+            "PLL": 0.99
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 58.4,
+            "LL": 41.6,
+            "Cross+1": 28.3,
+            "OLS": 30.1,
+            "PLL": 24.8
+          },
+          "STM": {
+            "Total": 62,
+            "F2L": 31,
+            "LL": 31,
+            "Cross+1": 11,
+            "OLS": 17,
+            "PLL": 22
+          },
+          "STPS": {
+            "Total": 15.54,
+            "F2L": 13.3,
+            "LL": 18.67,
+            "Cross+1": 9.73,
+            "OLS": 14.17,
+            "PLL": 22.22
+          },
+          "ETM": {
+            "Total": 63,
+            "F2L": 32,
+            "LL": 31,
+            "Cross+1": 12,
+            "OLS": 17,
+            "PLL": 22
+          },
+          "ETPS": {
+            "Total": 15.79,
+            "F2L": 13.73,
+            "LL": 18.67,
+            "Cross+1": 10.62,
+            "OLS": 14.17,
+            "PLL": 22.22
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:30.316Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12929,
+      "solveUrl": "https://reco.nz/solve/12929",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.85",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F2 L2 R2 D2 R2 U' R2 D' B2 L2 F' L2 D2 F U' F' R' D' L' B' D",
+      "inspection": "x'",
+      "algorithmAnnotated": "x' // inspection\nL U D r U R U' F U R2 // xcross\nU' R' // 2nd pair\nU' L' U2 L U L' U' L // 3rd pair\ny' U' L' U2 L U' L' U L // 4th pair\nU F R U R' U' R U R' U' F' // OLL(CP)\nU2' R2' U R U R' U' R3 U' R' U R' U' // EPLL",
+      "algorithmPlain": "x' L U D r U R U' F U R2 U' R' U' L' U2 L U L' U' L y' U' L' U2 L U' L' U L U F R U R' U' R U R' U' F' U2' R2' U R U R' U' R3 U' R' U R' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x'",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "L U D r U R U' F U R2",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' R'",
+          "moveCount": 2
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' L' U2 L U L' U' L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "y' U' L' U2 L U' L' U L",
+          "moveCount": 9
+        },
+        {
+          "order": 6,
+          "label": "OLL(CP)",
+          "moves": "U F R U R' U' R U R' U' F'",
+          "moveCount": 11
+        },
+        {
+          "order": 7,
+          "label": "EPLL",
+          "moves": "U2' R2' U R U R' U' R3 U' R' U R' U'",
+          "moveCount": 13
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.85,
+            "F2L": 2.13,
+            "LL": 1.72,
+            "Cross+1": 0.93,
+            "OLS": 1.43,
+            "PLL": 0.85
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 55.3,
+            "LL": 44.7,
+            "Cross+1": 24.2,
+            "OLS": 37.1,
+            "PLL": 22.1
+          },
+          "STM": {
+            "Total": 52,
+            "F2L": 28,
+            "LL": 24,
+            "Cross+1": 10,
+            "OLS": 19,
+            "PLL": 13
+          },
+          "STPS": {
+            "Total": 13.51,
+            "F2L": 13.15,
+            "LL": 13.95,
+            "Cross+1": 10.75,
+            "OLS": 13.29,
+            "PLL": 15.29
+          },
+          "ETM": {
+            "Total": 53,
+            "F2L": 29,
+            "LL": 24,
+            "Cross+1": 10,
+            "OLS": 20,
+            "PLL": 13
+          },
+          "ETPS": {
+            "Total": 13.77,
+            "F2L": 13.62,
+            "LL": 13.95,
+            "Cross+1": 10.75,
+            "OLS": 13.99,
+            "PLL": 15.29
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:30.931Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12928,
+      "solveUrl": "https://reco.nz/solve/12928",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Yiheng Wang",
+        "result": "3.88",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Yancheng Spring Open 2026",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "U2 R2 U F2 D2 B2 R2 D' R2 B2 L U F L B R' U' F2 D R' F2",
+      "inspection": "x2",
+      "algorithmAnnotated": "x2 // inspection\nR B D R2 U' R' F L' U L U2' L U' L' u // xxcross\ny U R U2' R2' F R F' // 3rd pair\nL' U L U' F U F' // 4th pair\nU2 R' U' R' F R F' U R // OLL\nU' R U R' U' R' F R2 U' R' U' R U R' F' // PLL",
+      "algorithmPlain": "x2 R B D R2 U' R' F L' U L U2' L U' L' u y U R U2' R2' F R F' L' U L U' F U F' U2 R' U' R' F R F' U R U' R U R' U' R' F R2 U' R' U' R U R' F'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "R B D R2 U' R' F L' U L U2' L U' L' u",
+          "moveCount": 15
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "y U R U2' R2' F R F'",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "4th pair",
+          "moves": "L' U L U' F U F'",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "OLL",
+          "moves": "U2 R' U' R' F R F' U R",
+          "moveCount": 9
+        },
+        {
+          "order": 6,
+          "label": "PLL",
+          "moves": "U' R U R' U' R' F R2 U' R' U' R U R' F'",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 3.88,
+            "F2L": 2.63,
+            "LL": 1.25,
+            "Cross+1": 1.27,
+            "OLS": 1.2,
+            "PLL": 0.71
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 67.8,
+            "LL": 32.2,
+            "Cross+1": 32.7,
+            "OLS": 30.9,
+            "PLL": 18.3
+          },
+          "STM": {
+            "Total": 53,
+            "F2L": 29,
+            "LL": 24,
+            "Cross+1": 15,
+            "OLS": 16,
+            "PLL": 15
+          },
+          "STPS": {
+            "Total": 13.66,
+            "F2L": 11.03,
+            "LL": 19.2,
+            "Cross+1": 11.81,
+            "OLS": 13.33,
+            "PLL": 21.13
+          },
+          "ETM": {
+            "Total": 54,
+            "F2L": 30,
+            "LL": 24,
+            "Cross+1": 15,
+            "OLS": 16,
+            "PLL": 15
+          },
+          "ETPS": {
+            "Total": 13.92,
+            "F2L": 11.41,
+            "LL": 19.2,
+            "Cross+1": 11.81,
+            "OLS": 13.33,
+            "PLL": 21.13
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:31.240Z",
+      "fetchMs": 189
+    },
+    {
+      "id": 12927,
+      "solveUrl": "https://reco.nz/solve/12927",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Radosław Marcinek",
+        "result": "4.07",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Polish Championship 2025",
+        "reconstructor": "eff"
+      },
+      "scramble": "L2 B' D' L2 F L' B' R2 F2 D B2 L2 U' F2 R2 F2 D' F' R2 D",
+      "inspection": "y' x",
+      "algorithmAnnotated": "y' x // inspection\nD D r U2 R2 U R' D U' D // xcross\nR U R' // 2nd pair\ny' L' U' L U' L' U L // 3rd pair\nU' R U' R2' F R F' // 4th pair\nU R U R' U R' F R F' U' U R U2' R' // OLL(CP)\nU // AUF",
+      "algorithmPlain": "y' x D D r U2 R2 U R' D U' D R U R' y' L' U' L U' L' U L U' R U' R2' F R F' U R U R' U R' F R F' U' U R U2' R' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y' x",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "D D r U2 R2 U R' D U' D",
+          "moveCount": 10
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "R U R'",
+          "moveCount": 3
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y' L' U' L U' L' U L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U' R U' R2' F R F'",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "OLL(CP)",
+          "moves": "U R U R' U R' F R F' U' U R U2' R'",
+          "moveCount": 14
+        },
+        {
+          "order": 7,
+          "label": "AUF",
+          "moves": "U",
+          "moveCount": 1
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.07,
+            "F2L": 2.78,
+            "LL": 1.29,
+            "Cross+1": 1.2,
+            "OLS": 1.68,
+            "PLL": 0.17
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 68.3,
+            "LL": 31.7,
+            "Cross+1": 29.5,
+            "OLS": 41.3,
+            "PLL": 4.2
+          },
+          "STM": {
+            "Total": 42,
+            "F2L": 27,
+            "LL": 15,
+            "Cross+1": 10,
+            "OLS": 21,
+            "PLL": 1
+          },
+          "STPS": {
+            "Total": 10.32,
+            "F2L": 9.71,
+            "LL": 11.63,
+            "Cross+1": 8.33,
+            "OLS": 12.5,
+            "PLL": 5.88
+          },
+          "ETM": {
+            "Total": 43,
+            "F2L": 28,
+            "LL": 15,
+            "Cross+1": 10,
+            "OLS": 21,
+            "PLL": 1
+          },
+          "ETPS": {
+            "Total": 10.57,
+            "F2L": 10.07,
+            "LL": 11.63,
+            "Cross+1": 8.33,
+            "OLS": 12.5,
+            "PLL": 5.88
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:31.553Z",
+      "fetchMs": 193
+    },
+    {
+      "id": 12926,
+      "solveUrl": "https://reco.nz/solve/12926",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Radosław Marcinek",
+        "result": "6.27",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Polish Championship 2025",
+        "reconstructor": "eff"
+      },
+      "scramble": "F' U2 F D2 B R2 D2 F' U' B' L' U2 B2 L' D' U L B2 R",
+      "inspection": "y'",
+      "algorithmAnnotated": "y' // inspection\nF D L F' R U' R2' // xcross\ny' U R' U R U2 R U' R' // 2nd pair\nU' F U' F' // 3rd pair\ny U F R' F' R U2 R U' R' U2 R U2' R' // 4th pair/ZBLS\nU' L' U2 R U' R' U2 L U R U' R' U R U2' R' U2 // ZBLL",
+      "algorithmPlain": "y' F D L F' R U' R2' y' U R' U R U2 R U' R' U' F U' F' y U F R' F' R U2 R U' R' U2 R U2' R' U' L' U2 R U' R' U2 L U R U' R' U R U2' R' U2",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y'",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "F D L F' R U' R2'",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "y' U R' U R U2 R U' R'",
+          "moveCount": 9
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U' F U' F'",
+          "moveCount": 4
+        },
+        {
+          "order": 5,
+          "label": "4th pair/ZBLS",
+          "moves": "y U F R' F' R U2 R U' R' U2 R U2' R'",
+          "moveCount": 14
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U' L' U2 R U' R' U2 L U R U' R' U R U2' R' U2",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 6.27,
+            "F2L": 3.52,
+            "LL": 2.75,
+            "Cross+1": 1.2,
+            "OLS": 3.77,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 56.1,
+            "LL": 43.9,
+            "Cross+1": 19.1,
+            "OLS": 60.1,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 49,
+            "F2L": 32,
+            "LL": 17,
+            "Cross+1": 7,
+            "OLS": 30,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 7.81,
+            "F2L": 9.09,
+            "LL": 6.18,
+            "Cross+1": 5.83,
+            "OLS": 7.96,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 51,
+            "F2L": 34,
+            "LL": 17,
+            "Cross+1": 7,
+            "OLS": 31,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 8.13,
+            "F2L": 9.66,
+            "LL": 6.18,
+            "Cross+1": 5.83,
+            "OLS": 8.22,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:32.160Z",
+      "fetchMs": 486
+    },
+    {
+      "id": 12925,
+      "solveUrl": "https://reco.nz/solve/12925",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Radosław Marcinek",
+        "result": "4.37",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Polish Championship 2025",
+        "reconstructor": "eff"
+      },
+      "scramble": "F D' L2 D2 B2 L' R2 F2 R B2 D2 R2 U R B' D' L D' R' B2",
+      "inspection": "",
+      "algorithmAnnotated": "U' D L F' R // xcross\nU2 R U R' // 2nd pair\ny' R' F R F' R U' R' // 3rd pair\nd R U' R2' F R F' U2' F U R U' R' F' // 4th pair/ZBLS\nU' U' r U R' U' r' F R2 U' R' U' R U2 R' U' F' U' // ZBLL",
+      "algorithmPlain": "U' D L F' R U2 R U R' y' R' F R F' R U' R' d R U' R2' F R F' U2' F U R U' R' F' U' U' r U R' U' r' F R2 U' R' U' R U2 R' U' F' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "xcross",
+          "moves": "U' D L F' R",
+          "moveCount": 5
+        },
+        {
+          "order": 2,
+          "label": "2nd pair",
+          "moves": "U2 R U R'",
+          "moveCount": 4
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "y' R' F R F' R U' R'",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "d R U' R2' F R F' U2' F U R U' R' F'",
+          "moveCount": 14
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "U' U' r U R' U' r' F R2 U' R' U' R U2 R' U' F' U'",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.37,
+            "F2L": 2.57,
+            "LL": 1.8,
+            "Cross+1": 0.77,
+            "OLS": 2.79,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 58.8,
+            "LL": 41.2,
+            "Cross+1": 17.6,
+            "OLS": 63.8,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 48,
+            "F2L": 30,
+            "LL": 18,
+            "Cross+1": 5,
+            "OLS": 32,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 10.98,
+            "F2L": 11.67,
+            "LL": 10,
+            "Cross+1": 6.49,
+            "OLS": 11.47,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 49,
+            "F2L": 31,
+            "LL": 18,
+            "Cross+1": 5,
+            "OLS": 32,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 11.21,
+            "F2L": 12.06,
+            "LL": 10,
+            "Cross+1": 6.49,
+            "OLS": 11.47,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:32.776Z",
+      "fetchMs": 496
+    },
+    {
+      "id": 12924,
+      "solveUrl": "https://reco.nz/solve/12924",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Radosław Marcinek",
+        "result": "5.71",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Polish Championship 2025",
+        "reconstructor": "eff"
+      },
+      "scramble": "D' R B' R' B2 U2 B2 U2 F' L' F2 U' B2 U R2 U R2 L2 D'",
+      "inspection": "y' x'",
+      "algorithmAnnotated": "y' x' // inspection\nU' r D R U R U' D R' U R D U2 U L U' L' R' F R // xxcross\nd R U' R' U R' U' R // 3rd pair\nU2 R U' U R' U' R' F R F' R U' R' // 4th pair/ZBLS\nR2' F' R U R U' R' F R U2' R' U R U' R' U2 R U' // ZBLL",
+      "algorithmPlain": "y' x' U' r D R U R U' D R' U R D U2 U L U' L' R' F R d R U' R' U R' U' R U2 R U' U R' U' R' F R F' R U' R' R2' F' R U R U' R' F R U2' R' U R U' R' U2 R U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y' x'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "U' r D R U R U' D R' U R D U2 U L U' L' R' F R",
+          "moveCount": 20
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "d R U' R' U R' U' R",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "U2 R U' U R' U' R' F R F' R U' R'",
+          "moveCount": 13
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "R2' F' R U R U' R' F R U2' R' U R U' R' U2 R U'",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.71,
+            "F2L": 3.82,
+            "LL": 1.89,
+            "Cross+1": 2.03,
+            "OLS": 3.14,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 66.9,
+            "LL": 33.1,
+            "Cross+1": 35.6,
+            "OLS": 55,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 59,
+            "F2L": 41,
+            "LL": 18,
+            "Cross+1": 20,
+            "OLS": 31,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 10.33,
+            "F2L": 10.73,
+            "LL": 9.52,
+            "Cross+1": 9.85,
+            "OLS": 9.87,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 59,
+            "F2L": 41,
+            "LL": 18,
+            "Cross+1": 20,
+            "OLS": 31,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 10.33,
+            "F2L": 10.73,
+            "LL": 9.52,
+            "Cross+1": 9.85,
+            "OLS": 9.87,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:33.390Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12923,
+      "solveUrl": "https://reco.nz/solve/12923",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Radosław Marcinek",
+        "result": "6.40",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Polish Championship 2025",
+        "reconstructor": "eff"
+      },
+      "scramble": "U' F' L2 R2 B2 U' L2 B2 D' L2 D R B U L R U R2 F",
+      "inspection": "y2",
+      "algorithmAnnotated": "y2 // inspection\nD' R' r U' r' D D F2 U R' F R D // xxcross\ny U U R' F R F' R' U' R // 3rd pair\nU y' U R' U' R R' U R U R' U' R U2' R' U R // 4th pair/ZBLS\nU U' U R' U2' R U R' U R F U R U2' R' U R U R' F' U2' // ZBLL",
+      "algorithmPlain": "y2 D' R' r U' r' D D F2 U R' F R D y U U R' F R F' R' U' R U y' U R' U' R R' U R U R' U' R U2' R' U R U U' U R' U2' R U R' U R F U R U2' R' U R U R' F' U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "D' R' r U' r' D D F2 U R' F R D",
+          "moveCount": 13
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "y U U R' F R F' R' U' R",
+          "moveCount": 10
+        },
+        {
+          "order": 4,
+          "label": "4th pair/ZBLS",
+          "moves": "U y' U R' U' R R' U R U R' U' R U2' R' U R",
+          "moveCount": 17
+        },
+        {
+          "order": 5,
+          "label": "ZBLL",
+          "moves": "U U' U R' U2' R U R' U R F U R U2' R' U R U R' F' U2'",
+          "moveCount": 21
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 6.4,
+            "F2L": 3.85,
+            "LL": 2.55,
+            "Cross+1": 1.57,
+            "OLS": 3.73,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 60.2,
+            "LL": 39.8,
+            "Cross+1": 24.5,
+            "OLS": 58.3,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 59,
+            "F2L": 38,
+            "LL": 21,
+            "Cross+1": 13,
+            "OLS": 37,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 9.22,
+            "F2L": 9.87,
+            "LL": 8.24,
+            "Cross+1": 8.28,
+            "OLS": 9.92,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 61,
+            "F2L": 40,
+            "LL": 21,
+            "Cross+1": 13,
+            "OLS": 38,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 9.53,
+            "F2L": 10.39,
+            "LL": 8.24,
+            "Cross+1": 8.28,
+            "OLS": 10.19,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:34.002Z",
+      "fetchMs": 491
+    },
+    {
+      "id": 12922,
+      "solveUrl": "https://reco.nz/solve/12922",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Radosław Marcinek",
+        "result": "5.18",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "Polish Championship 2025",
+        "reconstructor": "eff"
+      },
+      "scramble": "F2 L2 D' L' F2 U B' F2 D2 R2 L2 D F2 D L' B L2 F",
+      "inspection": "z2",
+      "algorithmAnnotated": "z2 // inspection\nU' F D D R U' D R // xcross\nU L' U L // 2nd pair\nd' R U R' U' R U R' // 3rd pair\nL' U' L y' U' R U R' // 4th pair\nU2' R U R' U R U' B U' B' R' // OLL\nR' U' R U D' R2 U R' U R U' R U' R2' U D // PLL",
+      "algorithmPlain": "z2 U' F D D R U' D R U L' U L d' R U R' U' R U R' L' U' L y' U' R U R' U2' R U R' U R U' B U' B' R' R' U' R U D' R2 U R' U R U' R U' R2' U D",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U' F D D R U' D R",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U L' U L",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "d' R U R' U' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "L' U' L y' U' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U2' R U R' U R U' B U' B' R'",
+          "moveCount": 11
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "R' U' R U D' R2 U R' U R U' R U' R2' U D",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.18,
+            "F2L": 2.73,
+            "LL": 2.45,
+            "Cross+1": 1.08,
+            "OLS": 1.82,
+            "PLL": 1.31
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 52.7,
+            "LL": 47.3,
+            "Cross+1": 20.8,
+            "OLS": 35.1,
+            "PLL": 25.3
+          },
+          "STM": {
+            "Total": 54,
+            "F2L": 27,
+            "LL": 27,
+            "Cross+1": 8,
+            "OLS": 18,
+            "PLL": 16
+          },
+          "STPS": {
+            "Total": 10.42,
+            "F2L": 9.89,
+            "LL": 11.02,
+            "Cross+1": 7.41,
+            "OLS": 9.89,
+            "PLL": 12.21
+          },
+          "ETM": {
+            "Total": 55,
+            "F2L": 28,
+            "LL": 27,
+            "Cross+1": 8,
+            "OLS": 19,
+            "PLL": 16
+          },
+          "ETPS": {
+            "Total": 10.62,
+            "F2L": 10.26,
+            "LL": 11.02,
+            "Cross+1": 7.41,
+            "OLS": 10.44,
+            "PLL": 12.21
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:34.616Z",
+      "fetchMs": 493
+    },
+    {
+      "id": 12921,
+      "solveUrl": "https://reco.nz/solve/12921",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "4.40",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R2 U' B2 L2 D U2 L2 R2 B2 D R2 B L D L2 F' U2 L' F U",
+      "inspection": "y",
+      "algorithmAnnotated": "y // inspection\nD R' F D // cross\nL' U L2 U' L' // 1st pair\nU L' U L U' R U R' // 2nd pair\ny' R U2' R' U R U' R' // 3rd pair\nL U' L' // 4th pair\nr U' r' U' r U r' F' U F // OLL\nU U' R2 U R' U R' U' R U' R2 D U' R' U R D' U2' // PLL",
+      "algorithmPlain": "y D R' F D L' U L2 U' L' U L' U L U' R U R' y' R U2' R' U R U' R' L U' L' r U' r' U' r U r' F' U F U U' R2 U R' U R' U' R U' R2 D U' R' U R D' U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "D R' F D",
+          "moveCount": 4
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "L' U L2 U' L'",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U L' U L U' R U R'",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "y' R U2' R' U R U' R'",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "L U' L'",
+          "moveCount": 3
+        },
+        {
+          "order": 7,
+          "label": "OLL",
+          "moves": "r U' r' U' r U r' F' U F",
+          "moveCount": 10
+        },
+        {
+          "order": 8,
+          "label": "PLL",
+          "moves": "U U' R2 U R' U R' U' R U' R2 D U' R' U R D' U2'",
+          "moveCount": 18
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.4,
+            "F2L": 2.17,
+            "LL": 2.23,
+            "Cross+1": 0.87,
+            "OLS": 1.13,
+            "PLL": 1.37
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 49.3,
+            "LL": 50.7,
+            "Cross+1": 19.8,
+            "OLS": 25.7,
+            "PLL": 31.1
+          },
+          "STM": {
+            "Total": 55,
+            "F2L": 27,
+            "LL": 28,
+            "Cross+1": 9,
+            "OLS": 13,
+            "PLL": 18
+          },
+          "STPS": {
+            "Total": 12.5,
+            "F2L": 12.44,
+            "LL": 12.56,
+            "Cross+1": 10.34,
+            "OLS": 11.5,
+            "PLL": 13.14
+          },
+          "ETM": {
+            "Total": 56,
+            "F2L": 28,
+            "LL": 28,
+            "Cross+1": 9,
+            "OLS": 13,
+            "PLL": 18
+          },
+          "ETPS": {
+            "Total": 12.73,
+            "F2L": 12.9,
+            "LL": 12.56,
+            "Cross+1": 10.34,
+            "OLS": 11.5,
+            "PLL": 13.14
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:34.929Z",
+      "fetchMs": 193
+    },
+    {
+      "id": 12920,
+      "solveUrl": "https://reco.nz/solve/12920",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "4.60",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L2 U L' F2 D B2 R2 D R2 D' F2 D F' D U2 R2 B2 R' F2 D R2",
+      "inspection": "z y",
+      "algorithmAnnotated": "z y // inspection\nR' D2 r B R2' D L U' L U L' D' // xxcross\ny' R U' R' U R' U' R // 3rd pair\nU R U' R' U2 y' R' U' R // 4th pair\nU l' U' L U' L' U2 l // OLL\nU' R' U2 R' D' R U' R' D R U R U' R' U' R // PLL",
+      "algorithmPlain": "z y R' D2 r B R2' D L U' L U L' D' y' R U' R' U R' U' R U R U' R' U2 y' R' U' R U l' U' L U' L' U2 l U' R' U2 R' D' R U' R' D R U R U' R' U' R",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xxcross",
+          "moves": "R' D2 r B R2' D L U' L U L' D'",
+          "moveCount": 12
+        },
+        {
+          "order": 3,
+          "label": "3rd pair",
+          "moves": "y' R U' R' U R' U' R",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "4th pair",
+          "moves": "U R U' R' U2 y' R' U' R",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "OLL",
+          "moves": "U l' U' L U' L' U2 l",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "PLL",
+          "moves": "U' R' U2 R' D' R U' R' D R U R U' R' U' R",
+          "moveCount": 16
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.6,
+            "F2L": 2.63,
+            "LL": 1.97,
+            "Cross+1": 1.4,
+            "OLS": 1.5,
+            "PLL": 1.03
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 57.2,
+            "LL": 42.8,
+            "Cross+1": 30.4,
+            "OLS": 32.6,
+            "PLL": 22.4
+          },
+          "STM": {
+            "Total": 51,
+            "F2L": 27,
+            "LL": 24,
+            "Cross+1": 12,
+            "OLS": 16,
+            "PLL": 16
+          },
+          "STPS": {
+            "Total": 11.09,
+            "F2L": 10.27,
+            "LL": 12.18,
+            "Cross+1": 8.57,
+            "OLS": 10.67,
+            "PLL": 15.53
+          },
+          "ETM": {
+            "Total": 53,
+            "F2L": 29,
+            "LL": 24,
+            "Cross+1": 12,
+            "OLS": 17,
+            "PLL": 16
+          },
+          "ETPS": {
+            "Total": 11.52,
+            "F2L": 11.03,
+            "LL": 12.18,
+            "Cross+1": 8.57,
+            "OLS": 11.33,
+            "PLL": 15.53
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:35.540Z",
+      "fetchMs": 491
+    },
+    {
+      "id": 12919,
+      "solveUrl": "https://reco.nz/solve/12919",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "5.26",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L U B2 U F2 R2 U2 F2 U F2 U' F' U R2 B2 L D2 L2 F R2",
+      "inspection": "z' y",
+      "algorithmAnnotated": "z' y // inspection\nr' R D' U R2 D2 // xcross\nU' R' F R F' R' U' R // 2nd pair\nU R U' R' U' R U' R' U R U' R' // 3rd pair\nU2 L' U' L U L' U2 L // 4th pair\nr' U r2 U' r2' U' r2 U r' // OLL\nU' R2 U R' U R' U' R U' R2 U' D R' U R D' U // PLL",
+      "algorithmPlain": "z' y r' R D' U R2 D2 U' R' F R F' R' U' R U R U' R' U' R U' R' U R U' R' U2 L' U' L U L' U2 L r' U r2 U' r2' U' r2 U r' U' R2 U R' U R' U' R U' R2 U' D R' U R D' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z' y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "r' R D' U R2 D2",
+          "moveCount": 6
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' R' F R F' R' U' R",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U R U' R' U' R U' R' U R U' R'",
+          "moveCount": 12
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "U2 L' U' L U L' U2 L",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "r' U r2 U' r2' U' r2 U r'",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U' R2 U R' U R' U' R U' R2 U' D R' U R D' U",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.26,
+            "F2L": 2.7,
+            "LL": 2.56,
+            "Cross+1": 0.87,
+            "OLS": 1.6,
+            "PLL": 1.53
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 51.3,
+            "LL": 48.7,
+            "Cross+1": 16.5,
+            "OLS": 30.4,
+            "PLL": 29.1
+          },
+          "STM": {
+            "Total": 60,
+            "F2L": 34,
+            "LL": 26,
+            "Cross+1": 6,
+            "OLS": 17,
+            "PLL": 17
+          },
+          "STPS": {
+            "Total": 11.41,
+            "F2L": 12.59,
+            "LL": 10.16,
+            "Cross+1": 6.9,
+            "OLS": 10.63,
+            "PLL": 11.11
+          },
+          "ETM": {
+            "Total": 60,
+            "F2L": 34,
+            "LL": 26,
+            "Cross+1": 6,
+            "OLS": 17,
+            "PLL": 17
+          },
+          "ETPS": {
+            "Total": 11.41,
+            "F2L": 12.59,
+            "LL": 10.16,
+            "Cross+1": 6.9,
+            "OLS": 10.63,
+            "PLL": 11.11
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:36.152Z",
+      "fetchMs": 492
+    },
+    {
+      "id": 12918,
+      "solveUrl": "https://reco.nz/solve/12918",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "6.72",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L2 R2 D2 L2 D L2 F2 R2 F2 U2 B2 R' D' L R U' B R' F2 D2",
+      "inspection": "z' y",
+      "algorithmAnnotated": "z' y // inspection\nr' R U' U U' F' U L D2' R' F R // cross\nU' R' U R U2' f R f' // 1st pair\nR U R' U' R U' R' L U' L' // 2nd pair\nL' U L U' L' U' L // 3rd pair\nU' F' U' F R' F R F' // 4th pair\nU' R' U' F U R U' R' F' R // OLL\nU U' R' U' R U D' R2 U R' U R U' R U' R2' U' D U' // PLL",
+      "algorithmPlain": "z' y r' R U' U U' F' U L D2' R' F R U' R' U R U2' f R f' R U R' U' R U' R' L U' L' L' U L U' L' U' L U' F' U' F R' F R F' U' R' U' F U R U' R' F' R U U' R' U' R U D' R2 U R' U R U' R U' R2' U' D U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z' y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "r' R U' U U' F' U L D2' R' F R",
+          "moveCount": 12
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "U' R' U R U2' f R f'",
+          "moveCount": 8
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "R U R' U' R U' R' L U' L'",
+          "moveCount": 10
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "L' U L U' L' U' L",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "U' F' U' F R' F R F'",
+          "moveCount": 8
+        },
+        {
+          "order": 7,
+          "label": "OLL",
+          "moves": "U' R' U' F U R U' R' F' R",
+          "moveCount": 10
+        },
+        {
+          "order": 8,
+          "label": "PLL",
+          "moves": "U U' R' U' R U D' R2 U R' U R U' R U' R2' U' D U'",
+          "moveCount": 19
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 6.72,
+            "F2L": 4.17,
+            "LL": 2.55,
+            "Cross+1": 2.23,
+            "OLS": 1.3,
+            "PLL": 1.95
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 62.1,
+            "LL": 37.9,
+            "Cross+1": 33.2,
+            "OLS": 19.3,
+            "PLL": 29
+          },
+          "STM": {
+            "Total": 74,
+            "F2L": 45,
+            "LL": 29,
+            "Cross+1": 20,
+            "OLS": 18,
+            "PLL": 19
+          },
+          "STPS": {
+            "Total": 11.01,
+            "F2L": 10.79,
+            "LL": 11.37,
+            "Cross+1": 8.97,
+            "OLS": 13.85,
+            "PLL": 9.74
+          },
+          "ETM": {
+            "Total": 74,
+            "F2L": 45,
+            "LL": 29,
+            "Cross+1": 20,
+            "OLS": 18,
+            "PLL": 19
+          },
+          "ETPS": {
+            "Total": 11.01,
+            "F2L": 10.79,
+            "LL": 11.37,
+            "Cross+1": 8.97,
+            "OLS": 13.85,
+            "PLL": 9.74
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:36.768Z",
+      "fetchMs": 495
+    },
+    {
+      "id": 12917,
+      "solveUrl": "https://reco.nz/solve/12917",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "4.27",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R2 B2 L2 U' L2 D2 U B2 D R2 B2 L2 R D' L' D' F' R B2 L' R",
+      "inspection": "z y",
+      "algorithmAnnotated": "z y // inspection\nR' D2 r U D2 F' R // cross\nL' U L U R' U' R2 // 1st pair\nU' B r' U' r R' // 2nd pair\ny' R' U R2 U' R2' // 3rd pair\nU R U2' R' U R // 4th pair\nR U R' U' R' F R2 U R' U' F' // OLL\nU R U R' F' R U R' U' R' F R2 U' R' U // PLL",
+      "algorithmPlain": "z y R' D2 r U D2 F' R L' U L U R' U' R2 U' B r' U' r R' y' R' U R2 U' R2' U R U2' R' U R R U R' U' R' F R2 U R' U' F' U R U R' F' R U R' U' R' F R2 U' R' U",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "R' D2 r U D2 F' R",
+          "moveCount": 7
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "L' U L U R' U' R2",
+          "moveCount": 7
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U' B r' U' r R'",
+          "moveCount": 6
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "y' R' U R2 U' R2'",
+          "moveCount": 6
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "U R U2' R' U R",
+          "moveCount": 6
+        },
+        {
+          "order": 7,
+          "label": "OLL",
+          "moves": "R U R' U' R' F R2 U R' U' F'",
+          "moveCount": 11
+        },
+        {
+          "order": 8,
+          "label": "PLL",
+          "moves": "U R U R' F' R U R' U' R' F R2 U' R' U",
+          "moveCount": 15
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.27,
+            "F2L": 2.57,
+            "LL": 1.7,
+            "Cross+1": 1.27,
+            "OLS": 1.23,
+            "PLL": 0.84
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 60.2,
+            "LL": 39.8,
+            "Cross+1": 29.7,
+            "OLS": 28.8,
+            "PLL": 19.7
+          },
+          "STM": {
+            "Total": 57,
+            "F2L": 31,
+            "LL": 26,
+            "Cross+1": 14,
+            "OLS": 17,
+            "PLL": 15
+          },
+          "STPS": {
+            "Total": 13.35,
+            "F2L": 12.06,
+            "LL": 15.29,
+            "Cross+1": 11.02,
+            "OLS": 13.82,
+            "PLL": 17.86
+          },
+          "ETM": {
+            "Total": 58,
+            "F2L": 32,
+            "LL": 26,
+            "Cross+1": 14,
+            "OLS": 17,
+            "PLL": 15
+          },
+          "ETPS": {
+            "Total": 13.58,
+            "F2L": 12.45,
+            "LL": 15.29,
+            "Cross+1": 11.02,
+            "OLS": 13.82,
+            "PLL": 17.86
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:37.382Z",
+      "fetchMs": 494
+    },
+    {
+      "id": 12916,
+      "solveUrl": "https://reco.nz/solve/12916",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "5.46",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L' R D2 U2 R' B2 U2 R D2 B2 U2 F L' U' L' R2 D F D",
+      "inspection": "x' y2",
+      "algorithmAnnotated": "x' y2 // inspection\nF' r F' R2' D R' U' R' // xcross\nU' D U' L' U' L U' L' U L D' // 2nd pair\ny' U2 R U' R' d L' U L // 3rd pair\ny R U R' U' F' U F // 4th pair\nU R' U' R' F R F' U R // OLL\nU x R2' D2 R U R' D2 R U' R x' U' // PLL",
+      "algorithmPlain": "x' y2 F' r F' R2' D R' U' R' U' D U' L' U' L U' L' U L D' y' U2 R U' R' d L' U L y R U R' U' F' U F U R' U' R' F R F' U R U x R2' D2 R U R' D2 R U' R x' U'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "x' y2",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "F' r F' R2' D R' U' R'",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "U' D U' L' U' L U' L' U L D'",
+          "moveCount": 11
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "y' U2 R U' R' d L' U L",
+          "moveCount": 9
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "y R U R' U' F' U F",
+          "moveCount": 8
+        },
+        {
+          "order": 6,
+          "label": "OLL",
+          "moves": "U R' U' R' F R F' U R",
+          "moveCount": 9
+        },
+        {
+          "order": 7,
+          "label": "PLL",
+          "moves": "U x R2' D2 R U R' D2 R U' R x' U'",
+          "moveCount": 13
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.46,
+            "F2L": 3.27,
+            "LL": 2.19,
+            "Cross+1": 1.03,
+            "OLS": 1.4,
+            "PLL": 1.46
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 59.9,
+            "LL": 40.1,
+            "Cross+1": 18.9,
+            "OLS": 25.6,
+            "PLL": 26.7
+          },
+          "STM": {
+            "Total": 54,
+            "F2L": 34,
+            "LL": 20,
+            "Cross+1": 8,
+            "OLS": 16,
+            "PLL": 11
+          },
+          "STPS": {
+            "Total": 9.89,
+            "F2L": 10.4,
+            "LL": 9.13,
+            "Cross+1": 7.77,
+            "OLS": 11.43,
+            "PLL": 7.53
+          },
+          "ETM": {
+            "Total": 58,
+            "F2L": 36,
+            "LL": 22,
+            "Cross+1": 8,
+            "OLS": 17,
+            "PLL": 13
+          },
+          "ETPS": {
+            "Total": 10.62,
+            "F2L": 11.01,
+            "LL": 10.05,
+            "Cross+1": 7.77,
+            "OLS": 12.14,
+            "PLL": 8.9
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:37.999Z",
+      "fetchMs": 497
+    },
+    {
+      "id": 12915,
+      "solveUrl": "https://reco.nz/solve/12915",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "5.42",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "R2 U2 L2 F' R2 B2 D2 B F2 D2 F U B' R' B D2 L2 U R2",
+      "inspection": "z' y'",
+      "algorithmAnnotated": "z' y' // inspection\nR U' r R2' F D2 // cross\nL U' L2' U' L // 1st pair\nU' d' R' U R L' U L // 2nd pair\nR U2' R' U2 R U' R2' // 3rd pair\nU R U R' U' R // 4th pair\nU2 l' U' L U l F' L' F // COLL\nM2' U' M U2' M' U' M2' // EPLL",
+      "algorithmPlain": "z' y' R U' r R2' F D2 L U' L2' U' L U' d' R' U R L' U L R U2' R' U2 R U' R2' U R U R' U' R U2 l' U' L U l F' L' F M2' U' M U2' M' U' M2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z' y'",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "R U' r R2' F D2",
+          "moveCount": 6
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "L U' L2' U' L",
+          "moveCount": 5
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "U' d' R' U R L' U L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "R U2' R' U2 R U' R2'",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "U R U R' U' R",
+          "moveCount": 6
+        },
+        {
+          "order": 7,
+          "label": "COLL",
+          "moves": "U2 l' U' L U l F' L' F",
+          "moveCount": 9
+        },
+        {
+          "order": 8,
+          "label": "EPLL",
+          "moves": "M2' U' M U2' M' U' M2'",
+          "moveCount": 7
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 5.42,
+            "F2L": 2.83,
+            "LL": 2.59,
+            "Cross+1": 1.37,
+            "OLS": 2.1,
+            "PLL": 0.89
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 52.2,
+            "LL": 47.8,
+            "Cross+1": 25.3,
+            "OLS": 38.7,
+            "PLL": 16.4
+          },
+          "STM": {
+            "Total": 48,
+            "F2L": 32,
+            "LL": 16,
+            "Cross+1": 11,
+            "OLS": 15,
+            "PLL": 7
+          },
+          "STPS": {
+            "Total": 8.86,
+            "F2L": 11.31,
+            "LL": 6.18,
+            "Cross+1": 8.03,
+            "OLS": 7.14,
+            "PLL": 7.87
+          },
+          "ETM": {
+            "Total": 48,
+            "F2L": 32,
+            "LL": 16,
+            "Cross+1": 11,
+            "OLS": 15,
+            "PLL": 7
+          },
+          "ETPS": {
+            "Total": 8.86,
+            "F2L": 11.31,
+            "LL": 6.18,
+            "Cross+1": 8.03,
+            "OLS": 7.14,
+            "PLL": 7.87
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:38.610Z",
+      "fetchMs": 490
+    },
+    {
+      "id": 12914,
+      "solveUrl": "https://reco.nz/solve/12914",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "4.46",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "F2 R2 U' L2 U2 R2 F2 D2 B2 U2 B' D2 R B' D2 L' F2 D2 B' U",
+      "inspection": "z2 y",
+      "algorithmAnnotated": "z2 y // inspection\nU' R U D' L' R' B' R2 // xcross\ny' U' U2' L' U L R' U R // 2nd pair\nU R U R' U' L' U L // 3rd pair\nR U' R' U' R U R' U R' F R F' // 4th pair\nU' F R' F' r U R U' r' // ZBLL",
+      "algorithmPlain": "z2 y U' R U D' L' R' B' R2 y' U' U2' L' U L R' U R U R U R' U' L' U L R U' R' U' R U R' U R' F R F' U' F R' F' r U R U' r'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "z2 y",
+          "moveCount": 2
+        },
+        {
+          "order": 2,
+          "label": "xcross",
+          "moves": "U' R U D' L' R' B' R2",
+          "moveCount": 8
+        },
+        {
+          "order": 3,
+          "label": "2nd pair",
+          "moves": "y' U' U2' L' U L R' U R",
+          "moveCount": 9
+        },
+        {
+          "order": 4,
+          "label": "3rd pair",
+          "moves": "U R U R' U' L' U L",
+          "moveCount": 8
+        },
+        {
+          "order": 5,
+          "label": "4th pair",
+          "moves": "R U' R' U' R U R' U R' F R F'",
+          "moveCount": 12
+        },
+        {
+          "order": 6,
+          "label": "ZBLL",
+          "moves": "U' F R' F' r U R U' r'",
+          "moveCount": 9
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.46,
+            "F2L": 3.13,
+            "LL": 1.33,
+            "Cross+1": 0.83,
+            "OLS": 2.09,
+            "PLL": 0
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 70.2,
+            "LL": 29.8,
+            "Cross+1": 18.6,
+            "OLS": 46.9,
+            "PLL": 0
+          },
+          "STM": {
+            "Total": 45,
+            "F2L": 36,
+            "LL": 9,
+            "Cross+1": 8,
+            "OLS": 21,
+            "PLL": 0
+          },
+          "STPS": {
+            "Total": 10.09,
+            "F2L": 11.5,
+            "LL": 6.77,
+            "Cross+1": 9.64,
+            "OLS": 10.05,
+            "PLL": null
+          },
+          "ETM": {
+            "Total": 46,
+            "F2L": 37,
+            "LL": 9,
+            "Cross+1": 8,
+            "OLS": 21,
+            "PLL": 0
+          },
+          "ETPS": {
+            "Total": 10.31,
+            "F2L": 11.82,
+            "LL": 6.77,
+            "Cross+1": 9.64,
+            "OLS": 10.05,
+            "PLL": null
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:39.224Z",
+      "fetchMs": 493
+    },
+    {
+      "id": 12913,
+      "solveUrl": "https://reco.nz/solve/12913",
+      "sourcePage": 2,
+      "method": "CFOP",
+      "tags": "",
+      "meta": {
+        "solver": "Dylan Miller",
+        "result": "4.67",
+        "puzzle": "3x3",
+        "date": "2026-03-31",
+        "competition": "unofficial",
+        "reconstructor": "Stewy"
+      },
+      "scramble": "L2 U2 F' U2 L' U F' D R F2 U2 R D2 R D2 R' B2 L' U2 B2 F",
+      "inspection": "y2",
+      "algorithmAnnotated": "y2 // inspection\nB U R2' D R // cross\nU' R' U' R // 1st pair\ny' U2 R U' R2' U R // 2nd pair\nU2 R U' R' L' U L // 3rd pair\nU R U R' F R' F' R // 4th pair\nr' R2 U R' U R U2' R' U M' // OLL\nU R U R' U' D R2 U' R U' R' U R' U R2 D' U2' // PLL",
+      "algorithmPlain": "y2 B U R2' D R U' R' U' R y' U2 R U' R2' U R U2 R U' R' L' U L U R U R' F R' F' R r' R2 U R' U R U2' R' U M' U R U R' U' D R2 U' R U' R' U R' U R2 D' U2'",
+      "steps": [
+        {
+          "order": 1,
+          "label": "inspection",
+          "moves": "y2",
+          "moveCount": 1
+        },
+        {
+          "order": 2,
+          "label": "cross",
+          "moves": "B U R2' D R",
+          "moveCount": 5
+        },
+        {
+          "order": 3,
+          "label": "1st pair",
+          "moves": "U' R' U' R",
+          "moveCount": 4
+        },
+        {
+          "order": 4,
+          "label": "2nd pair",
+          "moves": "y' U2 R U' R2' U R",
+          "moveCount": 7
+        },
+        {
+          "order": 5,
+          "label": "3rd pair",
+          "moves": "U2 R U' R' L' U L",
+          "moveCount": 7
+        },
+        {
+          "order": 6,
+          "label": "4th pair",
+          "moves": "U R U R' F R' F' R",
+          "moveCount": 8
+        },
+        {
+          "order": 7,
+          "label": "OLL",
+          "moves": "r' R2 U R' U R U2' R' U M'",
+          "moveCount": 10
+        },
+        {
+          "order": 8,
+          "label": "PLL",
+          "moves": "U R U R' U' D R2 U' R U' R' U R' U R2 D' U2'",
+          "moveCount": 17
+        }
+      ],
+      "stats": {
+        "columns": [
+          "Total",
+          "F2L",
+          "LL",
+          "Cross+1",
+          "OLS",
+          "PLL"
+        ],
+        "rows": {
+          "Time": {
+            "Total": 4.67,
+            "F2L": 2.37,
+            "LL": 2.3,
+            "Cross+1": 0.7,
+            "OLS": 1.27,
+            "PLL": 1.47
+          },
+          "Split": {
+            "Total": 100,
+            "F2L": 50.7,
+            "LL": 49.3,
+            "Cross+1": 15,
+            "OLS": 27.2,
+            "PLL": 31.5
+          },
+          "STM": {
+            "Total": 57,
+            "F2L": 30,
+            "LL": 27,
+            "Cross+1": 9,
+            "OLS": 18,
+            "PLL": 17
+          },
+          "STPS": {
+            "Total": 12.21,
+            "F2L": 12.66,
+            "LL": 11.74,
+            "Cross+1": 12.86,
+            "OLS": 14.17,
+            "PLL": 11.56
+          },
+          "ETM": {
+            "Total": 58,
+            "F2L": 31,
+            "LL": 27,
+            "Cross+1": 9,
+            "OLS": 18,
+            "PLL": 17
+          },
+          "ETPS": {
+            "Total": 12.42,
+            "F2L": 13.08,
+            "LL": 11.74,
+            "Cross+1": 12.86,
+            "OLS": 14.17,
+            "PLL": 11.56
+          }
+        }
+      },
+      "ok": true,
+      "fetchedAt": "2026-04-10T11:05:39.840Z",
+      "fetchMs": 495
+    }
+  ]
+}

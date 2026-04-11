@@ -1,0 +1,598 @@
+{
+  "generatedAt": "2026-04-11T08:33:01.566Z",
+  "sourceBenchmark": "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-3x3-style-benchmark.json",
+  "sourceBenchmarks": [
+    "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-3x3-style-benchmark.json"
+  ],
+  "sourcePlayers": "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-3x3-style-details.json",
+  "modes": [
+    "strict",
+    "zb"
+  ],
+  "minSamples": 10,
+  "objective": "aggressive",
+  "aggressiveBlend": 0.85,
+  "aggressiveExtrapolation": 1.35,
+  "targetOnly": false,
+  "targetCenter": {
+    "rotationRate": 0.05496808205548239,
+    "aufRate": 0.3763996882336239,
+    "wideTurnRate": 0.036195009126622095
+  },
+  "playerCount": 15,
+  "speedProfile": {
+    "generatedFrom": "lowest-average-duration-across-strict-cfop-solvers",
+    "playerCount": 0,
+    "bestStyle": null,
+    "preset": "speed",
+    "rotationWeight": 5,
+    "aufWeight": 1,
+    "wideTurnWeight": 2
+  },
+  "globalSpeedStyleProfile": {
+    "generatedFrom": "lowest-average-duration-across-strict-cfop-solvers",
+    "playerCount": 0,
+    "bestStyle": null,
+    "preset": "speed",
+    "rotationWeight": 5,
+    "aufWeight": 1,
+    "wideTurnWeight": 2
+  },
+  "players": [
+    {
+      "solver": "Max Park",
+      "solveCount": 959,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 1,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 2,
+        "aufWeight": 0,
+        "wideTurnWeight": 3
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 959,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.05173048600883652,
+        "aufRate": 0.39126723791672247,
+        "wideTurnRate": 0.04771388405409024
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Feliks Zemdegs",
+      "solveCount": 771,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 3,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 3,
+        "aufWeight": 2,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 771,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.06031216851038036,
+        "aufRate": 0.3754681445240621,
+        "wideTurnRate": 0.03180135518368584
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Tymon Kolasiński",
+      "solveCount": 756,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 5,
+        "zblsWeight": 3
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 2,
+        "aufWeight": 3,
+        "wideTurnWeight": 3
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 756,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.04310965944569864,
+        "aufRate": 0.3721360295883568,
+        "wideTurnRate": 0.04652000576396561
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Yiheng Wang",
+      "solveCount": 584,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 1,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 2,
+        "aufWeight": 2,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 584,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.04864405786915012,
+        "aufRate": 0.374655889416037,
+        "wideTurnRate": 0.03329819012475839
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Matty Hiroto Inaba",
+      "solveCount": 515,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 2,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 3,
+        "aufWeight": 2,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 515,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.054496276755601564,
+        "aufRate": 0.3756970648145056,
+        "wideTurnRate": 0.0390022372858717
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Dylan Miller",
+      "solveCount": 441,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 1,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 2,
+        "aufWeight": 2,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 441,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.05053747387279785,
+        "aufRate": 0.3734696924455061,
+        "wideTurnRate": 0.03631681098835473
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Luke Garrett",
+      "solveCount": 310,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 2,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 4,
+        "aufWeight": 2,
+        "wideTurnWeight": 1
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 310,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.06300133689839572,
+        "aufRate": 0.37566844919786097,
+        "wideTurnRate": 0.02801916221033868
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Ruihang Xu",
+      "solveCount": 308,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 1,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 3,
+        "aufWeight": 3,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 308,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.05930977474684852,
+        "aufRate": 0.37089274643521386,
+        "wideTurnRate": 0.033168009919404835
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Seung Hyuk Nahm",
+      "solveCount": 272,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 3,
+        "zblsWeight": 2
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 3,
+        "aufWeight": 3,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 272,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.055193798449612405,
+        "aufRate": 0.3727131782945736,
+        "wideTurnRate": 0.0328062015503876
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Xuanyi Geng",
+      "solveCount": 240,
+      "primaryMethod": "ZB",
+      "primaryMethodGroup": "ZB",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 11,
+        "zblsWeight": 11
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 2,
+        "aufWeight": 5,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 240,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.0452020202020202,
+        "aufRate": 0.36254208754208755,
+        "wideTurnRate": 0.04040404040404041
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Leo Borromeo",
+      "solveCount": 238,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 3,
+        "zblsWeight": 2
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 3,
+        "aufWeight": 1,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 238,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.05412107950401167,
+        "aufRate": 0.3785557986870897,
+        "wideTurnRate": 0.031582786287381474
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Kyle Santucci",
+      "solveCount": 197,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 4,
+        "zblsWeight": 2
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 2,
+        "aufWeight": 2,
+        "wideTurnWeight": 3
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 197,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.04449407318330184,
+        "aufRate": 0.3765676000687167,
+        "wideTurnRate": 0.04569661570176946
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Bill Wang",
+      "solveCount": 196,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 3,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 3,
+        "aufWeight": 1,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 196,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.061061490896599104,
+        "aufRate": 0.38363105462040537,
+        "wideTurnRate": 0.031776021985571966
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Jayden McNeill",
+      "solveCount": 181,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 2,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 4,
+        "aufWeight": 2,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 181,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.06737987987987988,
+        "aufRate": 0.3738738738738739,
+        "wideTurnRate": 0.03331456456456457
+      },
+      "observations": [],
+      "speedObservations": []
+    },
+    {
+      "solver": "Sei Sugama",
+      "solveCount": 101,
+      "primaryMethod": "CFOP",
+      "primaryMethodGroup": "CFOP",
+      "mixedEligible": true,
+      "caseBias": {
+        "xcrossWeight": 1,
+        "xxcrossWeight": 1,
+        "zbllWeight": 1,
+        "zblsWeight": 1
+      },
+      "learnedStyleProfile": {
+        "preset": "ml-aggressive",
+        "rotationWeight": 4,
+        "aufWeight": 0,
+        "wideTurnWeight": 2
+      },
+      "speedStyleProfile": null,
+      "speedBestStyle": null,
+      "speedObservation": null,
+      "coverage": {
+        "totalSolves": 101,
+        "benchmarkSamples": 2,
+        "benchmarkModes": [
+          "strict",
+          "zb"
+        ]
+      },
+      "targetFingerprint": {
+        "rotationRate": 0.06592765460910152,
+        "aufRate": 0.38885647607934654,
+        "wideTurnRate": 0.03150525087514586
+      },
+      "observations": [],
+      "speedObservations": []
+    }
+  ]
+}

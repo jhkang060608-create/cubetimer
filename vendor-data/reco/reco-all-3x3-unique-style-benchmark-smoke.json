@@ -1,0 +1,491 @@
+{
+  "generatedAt": "2026-04-10T12:45:46.438Z",
+  "sourceInput": "vendor-data/reco/reco-all-details.json",
+  "parameters": {
+    "offset": 0,
+    "limit": 8,
+    "scrambleConcurrency": 3,
+    "crossColor": "D",
+    "mode": "strict",
+    "timeoutMs": 12000,
+    "styles": [
+      "legacy",
+      "balanced",
+      "rotationless",
+      "low-auf"
+    ]
+  },
+  "sampleCount": 8,
+  "summaries": [
+    {
+      "style": "legacy",
+      "attempted": 8,
+      "solved": 6,
+      "failed": 2,
+      "successRate": 0.75,
+      "avgMoveCountSolved": 62.5,
+      "p50MoveCountSolved": 62,
+      "p90MoveCountSolved": 64,
+      "avgDurationMs": 5146.625,
+      "p50DurationMs": 3099,
+      "p95DurationMs": 11642,
+      "avgNodesSolved": 227271.83333333334
+    },
+    {
+      "style": "balanced",
+      "attempted": 8,
+      "solved": 7,
+      "failed": 1,
+      "successRate": 0.875,
+      "avgMoveCountSolved": 63.714285714285715,
+      "p50MoveCountSolved": 65,
+      "p90MoveCountSolved": 70,
+      "avgDurationMs": 4020.625,
+      "p50DurationMs": 3027,
+      "p95DurationMs": 3316,
+      "avgNodesSolved": 227812.7142857143
+    },
+    {
+      "style": "rotationless",
+      "attempted": 8,
+      "solved": 7,
+      "failed": 1,
+      "successRate": 0.875,
+      "avgMoveCountSolved": 63.714285714285715,
+      "p50MoveCountSolved": 65,
+      "p90MoveCountSolved": 70,
+      "avgDurationMs": 3981.875,
+      "p50DurationMs": 2997,
+      "p95DurationMs": 3331,
+      "avgNodesSolved": 227812.7142857143
+    },
+    {
+      "style": "low-auf",
+      "attempted": 8,
+      "solved": 5,
+      "failed": 3,
+      "successRate": 0.625,
+      "avgMoveCountSolved": 65,
+      "p50MoveCountSolved": 64,
+      "p90MoveCountSolved": 71,
+      "avgDurationMs": 6090.25,
+      "p50DurationMs": 2932,
+      "p95DurationMs": 11694,
+      "avgNodesSolved": 222110.4
+    }
+  ],
+  "comparisonVsLegacy": [
+    {
+      "style": "balanced",
+      "deltaSuccessRate": 0.125,
+      "deltaAvgMoveCountSolved": 1.2142857142857153,
+      "deltaAvgDurationMs": -1126
+    },
+    {
+      "style": "rotationless",
+      "deltaSuccessRate": 0.125,
+      "deltaAvgMoveCountSolved": 1.2142857142857153,
+      "deltaAvgDurationMs": -1164.75
+    },
+    {
+      "style": "low-auf",
+      "deltaSuccessRate": -0.125,
+      "deltaAvgMoveCountSolved": 2.5,
+      "deltaAvgDurationMs": 943.625
+    }
+  ],
+  "runsByStyle": {
+    "legacy": [
+      {
+        "sampleIndex": 1,
+        "id": 12999,
+        "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 63,
+        "nodes": 240970,
+        "durationMs": 3197
+      },
+      {
+        "sampleIndex": 2,
+        "id": 12998,
+        "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 62,
+        "nodes": 241688,
+        "durationMs": 3247
+      },
+      {
+        "sampleIndex": 3,
+        "id": 12997,
+        "scramble": "B' R' U2 L2 U' L2 D R2 D' L B D R2 F' U F2 U2 L2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "F2L_SEARCH_LIMIT",
+        "moveCount": null,
+        "nodes": 340055,
+        "durationMs": 11642
+      },
+      {
+        "sampleIndex": 4,
+        "id": 12996,
+        "scramble": "B2 L2 D' L2 R2 D L2 F U' R2 B L' B' L2 B D2 L U'",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 64,
+        "nodes": 220160,
+        "durationMs": 3099
+      },
+      {
+        "sampleIndex": 5,
+        "id": 12995,
+        "scramble": "B2 D B U2 L' F2 R U2 F2 U2 R' D' L' D B2 D' F D2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 57,
+        "nodes": 220679,
+        "durationMs": 3018
+      },
+      {
+        "sampleIndex": 6,
+        "id": 12994,
+        "scramble": "F' U2 R2 D2 B2 D2 L D2 L2 D B' L2 R' B D' B2 L2 B2",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": false,
+        "reason": "TIMEOUT_12000MS",
+        "moveCount": null,
+        "nodes": null,
+        "durationMs": 12152
+      },
+      {
+        "sampleIndex": 7,
+        "id": 12993,
+        "scramble": "L' D' F' D' B' U2 F' L2 B L2 F' D U L F2 D' L D'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 67,
+        "nodes": 220637,
+        "durationMs": 2520
+      },
+      {
+        "sampleIndex": 8,
+        "id": 12992,
+        "scramble": "D R' U' D F2 B U' B F2 L' B2 U2 L2 B2 L2 B2 D' F'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 62,
+        "nodes": 219497,
+        "durationMs": 2298
+      }
+    ],
+    "balanced": [
+      {
+        "sampleIndex": 1,
+        "id": 12999,
+        "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 65,
+        "nodes": 241215,
+        "durationMs": 3296
+      },
+      {
+        "sampleIndex": 2,
+        "id": 12998,
+        "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 70,
+        "nodes": 241389,
+        "durationMs": 3316
+      },
+      {
+        "sampleIndex": 3,
+        "id": 12997,
+        "scramble": "B' R' U2 L2 U' L2 D R2 D' L B D R2 F' U F2 U2 L2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "F2L_SEARCH_LIMIT",
+        "moveCount": null,
+        "nodes": 340055,
+        "durationMs": 11598
+      },
+      {
+        "sampleIndex": 4,
+        "id": 12996,
+        "scramble": "B2 L2 D' L2 R2 D L2 F U' R2 B L' B' L2 B D2 L U'",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 58,
+        "nodes": 219968,
+        "durationMs": 3091
+      },
+      {
+        "sampleIndex": 5,
+        "id": 12995,
+        "scramble": "B2 D B U2 L' F2 R U2 F2 U2 R' D' L' D B2 D' F D2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 58,
+        "nodes": 219954,
+        "durationMs": 3027
+      },
+      {
+        "sampleIndex": 6,
+        "id": 12994,
+        "scramble": "F' U2 R2 D2 B2 D2 L D2 L2 D B' L2 R' B D' B2 L2 B2",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 60,
+        "nodes": 240800,
+        "durationMs": 3009
+      },
+      {
+        "sampleIndex": 7,
+        "id": 12993,
+        "scramble": "L' D' F' D' B' U2 F' L2 B L2 F' D U L F2 D' L D'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 65,
+        "nodes": 211094,
+        "durationMs": 2417
+      },
+      {
+        "sampleIndex": 8,
+        "id": 12992,
+        "scramble": "D R' U' D F2 B U' B F2 L' B2 U2 L2 B2 L2 B2 D' F'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 70,
+        "nodes": 220269,
+        "durationMs": 2411
+      }
+    ],
+    "rotationless": [
+      {
+        "sampleIndex": 1,
+        "id": 12999,
+        "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 65,
+        "nodes": 241215,
+        "durationMs": 2997
+      },
+      {
+        "sampleIndex": 2,
+        "id": 12998,
+        "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 70,
+        "nodes": 241389,
+        "durationMs": 3331
+      },
+      {
+        "sampleIndex": 3,
+        "id": 12997,
+        "scramble": "B' R' U2 L2 U' L2 D R2 D' L B D R2 F' U F2 U2 L2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "F2L_SEARCH_LIMIT",
+        "moveCount": null,
+        "nodes": 340055,
+        "durationMs": 11550
+      },
+      {
+        "sampleIndex": 4,
+        "id": 12996,
+        "scramble": "B2 L2 D' L2 R2 D L2 F U' R2 B L' B' L2 B D2 L U'",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 58,
+        "nodes": 219968,
+        "durationMs": 2983
+      },
+      {
+        "sampleIndex": 5,
+        "id": 12995,
+        "scramble": "B2 D B U2 L' F2 R U2 F2 U2 R' D' L' D B2 D' F D2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 58,
+        "nodes": 219954,
+        "durationMs": 2998
+      },
+      {
+        "sampleIndex": 6,
+        "id": 12994,
+        "scramble": "F' U2 R2 D2 B2 D2 L D2 L2 D B' L2 R' B D' B2 L2 B2",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 60,
+        "nodes": 240800,
+        "durationMs": 3130
+      },
+      {
+        "sampleIndex": 7,
+        "id": 12993,
+        "scramble": "L' D' F' D' B' U2 F' L2 B L2 F' D U L F2 D' L D'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 65,
+        "nodes": 211094,
+        "durationMs": 2491
+      },
+      {
+        "sampleIndex": 8,
+        "id": 12992,
+        "scramble": "D R' U' D F2 B U' B F2 L' B2 U2 L2 B2 L2 B2 D' F'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 70,
+        "nodes": 220269,
+        "durationMs": 2375
+      }
+    ],
+    "low-auf": [
+      {
+        "sampleIndex": 1,
+        "id": 12999,
+        "scramble": "B2 D2 U' R2 U F2 R2 L B' U' R' D2 R2 F U' R D2 U2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "F2L_SEARCH_LIMIT",
+        "moveCount": null,
+        "nodes": 340047,
+        "durationMs": 11694
+      },
+      {
+        "sampleIndex": 2,
+        "id": 12998,
+        "scramble": "F2 U2 R2 F D2 L2 U2 F2 D' L2 F2 U L2 R B2 D B2 L2 F2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "F2L_SEARCH_LIMIT",
+        "moveCount": null,
+        "nodes": 340200,
+        "durationMs": 11798
+      },
+      {
+        "sampleIndex": 3,
+        "id": 12997,
+        "scramble": "B' R' U2 L2 U' L2 D R2 D' L B D R2 F' U F2 U2 L2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": false,
+        "reason": "F2L_SEARCH_LIMIT",
+        "moveCount": null,
+        "nodes": 340055,
+        "durationMs": 11354
+      },
+      {
+        "sampleIndex": 4,
+        "id": 12996,
+        "scramble": "B2 L2 D' L2 R2 D L2 F U' R2 B L' B' L2 B D2 L U'",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 58,
+        "nodes": 219968,
+        "durationMs": 2844
+      },
+      {
+        "sampleIndex": 5,
+        "id": 12995,
+        "scramble": "B2 D B U2 L' F2 R U2 F2 U2 R' D' L' D B2 D' F D2",
+        "sourceSolver": "Yi Shen",
+        "sourceMethod": "ZB",
+        "ok": true,
+        "reason": null,
+        "moveCount": 64,
+        "nodes": 220129,
+        "durationMs": 2932
+      },
+      {
+        "sampleIndex": 6,
+        "id": 12994,
+        "scramble": "F' U2 R2 D2 B2 D2 L D2 L2 D B' L2 R' B D' B2 L2 B2",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 71,
+        "nodes": 241266,
+        "durationMs": 3326
+      },
+      {
+        "sampleIndex": 7,
+        "id": 12993,
+        "scramble": "L' D' F' D' B' U2 F' L2 B L2 F' D U L F2 D' L D'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 71,
+        "nodes": 209837,
+        "durationMs": 2517
+      },
+      {
+        "sampleIndex": 8,
+        "id": 12992,
+        "scramble": "D R' U' D F2 B U' B F2 L' B2 U2 L2 B2 L2 B2 D' F'",
+        "sourceSolver": "Brian Johnson",
+        "sourceMethod": "CFOP",
+        "ok": true,
+        "reason": null,
+        "moveCount": 61,
+        "nodes": 219352,
+        "durationMs": 2257
+      }
+    ]
+  }
+}

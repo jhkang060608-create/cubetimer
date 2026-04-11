@@ -1,0 +1,1230 @@
+[strict] [1/5629] #1 scramble id=13027 (sample 1)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [2/5629] #2 scramble id=13026 (sample 2)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [3/5629] #3 scramble id=13025 (sample 3)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [4/5629] #1 scramble id=13024 (sample 4)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [5/5629] #2 scramble id=13023 (sample 5)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [6/5629] #3 scramble id=13022 (sample 6)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [7/5629] #1 scramble id=13021 (sample 7)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [8/5629] #2 scramble id=12988 (sample 8)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [9/5629] #3 scramble id=12987 (sample 9)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [10/5629] #1 scramble id=12986 (sample 10)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [11/5629] #2 scramble id=12985 (sample 11)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [12/5629] #3 scramble id=12984 (sample 12)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [13/5629] #1 scramble id=12982 (sample 13)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [14/5629] #2 scramble id=12981 (sample 14)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [15/5629] #3 scramble id=12980 (sample 15)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [16/5629] #1 scramble id=12979 (sample 16)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [17/5629] #2 scramble id=12977 (sample 17)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [18/5629] #3 scramble id=12976 (sample 18)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [19/5629] #1 scramble id=12975 (sample 19)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [20/5629] #2 scramble id=12974 (sample 20)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [21/5629] #3 scramble id=12968 (sample 21)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [22/5629] #1 scramble id=12967 (sample 22)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [23/5629] #2 scramble id=12966 (sample 23)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [24/5629] #3 scramble id=12965 (sample 24)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [25/5629] #1 scramble id=12964 (sample 25)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [26/5629] #2 scramble id=12963 (sample 26)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [27/5629] #3 scramble id=12962 (sample 27)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [28/5629] #1 scramble id=12961 (sample 28)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [29/5629] #2 scramble id=12960 (sample 29)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [30/5629] #3 scramble id=12959 (sample 30)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [31/5629] #1 scramble id=12943 (sample 31)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [32/5629] #2 scramble id=12937 (sample 32)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [33/5629] #3 scramble id=12936 (sample 33)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [34/5629] #1 scramble id=12935 (sample 34)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [35/5629] #2 scramble id=12934 (sample 35)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [36/5629] #3 scramble id=12933 (sample 36)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [37/5629] #1 scramble id=12932 (sample 37)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [38/5629] #2 scramble id=12931 (sample 38)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [39/5629] #3 scramble id=12930 (sample 39)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [40/5629] #1 scramble id=12929 (sample 40)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [41/5629] #2 scramble id=12928 (sample 41)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [42/5629] #3 scramble id=12921 (sample 42)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [43/5629] #1 scramble id=12920 (sample 43)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [44/5629] #2 scramble id=12919 (sample 44)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [45/5629] #3 scramble id=12918 (sample 45)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [46/5629] #1 scramble id=12917 (sample 46)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [47/5629] #2 scramble id=12916 (sample 47)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [48/5629] #3 scramble id=12915 (sample 48)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [49/5629] #1 scramble id=12914 (sample 49)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [50/5629] #2 scramble id=12913 (sample 50)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [51/5629] #3 scramble id=12912 (sample 51)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [52/5629] #1 scramble id=12911 (sample 52)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [53/5629] #2 scramble id=12910 (sample 53)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [54/5629] #3 scramble id=12891 (sample 54)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [55/5629] #1 scramble id=12874 (sample 55)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [56/5629] #2 scramble id=12873 (sample 56)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [57/5629] #3 scramble id=12872 (sample 57)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [58/5629] #1 scramble id=12871 (sample 58)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [59/5629] #2 scramble id=12870 (sample 59)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [60/5629] #3 scramble id=12869 (sample 60)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [61/5629] #1 scramble id=12868 (sample 61)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [62/5629] #2 scramble id=12867 (sample 62)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [63/5629] #3 scramble id=12866 (sample 63)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [64/5629] #1 scramble id=12865 (sample 64)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [65/5629] #2 scramble id=12859 (sample 65)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [66/5629] #3 scramble id=12858 (sample 66)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [67/5629] #1 scramble id=12857 (sample 67)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [68/5629] #2 scramble id=12856 (sample 68)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [69/5629] #3 scramble id=12855 (sample 69)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [70/5629] #1 scramble id=12854 (sample 70)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [71/5629] #2 scramble id=12853 (sample 71)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [72/5629] #3 scramble id=12852 (sample 72)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [73/5629] #1 scramble id=12851 (sample 73)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [74/5629] #2 scramble id=12850 (sample 74)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [75/5629] #3 scramble id=12849 (sample 75)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [76/5629] #1 scramble id=12848 (sample 76)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [77/5629] #2 scramble id=12847 (sample 77)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [78/5629] #3 scramble id=12846 (sample 78)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [79/5629] #1 scramble id=12845 (sample 79)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [80/5629] #2 scramble id=12844 (sample 80)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [81/5629] #3 scramble id=12843 (sample 81)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [82/5629] #1 scramble id=12832 (sample 82)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [83/5629] #2 scramble id=12831 (sample 83)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [84/5629] #3 scramble id=12830 (sample 84)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [85/5629] #1 scramble id=12829 (sample 85)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [86/5629] #2 scramble id=12828 (sample 86)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [87/5629] #3 scramble id=12827 (sample 87)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [88/5629] #1 scramble id=12826 (sample 88)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [89/5629] #2 scramble id=12825 (sample 89)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [90/5629] #3 scramble id=12824 (sample 90)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [91/5629] #1 scramble id=12823 (sample 91)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [92/5629] #2 scramble id=12822 (sample 92)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [93/5629] #3 scramble id=12821 (sample 93)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [94/5629] #1 scramble id=12820 (sample 94)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [95/5629] #2 scramble id=12819 (sample 95)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [96/5629] #3 scramble id=12818 (sample 96)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [97/5629] #1 scramble id=12817 (sample 97)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [98/5629] #2 scramble id=12816 (sample 98)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [99/5629] #3 scramble id=12815 (sample 99)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [100/5629] #1 scramble id=12814 (sample 100)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [101/5629] #2 scramble id=12813 (sample 101)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [102/5629] #3 scramble id=12812 (sample 102)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [103/5629] #1 scramble id=12790 (sample 103)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [104/5629] #2 scramble id=12789 (sample 104)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [105/5629] #3 scramble id=12788 (sample 105)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [106/5629] #1 scramble id=12787 (sample 106)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [107/5629] #2 scramble id=12786 (sample 107)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [108/5629] #3 scramble id=12780 (sample 108)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [109/5629] #1 scramble id=12779 (sample 109)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [110/5629] #2 scramble id=12778 (sample 110)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [111/5629] #3 scramble id=12777 (sample 111)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [112/5629] #1 scramble id=12776 (sample 112)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [113/5629] #2 scramble id=12775 (sample 113)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [114/5629] #3 scramble id=12774 (sample 114)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [115/5629] #1 scramble id=12773 (sample 115)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [116/5629] #2 scramble id=12772 (sample 116)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [117/5629] #3 scramble id=12771 (sample 117)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [118/5629] #1 scramble id=12770 (sample 118)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [119/5629] #2 scramble id=12769 (sample 119)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [120/5629] #3 scramble id=12768 (sample 120)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [121/5629] #1 scramble id=12767 (sample 121)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [122/5629] #2 scramble id=12766 (sample 122)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [123/5629] #3 scramble id=12765 (sample 123)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [124/5629] #1 scramble id=12764 (sample 124)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [125/5629] #2 scramble id=12763 (sample 125)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [126/5629] #3 scramble id=12762 (sample 126)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [127/5629] #1 scramble id=12761 (sample 127)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [128/5629] #2 scramble id=12760 (sample 128)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [129/5629] #3 scramble id=12759 (sample 129)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [130/5629] #1 scramble id=12758 (sample 130)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [131/5629] #2 scramble id=12757 (sample 131)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [132/5629] #3 scramble id=12756 (sample 132)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [133/5629] #1 scramble id=12755 (sample 133)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [134/5629] #2 scramble id=12754 (sample 134)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [135/5629] #3 scramble id=12753 (sample 135)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [136/5629] #1 scramble id=12752 (sample 136)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [137/5629] #2 scramble id=12751 (sample 137)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [138/5629] #3 scramble id=12750 (sample 138)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [139/5629] #1 scramble id=12749 (sample 139)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [140/5629] #2 scramble id=12748 (sample 140)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [141/5629] #3 scramble id=12747 (sample 141)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [142/5629] #1 scramble id=12746 (sample 142)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [143/5629] #2 scramble id=12745 (sample 143)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [144/5629] #3 scramble id=12744 (sample 144)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [145/5629] #1 scramble id=12743 (sample 145)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [146/5629] #2 scramble id=12738 (sample 146)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [147/5629] #3 scramble id=12737 (sample 147)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [148/5629] #1 scramble id=12736 (sample 148)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [149/5629] #2 scramble id=12735 (sample 149)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [150/5629] #3 scramble id=12734 (sample 150)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [151/5629] #1 scramble id=12721 (sample 151)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [152/5629] #2 scramble id=12720 (sample 152)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [153/5629] #3 scramble id=12719 (sample 153)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [154/5629] #1 scramble id=12718 (sample 154)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [155/5629] #2 scramble id=12706 (sample 155)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [156/5629] #3 scramble id=12705 (sample 156)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [157/5629] #1 scramble id=12704 (sample 157)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [158/5629] #2 scramble id=12703 (sample 158)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [159/5629] #3 scramble id=12702 (sample 159)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [160/5629] #1 scramble id=12695 (sample 160)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [161/5629] #2 scramble id=12694 (sample 161)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [162/5629] #3 scramble id=12693 (sample 162)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [163/5629] #1 scramble id=12692 (sample 163)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [164/5629] #2 scramble id=12691 (sample 164)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [165/5629] #3 scramble id=12690 (sample 165)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [166/5629] #1 scramble id=12689 (sample 166)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [167/5629] #2 scramble id=12688 (sample 167)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [168/5629] #3 scramble id=12687 (sample 168)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [169/5629] #1 scramble id=12686 (sample 169)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [170/5629] #2 scramble id=12685 (sample 170)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [171/5629] #3 scramble id=12684 (sample 171)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [172/5629] #1 scramble id=12683 (sample 172)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [173/5629] #2 scramble id=12669 (sample 173)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [174/5629] #3 scramble id=12668 (sample 174)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [175/5629] #1 scramble id=12667 (sample 175)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [176/5629] #2 scramble id=12666 (sample 176)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [177/5629] #3 scramble id=12665 (sample 177)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [178/5629] #1 scramble id=12642 (sample 178)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [179/5629] #2 scramble id=12641 (sample 179)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [180/5629] #3 scramble id=12640 (sample 180)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [181/5629] #1 scramble id=12639 (sample 181)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [182/5629] #2 scramble id=12638 (sample 182)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [183/5629] #3 scramble id=12636 (sample 183)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [184/5629] #1 scramble id=12635 (sample 184)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [185/5629] #2 scramble id=12634 (sample 185)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [186/5629] #3 scramble id=12631 (sample 186)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [187/5629] #1 scramble id=12630 (sample 187)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [188/5629] #2 scramble id=12629 (sample 188)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [189/5629] #3 scramble id=12628 (sample 189)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [190/5629] #1 scramble id=12627 (sample 190)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [191/5629] #2 scramble id=12626 (sample 191)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [192/5629] #3 scramble id=12625 (sample 192)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [193/5629] #1 scramble id=12624 (sample 193)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [194/5629] #2 scramble id=12623 (sample 194)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [195/5629] #3 scramble id=12622 (sample 195)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [196/5629] #1 scramble id=12621 (sample 196)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [197/5629] #2 scramble id=12620 (sample 197)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [198/5629] #3 scramble id=12613 (sample 198)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [199/5629] #1 scramble id=12612 (sample 199)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [200/5629] #2 scramble id=12611 (sample 200)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [201/5629] #3 scramble id=12610 (sample 201)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [202/5629] #1 scramble id=12609 (sample 202)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [203/5629] #2 scramble id=12608 (sample 203)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [204/5629] #3 scramble id=12607 (sample 204)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [205/5629] #1 scramble id=12606 (sample 205)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [206/5629] #2 scramble id=12605 (sample 206)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [207/5629] #3 scramble id=12604 (sample 207)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [208/5629] #1 scramble id=12603 (sample 208)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [209/5629] #2 scramble id=12602 (sample 209)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [210/5629] #3 scramble id=12601 (sample 210)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [211/5629] #1 scramble id=12600 (sample 211)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [212/5629] #2 scramble id=12599 (sample 212)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [213/5629] #3 scramble id=12598 (sample 213)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [214/5629] #1 scramble id=12597 (sample 214)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [215/5629] #2 scramble id=12596 (sample 215)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [216/5629] #3 scramble id=12595 (sample 216)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [217/5629] #1 scramble id=12594 (sample 217)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [218/5629] #2 scramble id=12593 (sample 218)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [219/5629] #3 scramble id=12592 (sample 219)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [220/5629] #1 scramble id=12591 (sample 220)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [221/5629] #2 scramble id=12590 (sample 221)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [222/5629] #3 scramble id=12589 (sample 222)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [223/5629] #1 scramble id=12588 (sample 223)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [224/5629] #2 scramble id=12587 (sample 224)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [225/5629] #3 scramble id=12586 (sample 225)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [226/5629] #1 scramble id=12585 (sample 226)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [227/5629] #2 scramble id=12584 (sample 227)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [228/5629] #3 scramble id=12583 (sample 228)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [229/5629] #1 scramble id=12582 (sample 229)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [230/5629] #2 scramble id=12581 (sample 230)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [231/5629] #3 scramble id=12580 (sample 231)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [232/5629] #1 scramble id=12579 (sample 232)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [233/5629] #2 scramble id=12578 (sample 233)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [234/5629] #3 scramble id=12577 (sample 234)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [235/5629] #1 scramble id=12576 (sample 235)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [236/5629] #2 scramble id=12575 (sample 236)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [237/5629] #3 scramble id=12563 (sample 237)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [238/5629] #1 scramble id=12561 (sample 238)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [239/5629] #2 scramble id=12560 (sample 239)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [240/5629] #3 scramble id=12559 (sample 240)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [241/5629] #1 scramble id=12558 (sample 241)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [242/5629] #2 scramble id=12556 (sample 242)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [243/5629] #3 scramble id=12552 (sample 243)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [244/5629] #1 scramble id=12551 (sample 244)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [245/5629] #2 scramble id=12550 (sample 245)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms
+[strict] [246/5629] #3 scramble id=12549 (sample 246)
+  - legacy: fail TIMEOUT_3000MS, 3150ms
+  - balanced: fail TIMEOUT_3000MS, 3150ms
+  - rotationless: fail TIMEOUT_3000MS, 3150ms
+  - low-auf: fail TIMEOUT_3000MS, 3150ms

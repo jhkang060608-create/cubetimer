@@ -1,0 +1,1240 @@
+{
+  "generatedAt": "2026-04-11T08:32:56.857Z",
+  "sourceInput": "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-all-3x3-gte100-details.json",
+  "sourceStyleProfileInput": "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-3x3-style-features.json",
+  "parameters": {
+    "offset": 0,
+    "limit": 20000,
+    "perSolverLimit": 1,
+    "scrambleConcurrency": 2,
+    "crossColor": "D",
+    "timeoutMs": 5000,
+    "timeoutMsByMode": {
+      "strict": 3000,
+      "zb": 5000
+    },
+    "styles": [
+      "legacy",
+      "balanced",
+      "rotationless",
+      "low-auf"
+    ],
+    "modes": [
+      "strict"
+    ],
+    "methods": [
+      "CFOP",
+      "ZB"
+    ],
+    "includedMethods": [
+      "CFOP",
+      "ZB"
+    ],
+    "samplingPolicy": "balanced-per-solver",
+    "acceptanceGate": "balanced"
+  },
+  "sampleCount": 15,
+  "samplesPerSolver": 1,
+  "solverCoverage": {
+    "count": 15,
+    "solvers": [
+      {
+        "solver": "Bill Wang",
+        "samples": 1
+      },
+      {
+        "solver": "Dylan Miller",
+        "samples": 1
+      },
+      {
+        "solver": "Feliks Zemdegs",
+        "samples": 1
+      },
+      {
+        "solver": "Jayden McNeill",
+        "samples": 1
+      },
+      {
+        "solver": "Kyle Santucci",
+        "samples": 1
+      },
+      {
+        "solver": "Leo Borromeo",
+        "samples": 1
+      },
+      {
+        "solver": "Luke Garrett",
+        "samples": 1
+      },
+      {
+        "solver": "Matty Hiroto Inaba",
+        "samples": 1
+      },
+      {
+        "solver": "Max Park",
+        "samples": 1
+      },
+      {
+        "solver": "Ruihang Xu",
+        "samples": 1
+      },
+      {
+        "solver": "Sei Sugama",
+        "samples": 1
+      },
+      {
+        "solver": "Seung Hyuk Nahm",
+        "samples": 1
+      },
+      {
+        "solver": "Tymon Kolasiński",
+        "samples": 1
+      },
+      {
+        "solver": "Xuanyi Geng",
+        "samples": 1
+      },
+      {
+        "solver": "Yiheng Wang",
+        "samples": 1
+      }
+    ]
+  },
+  "methodCoverage": {
+    "CFOP": 13,
+    "ZB": 2
+  },
+  "distanceConfig": {
+    "weights": {
+      "rotationRate": 3,
+      "aufRate": 3,
+      "wideTurnRate": 2,
+      "avgF2LSegmentLen": 1,
+      "zbUsageRate": 1
+    },
+    "normalizationBounds": {
+      "rotationRate": {
+        "min": 0.0434945834897147,
+        "max": 0.06824009361739067
+      },
+      "aufRate": {
+        "min": 0.3617306174015612,
+        "max": 0.3908477049439183
+      },
+      "wideTurnRate": {
+        "min": 0.028378682365439088,
+        "max": 0.04850646753360209
+      },
+      "avgF2LSegmentLen": {
+        "min": 0,
+        "max": 0.000001
+      },
+      "zbUsageRate": {
+        "min": 0.017123287671232876,
+        "max": 1
+      }
+    }
+  },
+  "gateThresholds": {
+    "deltaSuccessRateMin": 0.01,
+    "deltaAvgMoveCountSolvedMax": -0.5,
+    "deltaP95DurationRatioMax": 0.1,
+    "deltaStyleDistancePctMax": -0.05
+  },
+  "summariesByMode": {
+    "strict": [
+      {
+        "style": "legacy",
+        "attempted": 15,
+        "solved": 0,
+        "failed": 15,
+        "successRate": 0,
+        "avgMoveCountSolved": null,
+        "p50MoveCountSolved": null,
+        "p90MoveCountSolved": null,
+        "avgDurationMs": 3150,
+        "p50DurationMs": 3150,
+        "p95DurationMs": 3150,
+        "avgNodesSolved": null,
+        "avgStyleDistanceToTarget": null,
+        "p50StyleDistanceToTarget": null,
+        "failureReasonCounts": {
+          "TIMEOUT_3000MS": 15
+        },
+        "failureStageCounts": {
+          "UNKNOWN": 15
+        }
+      },
+      {
+        "style": "balanced",
+        "attempted": 15,
+        "solved": 0,
+        "failed": 15,
+        "successRate": 0,
+        "avgMoveCountSolved": null,
+        "p50MoveCountSolved": null,
+        "p90MoveCountSolved": null,
+        "avgDurationMs": 3150,
+        "p50DurationMs": 3150,
+        "p95DurationMs": 3150,
+        "avgNodesSolved": null,
+        "avgStyleDistanceToTarget": null,
+        "p50StyleDistanceToTarget": null,
+        "failureReasonCounts": {
+          "TIMEOUT_3000MS": 15
+        },
+        "failureStageCounts": {
+          "UNKNOWN": 15
+        }
+      },
+      {
+        "style": "rotationless",
+        "attempted": 15,
+        "solved": 0,
+        "failed": 15,
+        "successRate": 0,
+        "avgMoveCountSolved": null,
+        "p50MoveCountSolved": null,
+        "p90MoveCountSolved": null,
+        "avgDurationMs": 3150,
+        "p50DurationMs": 3150,
+        "p95DurationMs": 3150,
+        "avgNodesSolved": null,
+        "avgStyleDistanceToTarget": null,
+        "p50StyleDistanceToTarget": null,
+        "failureReasonCounts": {
+          "TIMEOUT_3000MS": 15
+        },
+        "failureStageCounts": {
+          "UNKNOWN": 15
+        }
+      },
+      {
+        "style": "low-auf",
+        "attempted": 15,
+        "solved": 0,
+        "failed": 15,
+        "successRate": 0,
+        "avgMoveCountSolved": null,
+        "p50MoveCountSolved": null,
+        "p90MoveCountSolved": null,
+        "avgDurationMs": 3150,
+        "p50DurationMs": 3150,
+        "p95DurationMs": 3150,
+        "avgNodesSolved": null,
+        "avgStyleDistanceToTarget": null,
+        "p50StyleDistanceToTarget": null,
+        "failureReasonCounts": {
+          "TIMEOUT_3000MS": 15
+        },
+        "failureStageCounts": {
+          "UNKNOWN": 15
+        }
+      }
+    ]
+  },
+  "comparisonVsLegacyByMode": {
+    "strict": [
+      {
+        "mode": "strict",
+        "style": "balanced",
+        "deltaSuccessRate": 0,
+        "deltaAvgMoveCountSolved": null,
+        "deltaAvgDurationMs": 0,
+        "deltaP95DurationMs": 0,
+        "deltaP95DurationRatio": 0,
+        "deltaStyleDistanceToTarget": null,
+        "deltaStyleDistancePct": null
+      },
+      {
+        "mode": "strict",
+        "style": "rotationless",
+        "deltaSuccessRate": 0,
+        "deltaAvgMoveCountSolved": null,
+        "deltaAvgDurationMs": 0,
+        "deltaP95DurationMs": 0,
+        "deltaP95DurationRatio": 0,
+        "deltaStyleDistanceToTarget": null,
+        "deltaStyleDistancePct": null
+      },
+      {
+        "mode": "strict",
+        "style": "low-auf",
+        "deltaSuccessRate": 0,
+        "deltaAvgMoveCountSolved": null,
+        "deltaAvgDurationMs": 0,
+        "deltaP95DurationMs": 0,
+        "deltaP95DurationRatio": 0,
+        "deltaStyleDistanceToTarget": null,
+        "deltaStyleDistancePct": null
+      }
+    ]
+  },
+  "gateEvaluationByMode": {
+    "strict": [
+      {
+        "mode": "strict",
+        "style": "balanced",
+        "pass": false,
+        "checks": {
+          "successRate": false,
+          "avgMoveCountSolved": false,
+          "p95DurationRatio": true,
+          "styleDistancePct": false
+        },
+        "thresholds": {
+          "deltaSuccessRateMin": 0.01,
+          "deltaAvgMoveCountSolvedMax": -0.5,
+          "deltaP95DurationRatioMax": 0.1,
+          "deltaStyleDistancePctMax": -0.05
+        }
+      },
+      {
+        "mode": "strict",
+        "style": "rotationless",
+        "pass": false,
+        "checks": {
+          "successRate": false,
+          "avgMoveCountSolved": false,
+          "p95DurationRatio": true,
+          "styleDistancePct": false
+        },
+        "thresholds": {
+          "deltaSuccessRateMin": 0.01,
+          "deltaAvgMoveCountSolvedMax": -0.5,
+          "deltaP95DurationRatioMax": 0.1,
+          "deltaStyleDistancePctMax": -0.05
+        }
+      },
+      {
+        "mode": "strict",
+        "style": "low-auf",
+        "pass": false,
+        "checks": {
+          "successRate": false,
+          "avgMoveCountSolved": false,
+          "p95DurationRatio": true,
+          "styleDistancePct": false
+        },
+        "thresholds": {
+          "deltaSuccessRateMin": 0.01,
+          "deltaAvgMoveCountSolvedMax": -0.5,
+          "deltaP95DurationRatioMax": 0.1,
+          "deltaStyleDistancePctMax": -0.05
+        }
+      }
+    ]
+  },
+  "runsByMode": {
+    "strict": {
+      "legacy": [
+        {
+          "sampleIndex": 1,
+          "id": 13027,
+          "scramble": "U2 L' F' R U' F2 L D L2 F' B R2 F' U2 R2 F' U2 F U'",
+          "sourceSolver": "Dylan Miller",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 2,
+          "id": 12988,
+          "scramble": "F2 L2 D B2 R2 U2 L2 U L2 U B L' B' R' D U' B2 L B' D2 R",
+          "sourceSolver": "Xuanyi Geng",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 3,
+          "id": 12983,
+          "scramble": "D F2 D' B2 U' L2 U' L2 U' R U' R D F L' D2 L B' F2 L",
+          "sourceSolver": "Yiheng Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 4,
+          "id": 12937,
+          "scramble": "D' F2 L2 D L2 F2 U' R2 B2 D' B2 R' D' R2 D2 B D' B F2 D R'",
+          "sourceSolver": "Ruihang Xu",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 5,
+          "id": 12891,
+          "scramble": "D L2 D B2 F2 D R2 B2 U L B F' R2 F' U' B' L2 F R U",
+          "sourceSolver": "Matty Hiroto Inaba",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 6,
+          "id": 12874,
+          "scramble": "U B' L' B R F' U2 D2 R U2 F2 D R2 U' D' R2 B2 L'",
+          "sourceSolver": "Seung Hyuk Nahm",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 7,
+          "id": 12847,
+          "scramble": "B2 D2 B L2 B' U2 L2 R2 F L2 F D2 U' R2 F L2 B2 F L F2",
+          "sourceSolver": "Kyle Santucci",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 8,
+          "id": 12832,
+          "scramble": "L2 R2 U' R2 B2 F2 D' R2 B2 U' B' F R F' L U R' U2 R U2",
+          "sourceSolver": "Leo Borromeo",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 9,
+          "id": 12748,
+          "scramble": "R U2 L2 R2 B' D2 L2 B L2 F' R' F2 D' L2 B L B F' U'",
+          "sourceSolver": "Tymon Kolasiński",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 10,
+          "id": 12721,
+          "scramble": "D R U' L' D2 B2 F2 R2 U2 L R2 B R' B R U L' F2 D'",
+          "sourceSolver": "Max Park",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 11,
+          "id": 12577,
+          "scramble": "F2 R2 D2 U F2 D L2 U2 R2 B2 R' F2 R D B L U R' D2 R'",
+          "sourceSolver": "Luke Garrett",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 12,
+          "id": 12263,
+          "scramble": "B' F U2 R2 U2 F D2 B2 R' F L2 R F2 D' L' D' U' L R2",
+          "sourceSolver": "Feliks Zemdegs",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 13,
+          "id": 9302,
+          "scramble": "U' R' F2 L2 U2 B L2 R2 B L2 D' F2 L' B' R B D R2 F'",
+          "sourceSolver": "Bill Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 14,
+          "id": 8063,
+          "scramble": "U' R2 B2 R' B D' R2 L F2 R F' D2 F2 D F2 L2 D2 F2 D2",
+          "sourceSolver": "Jayden McNeill",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 15,
+          "id": 4646,
+          "scramble": "D2 F2 D B' U' B' L' R2 D' B2 D2 B2 R2 U' F2 U' R2 B L' D2",
+          "sourceSolver": "Sei Sugama",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        }
+      ],
+      "balanced": [
+        {
+          "sampleIndex": 1,
+          "id": 13027,
+          "scramble": "U2 L' F' R U' F2 L D L2 F' B R2 F' U2 R2 F' U2 F U'",
+          "sourceSolver": "Dylan Miller",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 2,
+          "id": 12988,
+          "scramble": "F2 L2 D B2 R2 U2 L2 U L2 U B L' B' R' D U' B2 L B' D2 R",
+          "sourceSolver": "Xuanyi Geng",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 3,
+          "id": 12983,
+          "scramble": "D F2 D' B2 U' L2 U' L2 U' R U' R D F L' D2 L B' F2 L",
+          "sourceSolver": "Yiheng Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 4,
+          "id": 12937,
+          "scramble": "D' F2 L2 D L2 F2 U' R2 B2 D' B2 R' D' R2 D2 B D' B F2 D R'",
+          "sourceSolver": "Ruihang Xu",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 5,
+          "id": 12891,
+          "scramble": "D L2 D B2 F2 D R2 B2 U L B F' R2 F' U' B' L2 F R U",
+          "sourceSolver": "Matty Hiroto Inaba",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 6,
+          "id": 12874,
+          "scramble": "U B' L' B R F' U2 D2 R U2 F2 D R2 U' D' R2 B2 L'",
+          "sourceSolver": "Seung Hyuk Nahm",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 7,
+          "id": 12847,
+          "scramble": "B2 D2 B L2 B' U2 L2 R2 F L2 F D2 U' R2 F L2 B2 F L F2",
+          "sourceSolver": "Kyle Santucci",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 8,
+          "id": 12832,
+          "scramble": "L2 R2 U' R2 B2 F2 D' R2 B2 U' B' F R F' L U R' U2 R U2",
+          "sourceSolver": "Leo Borromeo",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 9,
+          "id": 12748,
+          "scramble": "R U2 L2 R2 B' D2 L2 B L2 F' R' F2 D' L2 B L B F' U'",
+          "sourceSolver": "Tymon Kolasiński",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 10,
+          "id": 12721,
+          "scramble": "D R U' L' D2 B2 F2 R2 U2 L R2 B R' B R U L' F2 D'",
+          "sourceSolver": "Max Park",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 11,
+          "id": 12577,
+          "scramble": "F2 R2 D2 U F2 D L2 U2 R2 B2 R' F2 R D B L U R' D2 R'",
+          "sourceSolver": "Luke Garrett",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 12,
+          "id": 12263,
+          "scramble": "B' F U2 R2 U2 F D2 B2 R' F L2 R F2 D' L' D' U' L R2",
+          "sourceSolver": "Feliks Zemdegs",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 13,
+          "id": 9302,
+          "scramble": "U' R' F2 L2 U2 B L2 R2 B L2 D' F2 L' B' R B D R2 F'",
+          "sourceSolver": "Bill Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 14,
+          "id": 8063,
+          "scramble": "U' R2 B2 R' B D' R2 L F2 R F' D2 F2 D F2 L2 D2 F2 D2",
+          "sourceSolver": "Jayden McNeill",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 15,
+          "id": 4646,
+          "scramble": "D2 F2 D B' U' B' L' R2 D' B2 D2 B2 R2 U' F2 U' R2 B L' D2",
+          "sourceSolver": "Sei Sugama",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        }
+      ],
+      "rotationless": [
+        {
+          "sampleIndex": 1,
+          "id": 13027,
+          "scramble": "U2 L' F' R U' F2 L D L2 F' B R2 F' U2 R2 F' U2 F U'",
+          "sourceSolver": "Dylan Miller",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 2,
+          "id": 12988,
+          "scramble": "F2 L2 D B2 R2 U2 L2 U L2 U B L' B' R' D U' B2 L B' D2 R",
+          "sourceSolver": "Xuanyi Geng",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 3,
+          "id": 12983,
+          "scramble": "D F2 D' B2 U' L2 U' L2 U' R U' R D F L' D2 L B' F2 L",
+          "sourceSolver": "Yiheng Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 4,
+          "id": 12937,
+          "scramble": "D' F2 L2 D L2 F2 U' R2 B2 D' B2 R' D' R2 D2 B D' B F2 D R'",
+          "sourceSolver": "Ruihang Xu",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 5,
+          "id": 12891,
+          "scramble": "D L2 D B2 F2 D R2 B2 U L B F' R2 F' U' B' L2 F R U",
+          "sourceSolver": "Matty Hiroto Inaba",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 6,
+          "id": 12874,
+          "scramble": "U B' L' B R F' U2 D2 R U2 F2 D R2 U' D' R2 B2 L'",
+          "sourceSolver": "Seung Hyuk Nahm",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 7,
+          "id": 12847,
+          "scramble": "B2 D2 B L2 B' U2 L2 R2 F L2 F D2 U' R2 F L2 B2 F L F2",
+          "sourceSolver": "Kyle Santucci",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 8,
+          "id": 12832,
+          "scramble": "L2 R2 U' R2 B2 F2 D' R2 B2 U' B' F R F' L U R' U2 R U2",
+          "sourceSolver": "Leo Borromeo",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 9,
+          "id": 12748,
+          "scramble": "R U2 L2 R2 B' D2 L2 B L2 F' R' F2 D' L2 B L B F' U'",
+          "sourceSolver": "Tymon Kolasiński",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 10,
+          "id": 12721,
+          "scramble": "D R U' L' D2 B2 F2 R2 U2 L R2 B R' B R U L' F2 D'",
+          "sourceSolver": "Max Park",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 11,
+          "id": 12577,
+          "scramble": "F2 R2 D2 U F2 D L2 U2 R2 B2 R' F2 R D B L U R' D2 R'",
+          "sourceSolver": "Luke Garrett",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 12,
+          "id": 12263,
+          "scramble": "B' F U2 R2 U2 F D2 B2 R' F L2 R F2 D' L' D' U' L R2",
+          "sourceSolver": "Feliks Zemdegs",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 13,
+          "id": 9302,
+          "scramble": "U' R' F2 L2 U2 B L2 R2 B L2 D' F2 L' B' R B D R2 F'",
+          "sourceSolver": "Bill Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 14,
+          "id": 8063,
+          "scramble": "U' R2 B2 R' B D' R2 L F2 R F' D2 F2 D F2 L2 D2 F2 D2",
+          "sourceSolver": "Jayden McNeill",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 15,
+          "id": 4646,
+          "scramble": "D2 F2 D B' U' B' L' R2 D' B2 D2 B2 R2 U' F2 U' R2 B L' D2",
+          "sourceSolver": "Sei Sugama",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        }
+      ],
+      "low-auf": [
+        {
+          "sampleIndex": 1,
+          "id": 13027,
+          "scramble": "U2 L' F' R U' F2 L D L2 F' B R2 F' U2 R2 F' U2 F U'",
+          "sourceSolver": "Dylan Miller",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 2,
+          "id": 12988,
+          "scramble": "F2 L2 D B2 R2 U2 L2 U L2 U B L' B' R' D U' B2 L B' D2 R",
+          "sourceSolver": "Xuanyi Geng",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 3,
+          "id": 12983,
+          "scramble": "D F2 D' B2 U' L2 U' L2 U' R U' R D F L' D2 L B' F2 L",
+          "sourceSolver": "Yiheng Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 4,
+          "id": 12937,
+          "scramble": "D' F2 L2 D L2 F2 U' R2 B2 D' B2 R' D' R2 D2 B D' B F2 D R'",
+          "sourceSolver": "Ruihang Xu",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 5,
+          "id": 12891,
+          "scramble": "D L2 D B2 F2 D R2 B2 U L B F' R2 F' U' B' L2 F R U",
+          "sourceSolver": "Matty Hiroto Inaba",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 6,
+          "id": 12874,
+          "scramble": "U B' L' B R F' U2 D2 R U2 F2 D R2 U' D' R2 B2 L'",
+          "sourceSolver": "Seung Hyuk Nahm",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 7,
+          "id": 12847,
+          "scramble": "B2 D2 B L2 B' U2 L2 R2 F L2 F D2 U' R2 F L2 B2 F L F2",
+          "sourceSolver": "Kyle Santucci",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 8,
+          "id": 12832,
+          "scramble": "L2 R2 U' R2 B2 F2 D' R2 B2 U' B' F R F' L U R' U2 R U2",
+          "sourceSolver": "Leo Borromeo",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 9,
+          "id": 12748,
+          "scramble": "R U2 L2 R2 B' D2 L2 B L2 F' R' F2 D' L2 B L B F' U'",
+          "sourceSolver": "Tymon Kolasiński",
+          "sourceMethod": "ZB",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 10,
+          "id": 12721,
+          "scramble": "D R U' L' D2 B2 F2 R2 U2 L R2 B R' B R U L' F2 D'",
+          "sourceSolver": "Max Park",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 11,
+          "id": 12577,
+          "scramble": "F2 R2 D2 U F2 D L2 U2 R2 B2 R' F2 R D B L U R' D2 R'",
+          "sourceSolver": "Luke Garrett",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 12,
+          "id": 12263,
+          "scramble": "B' F U2 R2 U2 F D2 B2 R' F L2 R F2 D' L' D' U' L R2",
+          "sourceSolver": "Feliks Zemdegs",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 13,
+          "id": 9302,
+          "scramble": "U' R' F2 L2 U2 B L2 R2 B L2 D' F2 L' B' R B D R2 F'",
+          "sourceSolver": "Bill Wang",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 14,
+          "id": 8063,
+          "scramble": "U' R2 B2 R' B D' R2 L F2 R F' D2 F2 D F2 L2 D2 F2 D2",
+          "sourceSolver": "Jayden McNeill",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        },
+        {
+          "sampleIndex": 15,
+          "id": 4646,
+          "scramble": "D2 F2 D B' U' B' L' R2 D' B2 D2 B2 R2 U' F2 U' R2 B L' D2",
+          "sourceSolver": "Sei Sugama",
+          "sourceMethod": "CFOP",
+          "styleDistanceToTarget": null,
+          "ok": false,
+          "reason": "TIMEOUT_3000MS",
+          "stage": "",
+          "moveCount": null,
+          "nodes": null,
+          "durationMs": 3150,
+          "styleMetrics": null
+        }
+      ]
+    }
+  }
+}
