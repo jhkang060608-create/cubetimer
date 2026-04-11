@@ -22,6 +22,9 @@ const eventSelect = document.getElementById("eventSelect");
 const crossColorSelect = document.getElementById("crossColorSelect");
 const solverModeSelect = document.getElementById("solverModeSelect");
 const f2lMethodSelect = document.getElementById("f2lMethodSelect");
+const stylePlayerSelect = document.getElementById("stylePlayerSelect");
+const styleProfileReloadBtn = document.getElementById("styleProfileReloadBtn");
+const styleProfileMeta = document.getElementById("styleProfileMeta");
 const statBest = document.getElementById("statBest");
 const statMean = document.getElementById("statMean");
 const statAo5 = document.getElementById("statAo5");
@@ -73,6 +76,8 @@ const toggleAo12 = document.getElementById("toggleAo12");
 const toggleInspection = document.getElementById("toggleInspection");
 const toggleHideLive = document.getElementById("toggleHideLive");
 const accentButtons = document.querySelectorAll("[data-accent]");
+const toggleStyleFallback = document.getElementById("toggleStyleFallback");
+const toggleOllPllPrediction = document.getElementById("toggleOllPllPrediction");
 
 const STORAGE_KEY = "cubeTimerState";
 
@@ -157,6 +162,33 @@ const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
 const AO5_KEY = "cubeTimerShowAo5";
 const AO12_KEY = "cubeTimerShowAo12";
 const VALID_SOLVER_MODES = new Set(["strict", "zb", "fmc", "optimal"]);
+const VALID_F2L_METHODS = new Set(["legacy", "balanced", "rotationless", "low-auf", "speed", "mixed"]);
+const DEFAULT_F2L_METHOD = "legacy";
+const DEFAULT_F2L_METHOD_SOURCE = "default";
+const DEFAULT_OLL_PLL_PREDICTION_WEIGHT = 0.35;
+const DEFAULT_SPEED_STYLE_PROFILE = Object.freeze({
+  preset: "speed",
+  rotationWeight: 5,
+  aufWeight: 1,
+  wideTurnWeight: 2,
+});
+const DEFAULT_MIXED_CFOP_STYLE_PROFILE = Object.freeze({
+  preset: "top10-mixed",
+  rotationWeight: 2,
+  aufWeight: 1,
+  wideTurnWeight: 1,
+});
+const STYLE_PROFILE_DATA_URL = "vendor-data/reco/reco-3x3-style-details.json";
+const STYLE_PROFILE_LEARNED_DATA_URL = "vendor-data/reco/reco-3x3-learned-style-weights.json";
+const STYLE_PROFILE_MIXED_DATA_URL = "vendor-data/reco/reco-3x3-mixed-cfop-profile.json";
+
+let styleProfilePlayers = [];
+let styleProfilePlayerMap = new Map();
+let globalSpeedStyleProfile = null;
+let globalMixedCfopStyleProfile = null;
+let globalMixedCfopSummary = null;
+let mixedCfopPlayerMap = new Map();
+let styleProfilesLoaded = false;
 
 const ACCENT_THEMES = {
   ocean: {
@@ -213,7 +245,12 @@ const defaultState = () => {
       eventId: "333",
       crossColor: "D",
       solverMode: "strict",
-      f2lMethod: "legacy",
+      f2lMethod: DEFAULT_F2L_METHOD,
+      f2lMethodSource: DEFAULT_F2L_METHOD_SOURCE,
+      stylePlayer: "",
+      enableStyleFallback: true,
+      enableOllPllPrediction: true,
+      ollPllPredictionWeight: DEFAULT_OLL_PLL_PREDICTION_WEIGHT,
     },
   };
 };
@@ -242,12 +279,34 @@ function loadState() {
     if (!parsed.settings.eventId) parsed.settings.eventId = "333";
     if (!parsed.settings.crossColor) parsed.settings.crossColor = "D";
     if (!parsed.settings.solverMode) parsed.settings.solverMode = "strict";
-    if (!parsed.settings.f2lMethod) parsed.settings.f2lMethod = "legacy";
+    if (!parsed.settings.f2lMethod) parsed.settings.f2lMethod = DEFAULT_F2L_METHOD;
+    if (typeof parsed.settings.f2lMethodSource !== "string") parsed.settings.f2lMethodSource = "";
+    if (typeof parsed.settings.stylePlayer !== "string") parsed.settings.stylePlayer = "";
+    if (typeof parsed.settings.enableStyleFallback !== "boolean") parsed.settings.enableStyleFallback = true;
+    if (typeof parsed.settings.enableOllPllPrediction !== "boolean") {
+      parsed.settings.enableOllPllPrediction = true;
+    }
+    const ollPllPredictionWeight = Number(parsed.settings.ollPllPredictionWeight);
+    parsed.settings.ollPllPredictionWeight =
+      Number.isFinite(ollPllPredictionWeight) && ollPllPredictionWeight >= 0
+        ? ollPllPredictionWeight
+        : DEFAULT_OLL_PLL_PREDICTION_WEIGHT;
     if (!VALID_SOLVER_MODES.has(parsed.settings.solverMode)) {
       parsed.settings.solverMode = "strict";
     }
-    if (parsed.settings.f2lMethod !== "legacy") {
-      parsed.settings.f2lMethod = "legacy";
+    if (!VALID_F2L_METHODS.has(parsed.settings.f2lMethod)) {
+      parsed.settings.f2lMethod = DEFAULT_F2L_METHOD;
+    }
+    if (
+      parsed.settings.f2lMethod === "mixed" &&
+      parsed.settings.f2lMethodSource !== "user" &&
+      parsed.settings.f2lMethodSource !== "player"
+    ) {
+      parsed.settings.f2lMethod = DEFAULT_F2L_METHOD;
+      parsed.settings.f2lMethodSource = DEFAULT_F2L_METHOD_SOURCE;
+    }
+    if (!parsed.settings.f2lMethodSource) {
+      parsed.settings.f2lMethodSource = DEFAULT_F2L_METHOD_SOURCE;
     }
     if (!parsed.activeSessionId) parsed.activeSessionId = parsed.sessions[0].id;
     return parsed;
@@ -1503,6 +1562,519 @@ function resetSolverState() {
   updateSolverControls();
 }
 
+function setStyleProfileMeta(text) {
+  if (!styleProfileMeta) return;
+  styleProfileMeta.textContent = text;
+}
+
+function formatRatioPercent(value) {
+  if (!Number.isFinite(value)) return "n/a";
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatStyleWeight(value) {
+  return Number.isFinite(value) ? String(Math.max(0, Math.floor(value))) : "0";
+}
+
+function formatStyleWeightSummary(profile) {
+  if (!profile || typeof profile !== "object") return "r0/a0/w0";
+  return `r${formatStyleWeight(profile.rotationWeight)}/a${formatStyleWeight(profile.aufWeight)}/w${formatStyleWeight(profile.wideTurnWeight)}`;
+}
+
+function normalizeMixedCfopSummaryRecord(profile) {
+  if (!profile || typeof profile !== "object") return null;
+  const solveCount = Number(profile.solveCount);
+  const xcrossRate = Number(profile.xcrossRate);
+  const xxcrossRate = Number(profile.xxcrossRate);
+  const crossRate = Number(profile.crossRate);
+  const firstStageXCrossRate = Number(profile.firstStageXCrossRate);
+  const firstStageXXCrossRate = Number(profile.firstStageXXCrossRate ?? profile.firstStageXxCrossRate);
+  const firstStageCrossRate = Number(profile.firstStageCrossRate);
+  const zbllRate = Number(profile.zbllRate);
+  const zblsRate = Number(profile.zblsRate);
+  return {
+    solveCount: Number.isFinite(solveCount) ? Math.max(0, Math.floor(solveCount)) : 0,
+    xcrossRate: Number.isFinite(xcrossRate) ? xcrossRate : null,
+    xxcrossRate: Number.isFinite(xxcrossRate) ? xxcrossRate : null,
+    crossRate: Number.isFinite(crossRate) ? crossRate : null,
+    firstStageXCrossRate: Number.isFinite(firstStageXCrossRate) ? firstStageXCrossRate : null,
+    firstStageXXCrossRate: Number.isFinite(firstStageXXCrossRate) ? firstStageXXCrossRate : null,
+    firstStageXxCrossRate: Number.isFinite(firstStageXXCrossRate) ? firstStageXXCrossRate : null,
+    firstStageCrossRate: Number.isFinite(firstStageCrossRate) ? firstStageCrossRate : null,
+    zbllRate: Number.isFinite(zbllRate) ? zbllRate : null,
+    zblsRate: Number.isFinite(zblsRate) ? zblsRate : null,
+  };
+}
+
+function normalizeCaseBiasRecord(caseBias) {
+  if (!caseBias || typeof caseBias !== "object") return null;
+  const xcrossWeight = Number(caseBias.xcrossWeight);
+  const xxcrossWeight = Number(caseBias.xxcrossWeight);
+  const zbllWeight = Number(caseBias.zbllWeight);
+  const zblsWeight = Number(caseBias.zblsWeight);
+  if (
+    !Number.isFinite(xcrossWeight) ||
+    !Number.isFinite(xxcrossWeight) ||
+    !Number.isFinite(zbllWeight) ||
+    !Number.isFinite(zblsWeight)
+  ) {
+    return null;
+  }
+  return {
+    xcrossWeight: Math.max(1, Math.min(12, Math.round(xcrossWeight))),
+    xxcrossWeight: Math.max(1, Math.min(12, Math.round(xxcrossWeight))),
+    zbllWeight: Math.max(1, Math.min(12, Math.round(zbllWeight))),
+    zblsWeight: Math.max(1, Math.min(12, Math.round(zblsWeight))),
+  };
+}
+
+function formatCaseBiasSummary(caseBias) {
+  if (!caseBias || typeof caseBias !== "object") return "";
+  return `XC ${caseBias.xcrossWeight}, XXC ${caseBias.xxcrossWeight}, ZBLL ${caseBias.zbllWeight}, ZBLS ${caseBias.zblsWeight}`;
+}
+
+function clampRate01(value, fallback = null) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  if (n <= 0) return 0;
+  if (n >= 1) return 1;
+  return n;
+}
+
+function formatMixedCfopSummary(summary) {
+  if (!summary || typeof summary !== "object") return "";
+  return [
+    `1st Cross ${formatRatioPercent(summary.firstStageCrossRate)}`,
+    `1st XCross ${formatRatioPercent(summary.firstStageXCrossRate)}`,
+    `XXCross ${formatRatioPercent(summary.xxcrossRate)}`,
+    `ZBLL ${formatRatioPercent(summary.zbllRate)}`,
+  ].join(", ");
+}
+
+function estimateMixedActivationScore(profile, mixedProfile, mixedSummary, caseBias) {
+  let score = 0;
+  if (mixedProfile) score += 0.35;
+  if (mixedSummary) {
+    if (Number(mixedSummary.firstStageXCrossRate) >= 0.25) score += 0.2;
+    if (Number(mixedSummary.xxcrossRate) >= 0.05) score += 0.15;
+    if (Number(mixedSummary.zbllRate) >= 0.08) score += 0.25;
+    if (Number(mixedSummary.zblsRate) >= 0.04) score += 0.1;
+  }
+  if (caseBias) {
+    if (caseBias.xcrossWeight >= 4) score += 0.12;
+    if (caseBias.xxcrossWeight >= 3) score += 0.08;
+    if (caseBias.zbllWeight >= 4) score += 0.2;
+    if (caseBias.zblsWeight >= 3) score += 0.08;
+  }
+  if (profile?.mixedEligible === false) score -= 0.5;
+  return score;
+}
+
+function applyCaseBiasToStyleProfile(baseProfile, caseBias, mixedSummary = null, crossSamplingCalibration = null) {
+  const base = normalizeStyleProfileRecord(baseProfile);
+  const bias = normalizeCaseBiasRecord(caseBias);
+  if (!base) return null;
+  if (!bias) return base;
+  const historicalZbllRate = clampRate01(mixedSummary?.zbllRate, null);
+  const historicalZblsRate = clampRate01(mixedSummary?.zblsRate, null);
+  const historicalXCrossRate = clampRate01(mixedSummary?.xcrossRate, null);
+  const historicalXXCrossRate = clampRate01(mixedSummary?.xxcrossRate, null);
+  const zbllRateCap =
+    historicalZbllRate === null ? null : Math.max(0.03, Math.min(0.5, Number((historicalZbllRate * 1.35).toFixed(6))));
+  const zblsRateCap =
+    historicalZblsRate === null ? null : Math.max(0.02, Math.min(0.45, Number((historicalZblsRate * 1.4).toFixed(6))));
+  const xcrossRateOffset = Number(crossSamplingCalibration?.xcrossRateOffset);
+  const xxcrossRateOffset = Number(crossSamplingCalibration?.xxcrossRateOffset);
+  const adjustRotation = Math.round((bias.xcrossWeight - 1) * 0.25 + (bias.xxcrossWeight - 1) * 0.35);
+  const adjustAuf = Math.round((bias.zbllWeight - 1) * 0.25 + (bias.zblsWeight - 1) * 0.15);
+  const adjustWide = Math.round((bias.xcrossWeight - 1) * 0.2 + (bias.xxcrossWeight - 1) * 0.1);
+  return {
+    preset: base.preset || "mixed",
+    rotationWeight: Math.max(0, Math.min(12, Math.round(base.rotationWeight + adjustRotation))),
+    aufWeight: Math.max(0, Math.min(12, Math.round(base.aufWeight + adjustAuf))),
+    wideTurnWeight: Math.max(0, Math.min(12, Math.round(base.wideTurnWeight + adjustWide))),
+    caseBiasPreset: "case-bias",
+    caseBias: bias,
+    xcrossWeight: bias.xcrossWeight,
+    xxcrossWeight: bias.xxcrossWeight,
+    zbllWeight: bias.zbllWeight,
+    zblsWeight: bias.zblsWeight,
+    historicalXCrossRate,
+    historicalXXCrossRate,
+    historicalZbllRate,
+    historicalZblsRate,
+    zbllRateCap,
+    zblsRateCap,
+    xcrossRateOffset: Number.isFinite(xcrossRateOffset) ? xcrossRateOffset : 0,
+    xxcrossRateOffset: Number.isFinite(xxcrossRateOffset) ? xxcrossRateOffset : 0,
+  };
+}
+
+function normalizeStyleProfileRecord(profile) {
+  if (!profile || typeof profile !== "object") return null;
+  const rotationWeight = Number(profile.rotationWeight);
+  const aufWeight = Number(profile.aufWeight);
+  const wideTurnWeight = Number(profile.wideTurnWeight);
+  if (!Number.isFinite(rotationWeight) || !Number.isFinite(aufWeight) || !Number.isFinite(wideTurnWeight)) {
+    return null;
+  }
+  return {
+    preset: typeof profile.preset === "string" ? profile.preset : undefined,
+    rotationWeight,
+    aufWeight,
+    wideTurnWeight,
+  };
+}
+
+function getGlobalSpeedStyleProfile() {
+  return normalizeStyleProfileRecord(globalSpeedStyleProfile) || DEFAULT_SPEED_STYLE_PROFILE;
+}
+
+function getGlobalMixedCfopStyleProfile() {
+  const profile = normalizeStyleProfileRecord(globalMixedCfopStyleProfile) || DEFAULT_MIXED_CFOP_STYLE_PROFILE;
+  // Mixed CFOP is meant to feel player-like on random scrambles, so we keep
+  // a slightly stronger rotation bias than the raw aggregate profile.
+  return {
+    ...profile,
+    rotationWeight: Math.max(profile.rotationWeight, 3),
+  };
+}
+
+function getGlobalMixedCfopSummary() {
+  return normalizeMixedCfopSummaryRecord(globalMixedCfopSummary);
+}
+
+function resolvePlayerRecommendedF2LMethod(profile) {
+  if (!profile || typeof profile !== "object") return DEFAULT_F2L_METHOD;
+
+  const recommendedRaw = String(profile.recommendedF2LMethod || "").trim().toLowerCase();
+  const normalizedRecommended = VALID_F2L_METHODS.has(recommendedRaw) ? recommendedRaw : "";
+  const forcePureCfop = profile.forcePureCfop === true;
+
+  if (forcePureCfop) {
+    return normalizedRecommended || "legacy";
+  }
+
+  const mixedProfile = normalizeStyleProfileRecord(profile.mixedCfopStyleProfile);
+  const mixedSummary = normalizeMixedCfopSummaryRecord(profile.mixedCfopSummary);
+  const caseBias = normalizeCaseBiasRecord(profile.caseBias);
+  if (mixedProfile || mixedSummary) {
+    if (profile.mixedEligible === false) {
+      return normalizedRecommended || DEFAULT_F2L_METHOD;
+    }
+    if (!caseBias) {
+      return "mixed";
+    }
+    const score = estimateMixedActivationScore(profile, mixedProfile, mixedSummary, caseBias);
+    if (score >= 0.45) {
+      return "mixed";
+    }
+    return normalizedRecommended || DEFAULT_F2L_METHOD;
+  }
+
+  return normalizedRecommended || DEFAULT_F2L_METHOD;
+}
+
+function renderStylePlayerOptions() {
+  if (!stylePlayerSelect) return;
+  const current = typeof appState.settings.stylePlayer === "string" ? appState.settings.stylePlayer : "";
+  stylePlayerSelect.textContent = "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "선수 스타일 미적용";
+  stylePlayerSelect.appendChild(defaultOption);
+
+  for (let i = 0; i < styleProfilePlayers.length; i++) {
+    const profile = styleProfilePlayers[i];
+    const solves = Number(profile.solveCount || 0);
+    const speedTag = profile.speedBestStyle ? `, speed ${profile.speedBestStyle}` : "";
+    const recommendedMethod = resolvePlayerRecommendedF2LMethod(profile);
+    const pureCfopTag = profile.forcePureCfop ? ", pure-cfop" : "";
+    const option = document.createElement("option");
+    option.value = profile.solver;
+    option.textContent = `${profile.solver} (${solves} solves, ${recommendedMethod}${pureCfopTag}${speedTag})`;
+    stylePlayerSelect.appendChild(option);
+  }
+
+  if (current && styleProfilePlayerMap.has(current)) {
+    stylePlayerSelect.value = current;
+  } else {
+    stylePlayerSelect.value = "";
+    appState.settings.stylePlayer = "";
+  }
+}
+
+function getPlayerStyleProfile(playerName, methodHint = "") {
+  const profile = styleProfilePlayerMap.get(playerName);
+  if (!profile || typeof profile !== "object") return undefined;
+
+  const normalizedMethod = String(methodHint || "").trim().toLowerCase();
+
+  if (normalizedMethod === "mixed") {
+    if (profile.forcePureCfop === true) {
+      return undefined;
+    }
+    const mixedProfile = normalizeStyleProfileRecord(profile.mixedCfopStyleProfile);
+    if (mixedProfile) {
+      return applyCaseBiasToStyleProfile(
+        mixedProfile,
+        profile.caseBias,
+        profile.mixedCfopSummary,
+        profile.crossSamplingCalibration,
+      );
+    }
+  }
+
+  if (normalizedMethod === "speed") {
+    const speedProfile = normalizeStyleProfileRecord(profile.speedStyleProfile);
+    if (speedProfile) return speedProfile;
+  }
+
+  const learned = profile.learnedStyleProfile;
+  if (learned && typeof learned === "object") {
+    return {
+      preset: typeof learned.preset === "string" ? learned.preset : undefined,
+      rotationWeight: Number(learned.rotationWeight),
+      aufWeight: Number(learned.aufWeight),
+      wideTurnWeight: Number(learned.wideTurnWeight),
+    };
+  }
+
+  const detailed = profile.detailedStyleProfile;
+  if (detailed && typeof detailed === "object") {
+    return {
+      preset: typeof detailed.preset === "string" ? detailed.preset : undefined,
+      rotationWeight: Number(detailed.rotationWeight),
+      aufWeight: Number(detailed.aufWeight),
+      wideTurnWeight: Number(detailed.wideTurnWeight),
+    };
+  }
+
+  const fallback = profile.recommendedStyleProfile;
+  if (fallback && typeof fallback === "object") {
+    return {
+      rotationWeight: Number(fallback.rotationWeight),
+      aufWeight: Number(fallback.aufWeight),
+      wideTurnWeight: Number(fallback.wideTurnWeight),
+    };
+  }
+
+  return undefined;
+}
+
+function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}) {
+  const playerName = String(appState.settings.stylePlayer || "").trim();
+  if (!playerName) {
+    const method = String(appState.settings.f2lMethod || DEFAULT_F2L_METHOD).trim().toLowerCase();
+    const speedProfile = method === "speed" ? getGlobalSpeedStyleProfile() : null;
+    const mixedProfile = method === "mixed" ? getGlobalMixedCfopStyleProfile() : null;
+    const mixedSummary = method === "mixed" ? getGlobalMixedCfopSummary() : null;
+    if (styleProfilesLoaded) {
+      if (speedProfile) {
+        setStyleProfileMeta(
+          `3x3 스타일 ${styleProfilePlayers.length}명 로드됨 (속도 우선: 전체 선수 솔루션 ${formatStyleWeightSummary(speedProfile)})`,
+        );
+      } else if (mixedProfile) {
+        const mixedSummaryText = mixedSummary ? formatMixedCfopSummary(mixedSummary) : "";
+        setStyleProfileMeta(
+          `3x3 스타일 ${styleProfilePlayers.length}명 로드됨 (조건부 XCross/ZBLL: ${mixedSummaryText || formatStyleWeightSummary(mixedProfile)})`,
+        );
+      } else {
+        setStyleProfileMeta(
+          `3x3 스타일 ${styleProfilePlayers.length}명 로드됨 (미적용, 속도 우선은 F2L 스타일에서 선택)`,
+        );
+      }
+    }
+    if (f2lMethodSelect) {
+      f2lMethodSelect.disabled = false;
+      f2lMethodSelect.title = "";
+    }
+    if (saveStateAfter) saveState();
+    return;
+  }
+
+  const profile = styleProfilePlayerMap.get(playerName);
+  if (!profile) {
+    setStyleProfileMeta(`${playerName} 프로파일을 찾지 못했습니다.`);
+    if (f2lMethodSelect) {
+      f2lMethodSelect.disabled = false;
+      f2lMethodSelect.title = "";
+    }
+    if (saveStateAfter) saveState();
+    return;
+  }
+
+  const recommended = resolvePlayerRecommendedF2LMethod(profile);
+  appState.settings.f2lMethod = recommended;
+  appState.settings.f2lMethodSource = "player";
+  if (f2lMethodSelect) {
+    f2lMethodSelect.value = recommended;
+  }
+
+  setStyleProfileMeta(
+    `${playerName}: 추천 ${recommended}, rotation ${formatRatioPercent(profile.rotationRate)}, AUF ${formatRatioPercent(profile.aufRate)}, wide ${formatRatioPercent(profile.wideTurnRate)}, weights ${formatStyleWeightSummary(getPlayerStyleProfile(playerName, recommended))}${profile.forcePureCfop ? " (pure CFOP)" : ""}${profile.speedBestStyle ? `, speed ${profile.speedBestStyle}` : ""}${profile.learnedStyleProfile ? " (ML 가중치 적용)" : ""}${profile.mixedCfopSummary ? `, mixed ${formatMixedCfopSummary(profile.mixedCfopSummary)}` : ""}${profile.caseBias ? `, caseBias ${formatCaseBiasSummary(profile.caseBias)}` : ""}`,
+  );
+
+  if (f2lMethodSelect) {
+    f2lMethodSelect.disabled = true;
+    f2lMethodSelect.title = "선수 스타일 적용 중에는 F2L 프리셋이 잠깁니다. '선수 스타일 미적용'으로 바꾸면 수동 변경할 수 있습니다.";
+  }
+
+  if (notify && solverStatus) {
+    solverStatus.textContent = `${playerName} 스타일 적용: ${recommended}`;
+  }
+
+  if (saveStateAfter) saveState();
+}
+
+async function loadStyleProfiles({ force = false } = {}) {
+  if (styleProfilesLoaded && !force) return;
+  setStyleProfileMeta("3x3 스타일 프로파일 로딩 중...");
+  try {
+    const url = `${STYLE_PROFILE_DATA_URL}?t=${Date.now()}`;
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const payload = await response.json();
+    const players = Array.isArray(payload?.players) ? payload.players : [];
+    let learnedBySolver = new Map();
+    let loadedSpeedProfile = null;
+    let loadedMixedProfile = null;
+    let loadedMixedSummary = null;
+    let mixedBySolver = new Map();
+    try {
+      const learnedUrl = `${STYLE_PROFILE_LEARNED_DATA_URL}?t=${Date.now()}`;
+      const learnedResponse = await fetch(learnedUrl, { cache: "no-store" });
+      if (learnedResponse.ok) {
+        const learnedPayload = await learnedResponse.json();
+        loadedSpeedProfile =
+          normalizeStyleProfileRecord(learnedPayload?.speedProfile) ||
+          normalizeStyleProfileRecord(learnedPayload?.globalSpeedStyleProfile) ||
+          null;
+        const learnedPlayers = Array.isArray(learnedPayload?.players) ? learnedPayload.players : [];
+        learnedBySolver = new Map(
+          learnedPlayers
+            .filter((entry) => entry && typeof entry.solver === "string")
+            .map((entry) => [String(entry.solver).trim(), entry]),
+        );
+      }
+    } catch (_) {
+      // Learned profile file is optional.
+    }
+    try {
+      const mixedUrl = `${STYLE_PROFILE_MIXED_DATA_URL}?t=${Date.now()}`;
+      const mixedResponse = await fetch(mixedUrl, { cache: "no-store" });
+      if (mixedResponse.ok) {
+        const mixedPayload = await mixedResponse.json();
+        loadedMixedProfile =
+          normalizeStyleProfileRecord(mixedPayload?.globalMixedCfopStyleProfile) ||
+          normalizeStyleProfileRecord(mixedPayload?.globalMixedCfopProfile?.mixedStyleProfile) ||
+          null;
+        loadedMixedSummary =
+          normalizeMixedCfopSummaryRecord(mixedPayload?.globalMixedCfopSummary) ||
+          normalizeMixedCfopSummaryRecord(mixedPayload?.summary) ||
+          normalizeMixedCfopSummaryRecord(mixedPayload?.globalMixedCfopProfile?.mixedCfopStats) ||
+          null;
+        const mixedPlayers = Array.isArray(mixedPayload?.playerMixedCfopProfiles)
+          ? mixedPayload.playerMixedCfopProfiles
+          : Array.isArray(mixedPayload?.players)
+            ? mixedPayload.players
+            : [];
+        mixedBySolver = new Map(
+          mixedPlayers
+            .filter((entry) => entry && typeof entry.solver === "string")
+            .map((entry) => [String(entry.solver).trim(), entry]),
+        );
+      }
+    } catch (_) {
+      // Mixed CFOP profile file is optional.
+    }
+    styleProfilePlayers = players
+      .filter((entry) => entry && typeof entry.solver === "string" && entry.solver.trim())
+      .map((entry) => ({
+        ...entry,
+        solver: entry.solver.trim(),
+        ...(learnedBySolver.get(String(entry.solver || "").trim()) || {}),
+        ...(mixedBySolver.get(String(entry.solver || "").trim()) || {}),
+        learnedStyleProfile:
+          normalizeStyleProfileRecord(learnedBySolver.get(String(entry.solver || "").trim())?.learnedStyleProfile) ||
+          null,
+        speedStyleProfile:
+          normalizeStyleProfileRecord(learnedBySolver.get(String(entry.solver || "").trim())?.speedStyleProfile) ||
+          null,
+        mixedCfopSummary:
+          normalizeMixedCfopSummaryRecord(
+            mixedBySolver.get(String(entry.solver || "").trim())?.mixedCfopStats ||
+              mixedBySolver.get(String(entry.solver || "").trim())?.summary ||
+              mixedBySolver.get(String(entry.solver || "").trim())?.stats,
+          ) || null,
+        mixedCfopStyleProfile:
+          normalizeStyleProfileRecord(
+            mixedBySolver.get(String(entry.solver || "").trim())?.mixedStyleProfile ||
+              mixedBySolver.get(String(entry.solver || "").trim())?.mixedCfopStyleProfile,
+          ) || null,
+        forcePureCfop:
+          mixedBySolver.get(String(entry.solver || "").trim())?.forcePureCfop === true ||
+          entry.forcePureCfop === true,
+        mixedEligible:
+          mixedBySolver.get(String(entry.solver || "").trim())?.mixedEligible !== undefined
+            ? mixedBySolver.get(String(entry.solver || "").trim())?.mixedEligible === true
+            : entry.mixedEligible !== false,
+        caseBias:
+          normalizeCaseBiasRecord(
+            mixedBySolver.get(String(entry.solver || "").trim())?.caseBias ||
+              learnedBySolver.get(String(entry.solver || "").trim())?.caseBias ||
+              entry.caseBias,
+          ) || null,
+        coverage:
+          learnedBySolver.get(String(entry.solver || "").trim())?.coverage ||
+          entry.coverage ||
+          null,
+      }))
+      .sort((a, b) => {
+        const countDiff = Number(b.solveCount || 0) - Number(a.solveCount || 0);
+        if (countDiff !== 0) return countDiff;
+        return a.solver.localeCompare(b.solver);
+      });
+
+    if (!loadedSpeedProfile) {
+      const derivedProfiles = styleProfilePlayers
+        .map((entry) => entry.speedStyleProfile)
+        .filter((profile) => profile && typeof profile === "object");
+      if (derivedProfiles.length) {
+        const total = derivedProfiles.reduce((acc, profile) => {
+          acc.rotationWeight += Number(profile.rotationWeight) || 0;
+          acc.aufWeight += Number(profile.aufWeight) || 0;
+          acc.wideTurnWeight += Number(profile.wideTurnWeight) || 0;
+          return acc;
+        }, { rotationWeight: 0, aufWeight: 0, wideTurnWeight: 0 });
+        loadedSpeedProfile = normalizeStyleProfileRecord({
+          preset: "speed",
+          rotationWeight: total.rotationWeight / derivedProfiles.length,
+          aufWeight: total.aufWeight / derivedProfiles.length,
+          wideTurnWeight: total.wideTurnWeight / derivedProfiles.length,
+        });
+      }
+    }
+    globalSpeedStyleProfile = loadedSpeedProfile || DEFAULT_SPEED_STYLE_PROFILE;
+    globalMixedCfopStyleProfile = loadedMixedProfile || DEFAULT_MIXED_CFOP_STYLE_PROFILE;
+    globalMixedCfopSummary = loadedMixedSummary || null;
+
+    styleProfilePlayerMap = new Map(styleProfilePlayers.map((entry) => [entry.solver, entry]));
+    styleProfilesLoaded = true;
+    renderStylePlayerOptions();
+    applySelectedPlayerStyle({ saveStateAfter: false, notify: false });
+  } catch (error) {
+    styleProfilesLoaded = false;
+    styleProfilePlayers = [];
+    styleProfilePlayerMap = new Map();
+    renderStylePlayerOptions();
+    setStyleProfileMeta(`선수 스타일 프로파일 로드 실패: ${error?.message || error}`);
+  }
+}
+
 async function solveCurrentScramble() {
   await ensureSolverWorker();
   if (!currentScramble || solverBusy) return;
@@ -1515,7 +2087,7 @@ async function solveCurrentScramble() {
   const eventId = appState.settings.eventId;
   if (solverStatus) {
     const solverMode = appState.settings.solverMode || "strict";
-    const f2lMethod = appState.settings.f2lMethod || "legacy";
+    const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
     if (isThreeByThreeFamilyEvent(appState.settings.eventId)) {
       solverStatus.textContent =
         solverMode === "optimal"
@@ -1595,9 +2167,34 @@ async function solveCurrentScramble() {
         : undefined;
     const crossColor = appState.settings.crossColor || "D";
     const solverMode = appState.settings.solverMode || "strict";
-    const f2lMethod = appState.settings.f2lMethod || "legacy";
+    const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
+    const selectedPlayerName = String(appState.settings.stylePlayer || "").trim();
+    const selectedPlayerStyleProfile =
+      f2lMethod === "speed" && !selectedPlayerName
+        ? getGlobalSpeedStyleProfile()
+        : f2lMethod === "mixed" && !selectedPlayerName
+          ? getGlobalMixedCfopStyleProfile()
+        : selectedPlayerName
+          ? getPlayerStyleProfile(selectedPlayerName, f2lMethod)
+          : undefined;
+    const enableStyleFallback = appState.settings.enableStyleFallback !== false;
+    const enableOllPllPrediction = appState.settings.enableOllPllPrediction !== false;
+    const ollPllPredictionWeight = Number.isFinite(Number(appState.settings.ollPllPredictionWeight))
+      ? Math.max(0, Number(appState.settings.ollPllPredictionWeight))
+      : DEFAULT_OLL_PLL_PREDICTION_WEIGHT;
     const result = await Promise.race([
-      solverApi.solve(currentScramble, eventId, onProgress, crossColor, solverMode, f2lMethod),
+      solverApi.solve({
+        scramble: currentScramble,
+        eventId,
+        crossColor,
+        mode: solverMode,
+        f2lMethod,
+        styleProfile: selectedPlayerStyleProfile,
+        transitionProfileSolver: selectedPlayerName || undefined,
+        enableStyleFallback,
+        enableOllPllPrediction,
+        ollPllPredictionWeight,
+      }, onProgress),
       timeout,
     ]);
     const duration = Math.max(1, Math.round(performance.now() - startTime));
@@ -1664,7 +2261,23 @@ async function solveCurrentScramble() {
         } else if (result.fallbackFrom) {
           fallbackText = ", 내부 복구";
         }
-        solverStatus.textContent = `완료 (${duration}ms${nodesText}${fallbackText})`;
+        const styleAppliedText = selectedPlayerStyleProfile
+          ? `, 스타일 ${selectedPlayerName}(${formatStyleWeightSummary(selectedPlayerStyleProfile)})`
+          : f2lMethod !== "legacy"
+            ? `, 스타일 ${f2lMethod}`
+            : "";
+        const styleFallbackUsed =
+          Array.isArray(result.stageDiagnostics) &&
+          result.stageDiagnostics.some((entry) => entry && entry.reason === "RECOVERED_BY_STYLE_FALLBACK");
+        const styleFallbackText =
+          isThreeByThreeFamilyEvent(eventId) && enableStyleFallback && styleFallbackUsed
+            ? ", 스타일 완화 적용"
+            : "";
+        const llPredictionText =
+          isThreeByThreeFamilyEvent(eventId) && enableOllPllPrediction
+            ? ", LL 예측"
+            : "";
+        solverStatus.textContent = `완료 (${duration}ms${nodesText}${styleAppliedText}${styleFallbackText}${llPredictionText}${fallbackText})`;
       }
       if (solverCopyBtn) {
         solverCopyBtn.disabled = !rawSolutionText;
@@ -1679,6 +2292,8 @@ async function solveCurrentScramble() {
       if (solverSolution) solverSolution.textContent = "-";
       if (solverMoveCount) solverMoveCount.textContent = "0 수";
       if (solverCopyBtn) solverCopyBtn.disabled = true;
+      const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
+      f2lMethodSelect.value = VALID_F2L_METHODS.has(f2lMethod) ? f2lMethod : DEFAULT_F2L_METHOD;
     }
   } catch (error) {
     console.error("해 찾기 실패", error);
@@ -1795,8 +2410,24 @@ solverModeSelect?.addEventListener("change", () => {
 
 f2lMethodSelect?.addEventListener("change", () => {
   if (!f2lMethodSelect) return;
-  appState.settings.f2lMethod = "legacy";
+  appState.settings.f2lMethod = VALID_F2L_METHODS.has(f2lMethodSelect.value)
+    ? f2lMethodSelect.value
+    : "legacy";
+  appState.settings.f2lMethodSource = "user";
   saveState();
+  if (!String(appState.settings.stylePlayer || "").trim()) {
+    applySelectedPlayerStyle({ saveStateAfter: false, notify: false });
+  }
+});
+
+stylePlayerSelect?.addEventListener("change", () => {
+  if (!stylePlayerSelect) return;
+  appState.settings.stylePlayer = stylePlayerSelect.value || "";
+  applySelectedPlayerStyle({ saveStateAfter: true, notify: true });
+});
+
+styleProfileReloadBtn?.addEventListener("click", () => {
+  void loadStyleProfiles({ force: true });
 });
 
 solverCopyBtn?.addEventListener("click", () => {
@@ -1943,6 +2574,14 @@ toggleInspection.addEventListener("change", () => {
 toggleHideLive?.addEventListener("change", () => {
   localStorage.setItem(HIDE_LIVE_KEY, toggleHideLive.checked ? "true" : "false");
   hideLiveUpdates = toggleHideLive.checked;
+});
+toggleStyleFallback?.addEventListener("change", () => {
+  appState.settings.enableStyleFallback = toggleStyleFallback.checked;
+  saveState();
+});
+toggleOllPllPrediction?.addEventListener("change", () => {
+  appState.settings.enableOllPllPrediction = toggleOllPllPrediction.checked;
+  saveState();
 });
 function updateAccentSwatches() {
   const mode = document.body.classList.contains("theme-dark") ? "dark" : "light";
@@ -2450,6 +3089,12 @@ async function initApp() {
       toggleHideLive.checked = localStorage.getItem(HIDE_LIVE_KEY) === "true";
       hideLiveUpdates = toggleHideLive.checked;
     }
+    if (toggleStyleFallback) {
+      toggleStyleFallback.checked = appState.settings.enableStyleFallback !== false;
+    }
+    if (toggleOllPllPrediction) {
+      toggleOllPllPrediction.checked = appState.settings.enableOllPllPrediction !== false;
+    }
     if (toggleAo5) toggleAo5.checked = localStorage.getItem(AO5_KEY) !== "false";
     if (toggleAo12) toggleAo12.checked = localStorage.getItem(AO12_KEY) !== "false";
     eventSelect.value = appState.settings.eventId;
@@ -2460,8 +3105,13 @@ async function initApp() {
       solverModeSelect.value = appState.settings.solverMode || "strict";
     }
     if (f2lMethodSelect) {
-      f2lMethodSelect.value = appState.settings.f2lMethod || "legacy";
+      const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
+      f2lMethodSelect.value = VALID_F2L_METHODS.has(f2lMethod) ? f2lMethod : DEFAULT_F2L_METHOD;
     }
+    if (stylePlayerSelect) {
+      stylePlayerSelect.value = appState.settings.stylePlayer || "";
+    }
+    await loadStyleProfiles();
     renderAll();
     resetSolverState();
     await generateScramble();

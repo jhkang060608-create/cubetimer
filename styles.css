@@ -299,6 +299,27 @@ body.theme-dark .solver-stage-list code {
   min-width: 0;
 }
 
+.solver-style-row {
+  width: 100%;
+  align-items: end;
+}
+
+.solver-style-row label {
+  flex: 1 1 auto;
+  min-width: 220px;
+}
+
+.solver-style-row button {
+  flex: 0 0 auto;
+}
+
+.solver-style-meta {
+  margin-top: -2px;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .scramble-row {
   flex-wrap: nowrap;
   width: 100%;

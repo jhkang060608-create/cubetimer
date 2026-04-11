@@ -1,6 +1,8 @@
 import { expose } from "../vendor/comlink/index.js";
 import { solveWithFMCSearch } from "./fmcSolver.js";
 import { solveWithExternalSearch } from "./externalSolver.js";
+import { getF2LTransitionProfileForSolver } from "./f2lTransitionProfiles.js";
+import { getF2LDownstreamProfileForSolver } from "./f2lDownstreamProfiles.js";
 import { ensureWasmSolverReady, solveWithWasmIfAvailable } from "./wasmSolver.js";
 
 let solver2x2ModulesPromise = null;
@@ -50,6 +52,13 @@ function normalizeMode(mode) {
 }
 
 function normalizeF2LMethod(method) {
+  const normalized = String(method || "legacy").toLowerCase();
+  if (normalized === "balanced") return "balanced";
+  if (normalized === "rotationless") return "rotationless";
+  if (normalized === "low-auf") return "low-auf";
+  if (normalized === "top10-mixed" || normalized === "elite-mixed" || normalized === "mixed") {
+    return "top10-mixed";
+  }
   return "legacy";
 }
 
@@ -123,8 +132,16 @@ async function solveWithInternal3x3StrictCfop(scramble, onProgress, options = {}
   ]);
   const solved = await getDefaultPattern("333");
   const pattern = solved.applyAlg(scramble);
+  const f2lStyleProfile =
+    options.f2lMethod && options.f2lMethod !== "legacy" ? options.f2lMethod : undefined;
+  const styleProfile =
+    options.styleProfile !== undefined && options.styleProfile !== null
+      ? options.styleProfile
+      : f2lStyleProfile;
   return solve3x3StrictCfopFromPattern(pattern, {
     ...options,
+    scramble,
+    styleProfile,
     onStageUpdate(progress) {
       if (typeof onProgress === "function") {
         try {
@@ -173,8 +190,10 @@ async function solveWithInternal3x3StrictRetries(scramble, onProgress, options =
 
   let firstFailureReason = "";
   let lastFailure = null;
+  const failureHistory = [];
   for (let i = 0; i < attempts.length; i++) {
     const attempt = attempts[i];
+    const deadlineTs = Date.now() + Math.max(250, attempt.timeoutMs - 120);
     if (i > 0 && typeof onProgress === "function") {
       try {
         void onProgress({
@@ -189,6 +208,7 @@ async function solveWithInternal3x3StrictRetries(scramble, onProgress, options =
       solveWithInternal3x3StrictCfop(scramble, onProgress, {
         ...options,
         ...(attempt.extraOptions || {}),
+        deadlineTs,
       }),
       attempt.timeoutMs,
     ).catch(() => ({ ok: false, reason: "INTERNAL_3X3_CFOP_TIMEOUT" }));
@@ -204,21 +224,39 @@ async function solveWithInternal3x3StrictRetries(scramble, onProgress, options =
           ...strictResult,
           source: "INTERNAL_3X3_CFOP_RETRY",
           fallbackFrom: firstFailureReason || "F2L_FAILED",
+          failureHistory,
         };
       }
-      return strictResult;
+      return {
+        ...strictResult,
+        failureHistory,
+      };
     }
+
+    failureHistory.push({
+      attempt: i + 1,
+      timeoutMs: attempt.timeoutMs,
+      reason: String(strictResult?.reason || ""),
+      stage: String(strictResult?.stage || ""),
+      nodes: Number.isFinite(strictResult?.nodes) ? strictResult.nodes : null,
+    });
 
     if (!firstFailureReason) {
       firstFailureReason = String(strictResult?.reason || "");
     }
     lastFailure = strictResult;
     if (!shouldFallbackToExternal3x3(strictResult)) {
-      return strictResult;
+      return {
+        ...strictResult,
+        failureHistory,
+      };
     }
   }
 
-  return lastFailure || { ok: false, reason: "INTERNAL_3X3_CFOP_FAILED" };
+  return {
+    ...(lastFailure || { ok: false, reason: "INTERNAL_3X3_CFOP_FAILED" }),
+    failureHistory,
+  };
 }
 
 async function prewarmInternal2x2() {
@@ -282,11 +320,16 @@ const api = {
     let onProgress;
     let crossColor = "D";
     let mode = "strict";
-    let f2lMethod = "legacy";
+    let f2lMethod = "mixed";
+    let styleProfile;
+    let transitionProfileSolver = "";
+    let enableStyleFallback = true;
+    let enableOllPllPrediction = true;
+    let ollPllPredictionWeight = 0.35;
     if (arg1 && typeof arg1 === "object" && !Array.isArray(arg1)) {
       scramble = arg1.scramble;
       eventId = arg1.eventId;
-      onProgress = arg1.onProgress;
+      onProgress = typeof arg2 === "function" ? arg2 : arg1.onProgress;
       if (typeof arg1.crossColor === "string" && arg1.crossColor) {
         crossColor = arg1.crossColor;
       }
@@ -295,6 +338,21 @@ const api = {
       }
       if (typeof arg1.f2lMethod === "string" && arg1.f2lMethod) {
         f2lMethod = arg1.f2lMethod;
+      }
+      if (arg1.styleProfile && typeof arg1.styleProfile === "object") {
+        styleProfile = arg1.styleProfile;
+      }
+      if (typeof arg1.transitionProfileSolver === "string") {
+        transitionProfileSolver = arg1.transitionProfileSolver;
+      }
+      if (typeof arg1.enableStyleFallback === "boolean") {
+        enableStyleFallback = arg1.enableStyleFallback;
+      }
+      if (typeof arg1.enableOllPllPrediction === "boolean") {
+        enableOllPllPrediction = arg1.enableOllPllPrediction;
+      }
+      if (Number.isFinite(Number(arg1.ollPllPredictionWeight))) {
+        ollPllPredictionWeight = Math.max(0, Number(arg1.ollPllPredictionWeight));
       }
     } else {
       scramble = arg1;
@@ -312,6 +370,26 @@ const api = {
     }
     mode = normalizeMode(mode);
     f2lMethod = normalizeF2LMethod(f2lMethod);
+    let f2lTransitionProfile = null;
+    try {
+      f2lTransitionProfile = await getF2LTransitionProfileForSolver(transitionProfileSolver);
+    } catch (_) {
+      f2lTransitionProfile = null;
+    }
+    let f2lDownstreamProfile = null;
+    if (enableOllPllPrediction !== false) {
+      try {
+        f2lDownstreamProfile = await getF2LDownstreamProfileForSolver(transitionProfileSolver);
+      } catch (_) {
+        f2lDownstreamProfile = null;
+      }
+    }
+    const hasStyleOptIn =
+      (styleProfile !== undefined && styleProfile !== null) || f2lMethod !== "legacy";
+    const hasTransitionOptIn = Boolean(f2lTransitionProfile);
+    const hasDownstreamOptIn = enableOllPllPrediction !== false && Boolean(f2lDownstreamProfile);
+    const allowWasm3x3FastPath =
+      mode === "strict" && !hasStyleOptIn && !hasTransitionOptIn && !hasDownstreamOptIn;
     const normalizedEventId = eventId === "333fm" ? "333" : eventId;
     if (!scramble) {
       return { ok: false, reason: "NO_SCRAMBLE" };
@@ -324,12 +402,14 @@ const api = {
         return await solveWithInternal2x2(scramble);
       }
       if (normalizedEventId === "333") {
-        const wasm3x3Result = await solveWithWasmIfAvailable(scramble, "333");
-        if (wasm3x3Result?.ok) {
-          return {
-            ...wasm3x3Result,
-            source: "WASM_3X3",
-          };
+        if (allowWasm3x3FastPath) {
+          const wasm3x3Result = await solveWithWasmIfAvailable(scramble, "333");
+          if (wasm3x3Result?.ok) {
+            return {
+              ...wasm3x3Result,
+              source: "WASM_3X3",
+            };
+          }
         }
 
         if (mode === "fmc" || mode === "optimal") {
@@ -432,6 +512,12 @@ const api = {
           crossColor,
           mode,
           f2lMethod,
+          styleProfile,
+          f2lTransitionProfile,
+          enableStyleFallback,
+          f2lDownstreamProfile,
+          enableOllPllPrediction,
+          ollPllPredictionWeight,
         });
 
         if (strictResult?.ok || !shouldFallbackToExternal3x3(strictResult)) {

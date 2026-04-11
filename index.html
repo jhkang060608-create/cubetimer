@@ -192,7 +192,28 @@
                     <option value="optimal">최소 수 우선 (느릴 수 있음)</option>
                   </select>
                 </label>
+                <label for="f2lMethodSelect">
+                  F2L 스타일
+                  <select id="f2lMethodSelect">
+                    <option value="legacy">기본 (기존)</option>
+                    <option value="balanced">균형형</option>
+                    <option value="rotationless">회전 최소</option>
+                    <option value="low-auf">AUF 최소</option>
+                    <option value="speed">속도 우선 (전체 학습)</option>
+                    <option value="mixed" selected>조건부 CFOP (XCross/ZBLL)</option>
+                  </select>
+                </label>
               </div>
+              <div class="row solver-style-row">
+                <label for="stylePlayerSelect">
+                  3x3 상위 10명 스타일 적용
+                  <select id="stylePlayerSelect">
+                    <option value="">선수 스타일 미적용</option>
+                  </select>
+                </label>
+                <button id="styleProfileReloadBtn" class="ghost" type="button">스타일 목록 새로고침</button>
+              </div>
+              <div id="styleProfileMeta" class="solver-style-meta">3x3 상위 10명 스타일 프로파일 로딩 전입니다.</div>
               <pre id="solverSolution" class="solver-solution">-</pre>
               <div class="solver-footer">
                 <span id="solverMoveCount">0 수</span>
@@ -306,6 +327,19 @@
             <label class="toggle">
               <input type="checkbox" id="toggleHideLive" />
               <span>진행 중 시간 숨김</span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-group">
+          <div class="settings-label">솔버</div>
+          <div class="settings-actions">
+            <label class="toggle">
+              <input type="checkbox" id="toggleStyleFallback" checked />
+              <span>F2L 스타일 자동 완화</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="toggleOllPllPrediction" checked />
+              <span>OLL/PLL 다운스트림 예측</span>
             </label>
           </div>
         </div>

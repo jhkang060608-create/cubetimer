@@ -24,6 +24,54 @@ python3 -m http.server 5173
 - v1.10: solver 추가 (beta)
 - v1.11: 버전업, FMC 기능 추가, CFOP 알고리즘 개선
 
+## Reconstruction 데이터 수집 (초안)
+`reco.nz`의 3x3 목록 데이터를 수집하고 선수별 요약 통계를 생성하는 스크립트를 추가했습니다.
+
+```bash
+# 1) 3x3 목록 수집 (파일럿 예시)
+node tools/fetch-reco-3x3-index.cjs --start-page 1 --end-page 40 --delay-ms 250 --output vendor-data/reco/reco-3x3-index.json
+
+# 1-b) 전체 이벤트 목록 수집 (약 13,000+ solve)
+node tools/fetch-reco-3x3-index.cjs --start-page 1 --end-page 500 --puzzle all --delay-ms 120 --stop-on-empty 10 --output vendor-data/reco/reco-all-index.json
+
+# 2) 선수별 요약 생성
+node tools/analyze-reco-3x3-index.cjs --input vendor-data/reco/reco-3x3-index.json --output vendor-data/reco/reco-3x3-player-summary.json --min-solves 10
+
+# 3) 개별 solve 상세 수집 (scramble / solution / stage stats)
+node tools/fetch-reco-3x3-details.cjs --input vendor-data/reco/reco-3x3-index.json --output vendor-data/reco/reco-3x3-details.json --delay-ms 120 --concurrency 4 --resume true
+
+# 3-b) 전체 이벤트 상세 수집 (장시간)
+node tools/fetch-reco-3x3-details.cjs --input vendor-data/reco/reco-all-index.json --puzzle all --output vendor-data/reco/reco-all-details.json --delay-ms 80 --concurrency 6 --resume true --checkpoint-every 100
+
+# 4) 상세 기반 선수 스타일 프로파일 생성
+node tools/analyze-reco-3x3-details.cjs --input vendor-data/reco/reco-3x3-details.json --output vendor-data/reco/reco-3x3-style-profiles.json --min-solves 20
+
+# 4-b) 전체 이벤트 상세 분석
+node tools/analyze-reco-3x3-details.cjs --input vendor-data/reco/reco-all-details.json --puzzle all --output vendor-data/reco/reco-all-style-profiles.json --min-solves 20
+
+# 4-c) solve 단위 스타일 피처 + 무결성 검증(샘플) 산출
+node tools/build-reco-3x3-style-features.cjs --input vendor-data/reco/reco-3x3-details.json --output vendor-data/reco/reco-3x3-style-features.json --verify-sample 200 --verify-all false
+
+# 5) F2L 스타일 A/B 벤치마크 (strict/zb 동시, 스타일 거리 + 게이트 판정)
+node tools/benchmark-f2l-style-ab.mjs --input vendor-data/reco/reco-3x3-details.json --style-profile-input vendor-data/reco/reco-3x3-style-features.json --limit 60 --modes strict,zb --styles legacy,balanced,rotationless,low-auf --output vendor-data/reco/reco-3x3-style-benchmark.json
+
+# 6) 100+ solves + (CFOP/ZB) 통합 수동 배치 파이프라인
+node tools/build-reco-3x3-gte100-pipeline.cjs --index-input vendor-data/reco/reco-all-3x3-index.json --details-input vendor-data/reco/reco-all-3x3-details.json --min-solves 100 --methods CFOP,ZB --benchmark-per-solver-limit 12
+```
+
+기본 timeout은 `strict=3000ms`, `zb=5000ms`입니다. 필요하면 `STRICT_TIMEOUT_MS`, `ZB_TIMEOUT_MS`, `TIMEOUT_MS`로 조정하세요.
+
+옵션 확인:
+
+```bash
+node tools/fetch-reco-3x3-index.cjs --help
+node tools/analyze-reco-3x3-index.cjs --help
+node tools/fetch-reco-3x3-details.cjs --help
+node tools/analyze-reco-3x3-details.cjs --help
+node tools/build-reco-3x3-style-features.cjs --help
+node tools/benchmark-f2l-style-ab.mjs --help
+```
+
 ## 기능
 - WCA 종목 스크램블 생성 + 2D 전개도 미리보기
 - 실시간 타이머 (스페이스바 홀드로 시작)
