@@ -79,6 +79,12 @@ export function formatMixedCfopSummary(summary) {
 export function estimateMixedActivationScore(profile, mixedProfile, mixedSummary, caseBias) {
   let score = 0;
   if (mixedProfile) score += 0.15;
+  const styleSimilarity = clampRate01(profile?.styleSimilarity ?? mixedProfile?.styleSimilarity);
+  if (styleSimilarity !== null) {
+    score += styleSimilarity * 0.35;
+    if (styleSimilarity >= 0.6) score += 0.05;
+    if (styleSimilarity >= 0.8) score += 0.08;
+  }
   if (mixedSummary) {
     const firstStageXCrossRate = Number(mixedSummary.firstStageXCrossRate);
     const xxcrossRate = Number(mixedSummary.xxcrossRate);

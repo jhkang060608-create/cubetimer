@@ -52,6 +52,9 @@ node tools/analyze-reco-3x3-details.cjs --input vendor-data/reco/reco-all-detail
 # 4-c) solve 단위 스타일 피처 + 무결성 검증(샘플) 산출
 node tools/build-reco-3x3-style-features.cjs --input vendor-data/reco/reco-3x3-details.json --output vendor-data/reco/reco-3x3-style-features.json --verify-sample 200 --verify-all false
 
+# 4-d) 선수별 LL 변형/동의어 학습 프로파일 재생성
+node --experimental-default-type=module tools/build-reco-3x3-f2l-ll-prediction.cjs --input vendor-data/reco/reco-all-3x3-gte100-details.json --output vendor-data/reco/reco-3x3-f2l-ll-prediction.json --puzzle 3x3 --methods CFOP,ZB --smoothing-alpha 2 --max-cases 8 --max-formulas 24
+
 # 5) F2L 스타일 A/B 벤치마크 (strict/zb 동시, 스타일 거리 + 게이트 판정)
 node tools/benchmark-f2l-style-ab.mjs --input vendor-data/reco/reco-3x3-details.json --style-profile-input vendor-data/reco/reco-3x3-style-features.json --limit 60 --modes strict,zb --styles legacy,balanced,rotationless,low-auf --output vendor-data/reco/reco-3x3-style-benchmark.json
 

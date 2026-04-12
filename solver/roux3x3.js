@@ -82,8 +82,8 @@ const Y_ROTATIONS = Object.freeze(["", "y", "y2", "y'"]);
 const DEFAULT_OPTIONS = Object.freeze({
   fbMaxDepth: 10,
   fbBeamWidth: 320,
-  sbMaxDepth: 12,
-  sbBeamWidth: 420,
+  sbMaxDepth: 10,
+  sbBeamWidth: 320,
   cmllMaxDepth: 8,
   cmllBeamWidth: 220,
   lseFormulaLimit: 260,
@@ -92,7 +92,7 @@ const DEFAULT_OPTIONS = Object.freeze({
   caseDbMaxStates: 180000,
   caseDbMaxPerKey: 8,
   fbPhasePrefixMaxMoves: 16,
-  sbPhasePrefixMaxMoves: 24,
+  sbPhasePrefixMaxMoves: 18,
 });
 
 let rouxContextPromise = null;
@@ -1786,10 +1786,8 @@ async function solveFbRecoveryStage(startPattern, ctx, deadlineTs) {
       phase1MaxDepth: 16,
       phase2MaxDepth: 24,
       timeCheckInterval: 1024,
-      acceptPrefix: (candidate, prefixMoves, depth) =>
-        depth <= DEFAULT_OPTIONS.fbPhasePrefixMaxMoves &&
-        !isSecondBlockSolved(candidate, ctx) &&
-        !isCubeSolved(candidate, ctx),
+      acceptPrefix: (_candidate, _prefixMoves, depth) =>
+        depth <= DEFAULT_OPTIONS.fbPhasePrefixMaxMoves,
       allowFilteredFallback: false,
       selectPrefixScore: (candidate, prefixMoves, depth) =>
         scoreRouxStage(
@@ -1818,17 +1816,16 @@ async function solveFbRecoveryStage(startPattern, ctx, deadlineTs) {
     const fbLoosePhaseFallback = await findGoalPrefixViaPhaseSolve(
       startPattern,
       (candidate) => isFirstBlockSolved(candidate, ctx),
-      {
-        deadlineTs,
-        phase1MaxDepth: 16,
-        phase2MaxDepth: 24,
-        timeCheckInterval: 1024,
-        acceptPrefix: (candidate, prefixMoves, depth) =>
-          depth <= Math.max(48, DEFAULT_OPTIONS.fbPhasePrefixMaxMoves) &&
-          !isCubeSolved(candidate, ctx),
-        allowFilteredFallback: true,
-        allowFilteredWhen: (candidate) => !isCubeSolved(candidate, ctx),
-        selectPrefixScore: (candidate, prefixMoves, depth) =>
+    {
+      deadlineTs,
+      phase1MaxDepth: 16,
+      phase2MaxDepth: 24,
+      timeCheckInterval: 1024,
+      acceptPrefix: (_candidate, _prefixMoves, depth) =>
+        depth <= Math.max(48, DEFAULT_OPTIONS.fbPhasePrefixMaxMoves),
+      allowFilteredFallback: true,
+      allowFilteredWhen: () => true,
+      selectPrefixScore: (candidate, prefixMoves, depth) =>
           scoreRouxStage(
             candidate.patternData,
             ctx.solvedData,
@@ -2741,7 +2738,10 @@ async function mineDedicatedSbAugmentation(afterFbPattern, planCtx, options = {}
     afterFbPattern,
     phasePrefix.moves,
     (candidate) => isSecondBlockSolved(candidate, planCtx),
-    (candidate) => !isCubeSolved(candidate, planCtx) && (!requireCmllBoundary || !isCmllSolved(candidate, planCtx)),
+    requireCmllBoundary
+      ? (candidate) =>
+          !isCubeSolved(candidate, planCtx) && !isCmllSolved(candidate, planCtx)
+      : () => true,
     {
       deadlineTs,
       maxPasses: 3,
@@ -2758,7 +2758,6 @@ async function mineDedicatedSbAugmentation(afterFbPattern, planCtx, options = {}
     !chosen ||
     !afterSbPattern ||
     !isSecondBlockSolved(afterSbPattern, planCtx) ||
-    isCubeSolved(afterSbPattern, planCtx) ||
     (requireCmllBoundary && !sbPreservesCmllBoundary)
   ) {
     return null;
@@ -2780,23 +2779,38 @@ async function tryRuntimeDedicatedSbMine(afterFbPattern, planCtx, options = {}) 
     ...options,
     requireCmllBoundary: true,
   });
-  if (!mined) {
+  if (mined) {
     return {
-      ok: false,
-      moves: null,
+      ok: true,
+      moves: mined.moves,
+      afterPattern: mined.afterPattern,
       method: "phase-prefix-mined-runtime",
-      reason: "SB_MINER_NO_BOUNDARY",
-      nodes: 0,
+      reason: "",
+      nodes: mined.nodes,
+      sbPreservesCmllBoundary: mined.sbPreservesCmllBoundary,
+    };
+  }
+  const relaxed = await mineDedicatedSbAugmentation(afterFbPattern, planCtx, {
+    ...options,
+    requireCmllBoundary: false,
+  });
+  if (relaxed) {
+    return {
+      ok: true,
+      moves: relaxed.moves,
+      afterPattern: relaxed.afterPattern,
+      method: "phase-prefix-mined-runtime-relaxed",
+      reason: "",
+      nodes: relaxed.nodes,
+      sbPreservesCmllBoundary: relaxed.sbPreservesCmllBoundary,
     };
   }
   return {
-    ok: true,
-    moves: mined.moves,
-    afterPattern: mined.afterPattern,
+    ok: false,
+    moves: null,
     method: "phase-prefix-mined-runtime",
-    reason: "",
-    nodes: mined.nodes,
-    sbPreservesCmllBoundary: mined.sbPreservesCmllBoundary,
+    reason: "SB_MINER_NO_BOUNDARY",
+    nodes: 0,
   };
 }
 
@@ -2839,6 +2853,7 @@ export async function buildRouxAugmentationCandidatesFromPattern(pattern, option
     try {
       const solveResult = await solve3x3RouxFromPattern(pattern, {
         deadlineTs: Date.now() + solveBudgetMs,
+        enableRecovery: true,
       });
       if (solveResult?.ok && Array.isArray(solveResult.stages) && solveResult.rouxPlan) {
         const plan = rankedPlans.find((entry) => entry.name === solveResult.rouxPlan) || rankedPlans[0];
@@ -2975,7 +2990,7 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
   }
 
   const ctx = await getRouxContext();
-  const deadlineTs = Number.isFinite(options.deadlineTs) ? options.deadlineTs : Date.now() + 90000;
+  const deadlineTs = Number.isFinite(options.deadlineTs) ? options.deadlineTs : Date.now() + 20000;
   const stageDiagnostics = [];
 
   const cfg = {
@@ -3002,6 +3017,8 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
   const rankedPlans = rankRouxBlockPlans(pattern, ctx);
   const activePlan = rankedPlans[0];
   const alternatePlan = rankedPlans.find((plan) => plan.name !== activePlan?.name) || null;
+  const enableRecovery = options.enableRecovery === true;
+  const allowDeepFallback = enableRecovery;
 
   let rouxCtx = buildRouxPlanContext(ctx, activePlan);
   const alternateRouxCtx = alternatePlan ? buildRouxPlanContext(ctx, alternatePlan) : null;
@@ -3013,6 +3030,9 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
   const totalStages = 4;
 
   const recoverOrFail = async (reason, stageName) => {
+    if (!enableRecovery) {
+      return buildFailure(reason, stageName, totalNodes, stages, stageDiagnostics);
+    }
     if (typeof options?.onStageUpdate === "function") {
       emitStageUpdate(options, {
         type: "fallback_start",
@@ -3078,13 +3098,15 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
       totalStages,
       stageName: "FB",
     });
-    const fbAttempts = [
-      { maxDepth: cfg.fbMaxDepth, beamWidth: cfg.fbBeamWidth },
-      {
-        maxDepth: Math.min(cfg.fbMaxDepth + 2, 14),
-        beamWidth: Math.min(cfg.fbBeamWidth * 2, 1280),
-      },
-    ];
+    const fbAttempts = allowDeepFallback
+      ? [
+          { maxDepth: cfg.fbMaxDepth, beamWidth: cfg.fbBeamWidth },
+          {
+            maxDepth: Math.min(cfg.fbMaxDepth + 2, 14),
+            beamWidth: Math.min(cfg.fbBeamWidth * 2, 1280),
+          },
+        ]
+      : [{ maxDepth: cfg.fbMaxDepth, beamWidth: cfg.fbBeamWidth }];
     let fbMoves = null;
     const fbCaseResult = tryCaseCandidatesStage(
       currentPattern,
@@ -3212,6 +3234,9 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
       }
     }
     if (!fbMoves) {
+      if (!allowDeepFallback) {
+        return recoverOrFail("FB_FAILED", "FB");
+      }
       const fbPhaseFallback = await findGoalPrefixViaPhaseSolve(
         currentPattern,
         (candidate) => isFirstBlockSolved(candidate, rouxCtx),
@@ -3324,8 +3349,6 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
     });
     let sbMoves = null;
     let sbAfterPattern = null;
-    let sbBoundaryFailureReason = "";
-    let sbBoundaryRecovered = false;
     const runRuntimeSbMiner = async (trigger) => {
       const minedSb = await tryRuntimeDedicatedSbMine(currentPattern, rouxCtx, { deadlineTs });
       totalNodes += minedSb.nodes;
@@ -3384,17 +3407,19 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
         allowedMoves: ROUX_SB_MOVES,
         deadlineTs,
         keyFn: (candidate) => buildEntriesStateKey(candidate, rouxCtx.secondBlockEntries),
-      }, [
-        { maxDepth: cfg.sbMaxDepth, beamWidth: cfg.sbBeamWidth },
-        {
-          maxDepth: Math.min(cfg.sbMaxDepth + 2, 14),
-          beamWidth: Math.min(cfg.sbBeamWidth * 2, 1280),
-        },
-        {
-          maxDepth: Math.min(cfg.sbMaxDepth + 4, 16),
-          beamWidth: Math.min(cfg.sbBeamWidth * 4, 2000),
-        },
-      ]);
+      }, allowDeepFallback
+        ? [
+            { maxDepth: cfg.sbMaxDepth, beamWidth: cfg.sbBeamWidth },
+            {
+              maxDepth: Math.min(cfg.sbMaxDepth + 2, 14),
+              beamWidth: Math.min(cfg.sbBeamWidth * 2, 1280),
+            },
+            {
+              maxDepth: Math.min(cfg.sbMaxDepth + 4, 16),
+              beamWidth: Math.min(cfg.sbBeamWidth * 4, 2000),
+            },
+          ]
+        : [{ maxDepth: cfg.sbMaxDepth, beamWidth: cfg.sbBeamWidth }]);
       totalNodes += sbResult.nodes;
       stageDiagnostics.push(...sbResult.diagnostics.map((entry) => ({ stage: "SB", ...entry })));
       if (sbResult.ok && Array.isArray(sbResult.moves)) {
@@ -3402,24 +3427,22 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
       }
     }
     if (!sbMoves) {
-      const minedBeforePhase = await runRuntimeSbMiner("post-beam");
-      if (minedBeforePhase) {
-        sbMoves = simplifyMoves(sbMoves);
+      if (!allowDeepFallback) {
+        return recoverOrFail("SB_FAILED", "SB");
       }
-    }
-    if (!sbMoves) {
       const sbPhaseFallback = await findGoalPrefixViaPhaseSolve(
         currentPattern,
         (candidate) => isSecondBlockSolved(candidate, rouxCtx),
         {
           deadlineTs,
-          acceptPrefix: (candidate, prefixMoves, depth) =>
+          phase1MaxDepth: allowDeepFallback ? 16 : 12,
+          phase2MaxDepth: allowDeepFallback ? 24 : 18,
+          timeCheckInterval: allowDeepFallback ? 1024 : 768,
+          acceptPrefix: (candidate, _prefixMoves, depth) =>
             depth <= cfg.sbPhasePrefixMaxMoves &&
             !isCmllSolved(candidate, rouxCtx) &&
             !isCubeSolved(candidate, rouxCtx),
-          allowFilteredFallback: true,
-          allowFilteredWhen: (candidate) =>
-            !isCmllSolved(candidate, rouxCtx) && !isCubeSolved(candidate, rouxCtx),
+          allowFilteredFallback: false,
           selectPrefixScore: (candidate, prefixMoves, depth) =>
             scoreRouxStage(
               candidate.patternData,
@@ -3450,150 +3473,24 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
           (candidate) => isSecondBlockSolved(candidate, rouxCtx),
           {
             deadlineTs,
-            maxPasses: 3,
-            maxWindow: 8,
-          },
-        );
-        sbAfterPattern = tryApplyMoves(currentPattern, sbMoves);
-        const preservesBoundary =
-          Boolean(sbAfterPattern) &&
-          isSecondBlockSolved(sbAfterPattern, rouxCtx) &&
-          !isCmllSolved(sbAfterPattern, rouxCtx) &&
-          !isCubeSolved(sbAfterPattern, rouxCtx);
-        if (!preservesBoundary) {
-          const minedReplacement = await runRuntimeSbMiner(
-            isCubeSolved(sbAfterPattern, rouxCtx) ? "phase-prefix-oversolved" : "phase-prefix-cmll-presolved",
-          );
-          if (!minedReplacement) {
-            stageDiagnostics.push({
-              stage: "SB",
-              method: "boundary-check",
-              ok: false,
-              reason: isCubeSolved(sbAfterPattern, rouxCtx)
-                ? "SB_OVERSOLVED_CUBE"
-                : "SB_CMLL_PRESOLVED",
-            });
-            sbBoundaryFailureReason = isCubeSolved(sbAfterPattern, rouxCtx)
-              ? "SB_OVERSOLVED_CUBE"
-              : "SB_CMLL_PRESOLVED";
-          } else {
-            sbBoundaryRecovered = true;
-          }
-        }
-      } else {
-        const minedBeforeRelaxed = await runRuntimeSbMiner("post-phase-prefix-fail");
-        if (minedBeforeRelaxed) {
-          sbMoves = simplifyMoves(sbMoves);
-      } else {
-        const sbRelaxedFallback = await findGoalPrefixViaPhaseSolve(
-          currentPattern,
-          (candidate) => isSecondBlockSolved(candidate, rouxCtx),
-          {
-            deadlineTs,
-            // Last-chance relaxed mode: prefer progress over hard-fail.
-            acceptPrefix: (candidate, prefixMoves, depth) =>
-              depth <= Math.max(24, cfg.sbPhasePrefixMaxMoves) &&
-              !isCmllSolved(candidate, rouxCtx) &&
-              !isCubeSolved(candidate, rouxCtx),
-            allowFilteredFallback: true,
-            allowFilteredWhen: (candidate) =>
-              !isCmllSolved(candidate, rouxCtx) && !isCubeSolved(candidate, rouxCtx),
-            selectPrefixScore: (candidate, prefixMoves, depth) =>
-              scoreRouxStage(
-                candidate.patternData,
-                rouxCtx.solvedData,
-                rouxCtx.secondBlockEntries,
-                rouxCtx.topCornerPositions.map((position) => ({ orbit: "CORNERS", position })),
-                depth,
-                {
-                  targetMultiplier: 320,
-                  futurePenalty: 90,
-                  depthPenalty: 14,
-                },
-              ) - depth * 8,
-          },
-        );
-        totalNodes += sbRelaxedFallback.nodes;
-        stageDiagnostics.push({
-          stage: "SB",
-          method: "phase-prefix-relaxed",
-          nodes: sbRelaxedFallback.nodes,
-          ok: sbRelaxedFallback.ok,
-          reason: sbRelaxedFallback.reason || "",
-        });
-        if (!sbRelaxedFallback.ok || !Array.isArray(sbRelaxedFallback.moves)) {
-          return recoverOrFail("SB_FAILED", "SB");
-        }
-        sbMoves = optimizeGoalPrefixMoves(
-          currentPattern,
-          sbRelaxedFallback.moves,
-          (candidate) => isSecondBlockSolved(candidate, rouxCtx),
-          {
-            deadlineTs,
             maxPasses: 2,
             maxWindow: 6,
           },
         );
         sbAfterPattern = tryApplyMoves(currentPattern, sbMoves);
-        const preservesBoundary =
-          Boolean(sbAfterPattern) &&
-          isSecondBlockSolved(sbAfterPattern, rouxCtx) &&
-          !isCmllSolved(sbAfterPattern, rouxCtx) &&
-          !isCubeSolved(sbAfterPattern, rouxCtx);
-        if (!preservesBoundary) {
-          const minedReplacement = await runRuntimeSbMiner(
-            isCubeSolved(sbAfterPattern, rouxCtx) ? "relaxed-oversolved" : "relaxed-cmll-presolved",
-          );
-          if (!minedReplacement) {
-            stageDiagnostics.push({
-              stage: "SB",
-              method: "boundary-check",
-              ok: false,
-              reason: isCubeSolved(sbAfterPattern, rouxCtx)
-                ? "SB_OVERSOLVED_CUBE"
-                : "SB_CMLL_PRESOLVED",
-            });
-            sbBoundaryFailureReason = isCubeSolved(sbAfterPattern, rouxCtx)
-              ? "SB_OVERSOLVED_CUBE"
-              : "SB_CMLL_PRESOLVED";
-          } else {
-            sbBoundaryRecovered = true;
-          }
+      } else if (allowDeepFallback) {
+        const minedBeforePhase = await runRuntimeSbMiner("post-beam");
+        if (minedBeforePhase) {
+          sbMoves = simplifyMoves(sbMoves);
+          sbAfterPattern = tryApplyMoves(currentPattern, sbMoves);
         }
-        }
+      }
+      if (!sbMoves) {
+        return recoverOrFail("SB_FAILED", "SB");
       }
     } else {
       sbMoves = simplifyMoves(sbMoves);
       sbAfterPattern = tryApplyMoves(currentPattern, sbMoves);
-      const preservesBoundary =
-        Boolean(sbAfterPattern) &&
-        isSecondBlockSolved(sbAfterPattern, rouxCtx) &&
-        !isCmllSolved(sbAfterPattern, rouxCtx) &&
-        !isCubeSolved(sbAfterPattern, rouxCtx);
-      if (!preservesBoundary) {
-        const minedReplacement = await runRuntimeSbMiner(
-          isCubeSolved(sbAfterPattern, rouxCtx) ? "direct-oversolved" : "direct-cmll-presolved",
-        );
-        if (!minedReplacement) {
-          stageDiagnostics.push({
-            stage: "SB",
-            method: "boundary-check",
-            ok: false,
-            reason: isCubeSolved(sbAfterPattern, rouxCtx)
-              ? "SB_OVERSOLVED_CUBE"
-              : "SB_CMLL_PRESOLVED",
-          });
-          sbBoundaryFailureReason = isCubeSolved(sbAfterPattern, rouxCtx)
-            ? "SB_OVERSOLVED_CUBE"
-            : "SB_CMLL_PRESOLVED";
-        } else {
-          sbBoundaryRecovered = true;
-        }
-      }
-    }
-
-    if (sbBoundaryFailureReason && !sbBoundaryRecovered) {
-      return recoverOrFail(sbBoundaryFailureReason, "SB");
     }
 
     currentPattern = sbAfterPattern || tryApplyMoves(currentPattern, sbMoves);
@@ -3681,6 +3578,9 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
           ok: cmllBeam.ok,
         });
         if (!cmllBeam.ok || !Array.isArray(cmllBeam.moves)) {
+          if (!allowDeepFallback) {
+            return recoverOrFail("CMLL_FAILED", "CMLL");
+          }
           const cmllPhaseFallback = await findGoalPrefixViaPhaseSolve(
             currentPattern,
             (candidate) => isCmllSolved(candidate, rouxCtx),
@@ -3770,6 +3670,9 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
           ok: true,
         });
       } else {
+        if (!allowDeepFallback) {
+          return recoverOrFail("LSE_FAILED", "LSE");
+        }
         const remainingMs = Number.isFinite(deadlineTs) ? Math.max(500, deadlineTs - Date.now()) : 25000;
         const phaseResult = await solve3x3InternalPhase(currentPattern, {
           phase1MaxDepth: 13,
@@ -3796,6 +3699,9 @@ export async function solve3x3RouxFromPattern(pattern, options = {}) {
 
     currentPattern = tryApplyMoves(currentPattern, lseMoves);
     if (!currentPattern || !isCubeSolved(currentPattern, rouxCtx)) {
+      if (!allowDeepFallback) {
+        return recoverOrFail("LSE_RECOVERY_FAILED", "LSE");
+      }
       const lseRecovery = await solveLseRecoveryStage(currentPattern, rouxCtx, deadlineTs);
       totalNodes += Number(lseRecovery.nodes || 0);
       stageDiagnostics.push(...(lseRecovery.diagnostics || []));

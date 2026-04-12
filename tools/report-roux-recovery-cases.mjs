@@ -193,6 +193,7 @@ async function main() {
     try {
       result = await solve3x3RouxFromPattern(pattern, {
         deadlineTs: Date.now() + deadlineMs,
+        enableRecovery: true,
       });
     } catch (error) {
       result = {

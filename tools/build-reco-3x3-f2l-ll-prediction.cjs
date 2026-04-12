@@ -18,7 +18,7 @@ const DEFAULT_METHODS = ["CFOP", "ZB"];
 const DEFAULT_SMOOTHING_ALPHA = 2;
 const DEFAULT_MAX_CASES = 8;
 const DEFAULT_MAX_FORMULAS = 12;
-const SCHEMA_VERSION = "reco-f2l-ll-prediction.v2";
+const SCHEMA_VERSION = "reco-f2l-ll-prediction.v3";
 const FORMULA_ROTATIONS = ["", "y", "y2", "y'"];
 const FORMULA_AUF = ["", "U", "U2", "U'"];
 const FRAME_ROTATION_TOKENS = new Set(["x", "x2", "x'", "z", "z2", "z'"]);
@@ -401,6 +401,7 @@ function createStateAccumulator() {
     llMoveSum: 0,
     caseCounts: new Map(),
     formulaCounts: new Map(),
+    formulaVariantCounts: new Map(),
   };
 }
 
@@ -420,6 +421,22 @@ function addFormulaCount(formulaCounts, family, formula) {
   formulaCounts.set(key, { family, formula, count: 1 });
 }
 
+function addFormulaVariantCount(formulaVariantCounts, family, canonicalFormula, variantFormula) {
+  if (!formulaVariantCounts || !family || !canonicalFormula || !variantFormula) return;
+  const key = `${family}::${canonicalFormula}::${variantFormula}`;
+  const existing = formulaVariantCounts.get(key);
+  if (existing) {
+    existing.count += 1;
+    return;
+  }
+  formulaVariantCounts.set(key, {
+    family,
+    canonicalFormula,
+    formula: variantFormula,
+    count: 1,
+  });
+}
+
 function addStateSample(stateMap, stateKey, sample) {
   const key = String(stateKey);
   let acc = stateMap.get(key);
@@ -434,6 +451,19 @@ function addStateSample(stateMap, stateKey, sample) {
   addCaseCount(acc.caseCounts, sample.firstCaseTag);
   if (sample.formulaFamily && sample.formulaKey) {
     addFormulaCount(acc.formulaCounts, sample.formulaFamily, sample.formulaKey);
+  }
+  if (
+    sample.formulaVariantFamily &&
+    sample.formulaCanonicalKey &&
+    sample.formulaVariantKey &&
+    sample.formulaVariantKey !== sample.formulaCanonicalKey
+  ) {
+    addFormulaVariantCount(
+      acc.formulaVariantCounts,
+      sample.formulaVariantFamily,
+      sample.formulaCanonicalKey,
+      sample.formulaVariantKey,
+    );
   }
 }
 
@@ -530,6 +560,31 @@ function serializeDownstreamProfile(solver, stateMap, stats, opts, priorMeans = 
     }
     const topFormulas = formulaEntries.slice(0, maxFormulas);
 
+    const formulaVariantEntries = Array.from(acc.formulaVariantCounts.values())
+      .map((entry) => ({
+        family: String(entry.family || "OTHER"),
+        canonicalFormula: String(entry.canonicalFormula || ""),
+        formula: String(entry.formula || ""),
+        count: Number(entry.count || 0),
+      }))
+      .filter(
+        (entry) =>
+          entry.formula &&
+          entry.canonicalFormula &&
+          entry.formula !== entry.canonicalFormula &&
+          Number.isFinite(entry.count) &&
+          entry.count > 0,
+      )
+      .sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        const familyCmp = a.family.localeCompare(b.family);
+        if (familyCmp !== 0) return familyCmp;
+        const canonicalCmp = a.canonicalFormula.localeCompare(b.canonicalFormula);
+        if (canonicalCmp !== 0) return canonicalCmp;
+        return a.formula.localeCompare(b.formula);
+      });
+    const topFormulaVariants = formulaVariantEntries.slice(0, maxFormulas * 2);
+
     states.push({
       key: Number(key),
       sampleCount: acc.sampleCount,
@@ -540,6 +595,7 @@ function serializeDownstreamProfile(solver, stateMap, stats, opts, priorMeans = 
       topCases,
       formulaFamilyCounts,
       topFormulas,
+      topFormulaVariants,
     });
   }
 
@@ -644,6 +700,7 @@ async function buildDownstreamProfiles(rows, ctx, opts, formulaIndex = null) {
     let firstCaseTag = "";
     let firstFormulaFamily = null;
     let firstFormulaKey = null;
+    let firstFormulaVariantKey = null;
     let ollMoveCount = 0;
     let pllMoveCount = 0;
     let llMoveCount = 0;
@@ -682,6 +739,7 @@ async function buildDownstreamProfiles(rows, ctx, opts, formulaIndex = null) {
         if (formulaMatch) {
           firstFormulaFamily = formulaMatch.family;
           firstFormulaKey = formulaMatch.formula;
+          firstFormulaVariantKey = movesText;
         }
       }
 
@@ -715,6 +773,9 @@ async function buildDownstreamProfiles(rows, ctx, opts, formulaIndex = null) {
       firstCaseTag,
       formulaFamily: firstFormulaFamily,
       formulaKey: firstFormulaKey,
+      formulaVariantFamily: firstFormulaFamily,
+      formulaCanonicalKey: firstFormulaKey,
+      formulaVariantKey: firstFormulaVariantKey,
     };
 
     addStateSample(globalStateMap, llStateKey, sample);
@@ -794,7 +855,7 @@ async function main() {
       maxCases: opts.maxCases,
       maxFormulas: opts.maxFormulas,
       llBoundaryRule: "first step label matching OLL|PLL|ZBLS|ZBLL",
-      formulaRule: "match normalized LL moves against SCDB/ZB formula libraries",
+      formulaRule: "match normalized LL moves against SCDB/ZB formula libraries and per-player variants",
     },
     totals: {
       records: records.length,

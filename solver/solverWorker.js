@@ -11,7 +11,7 @@ let solver3x3PhaseModulesPromise = null;
 const FMC_333_TIMEOUT_MS = 120000;
 const STRICT_CFOP_TIMEOUT_MS = 45000;
 const STRICT_CFOP_RETRY_TIMEOUT_MS = 25000;
-const ROUX_333_TIMEOUT_MS = 90000;
+const ROUX_333_TIMEOUT_MS = 30000;
 const INTERNAL_333_PHASE_TIMEOUT_MS = 20000;
 const EXTERNAL_333_FALLBACK_TIMEOUT_MS = 20000;
 const STRICT_F2L_RETRY_OPTIONS = [
@@ -539,19 +539,83 @@ const api = {
           ]);
           const solved = await getDefaultPattern("333");
           const pattern = solved.applyAlg(scramble);
-          return await withTimeout(
-            solve3x3RouxFromPattern(pattern, {
-              deadlineTs: Date.now() + Math.max(1000, ROUX_333_TIMEOUT_MS - 250),
-              onStageUpdate(progress) {
-                if (typeof onProgress === "function") {
-                  try {
-                    void onProgress(progress);
-                  } catch (_) {}
-                }
-              },
-            }),
+          const hardDeadlineTs = Date.now() + Math.max(1000, ROUX_333_TIMEOUT_MS - 250);
+          const rouxResult = await withTimeout(
+            (async () => {
+              const fastDeadlineTs = Math.min(hardDeadlineTs, Date.now() + 8000);
+              const fastResult = await solve3x3RouxFromPattern(pattern, {
+                deadlineTs: fastDeadlineTs,
+                enableRecovery: false,
+                onStageUpdate(progress) {
+                  if (typeof onProgress === "function") {
+                    try {
+                      void onProgress(progress);
+                    } catch (_) {}
+                  }
+                },
+              });
+              if (fastResult?.ok) {
+                return fastResult;
+              }
+              return await solve3x3RouxFromPattern(pattern, {
+                deadlineTs: hardDeadlineTs,
+                enableRecovery: true,
+                onStageUpdate(progress) {
+                  if (typeof onProgress === "function") {
+                    try {
+                      void onProgress(progress);
+                    } catch (_) {}
+                  }
+                },
+              });
+            })(),
             ROUX_333_TIMEOUT_MS,
           ).catch(() => ({ ok: false, reason: "ROUX_TIMEOUT", stage: "ROUX" }));
+          if (rouxResult?.ok) {
+            return rouxResult;
+          }
+          if (typeof onProgress === "function") {
+            try {
+              void onProgress({
+                type: "fallback_start",
+                stageName: "Roux -> CFOP",
+                reason: String(rouxResult?.reason || "ROUX_FAILED"),
+              });
+            } catch (_) {}
+          }
+          const cfopFallback = await solveWithInternal3x3StrictRetries(scramble, onProgress, {
+            crossColor,
+            mode: "cfop",
+            f2lMethod,
+            transitionProfileSolver,
+            styleProfile,
+            f2lTransitionProfile,
+            enableStyleFallback,
+            f2lDownstreamProfile,
+            llFamilyCalibration,
+            enableOllPllPrediction,
+            ollPllPredictionWeight,
+          });
+          if (cfopFallback?.ok) {
+            if (typeof onProgress === "function") {
+              try {
+                void onProgress({
+                  type: "fallback_done",
+                  stageName: "Roux -> CFOP",
+                });
+              } catch (_) {}
+            }
+            return {
+              ...cfopFallback,
+              source: "INTERNAL_3X3_ROUX_FALLBACK_CFOP",
+              fallbackFrom: String(rouxResult?.reason || "ROUX_FAILED"),
+              rouxFailure: {
+                reason: String(rouxResult?.reason || ""),
+                stage: String(rouxResult?.stage || ""),
+              },
+            };
+          }
+          return rouxResult;
         }
         if (typeof onProgress === "function") {
           try {
@@ -562,6 +626,7 @@ const api = {
           crossColor,
           mode,
           f2lMethod,
+          transitionProfileSolver,
           styleProfile,
           f2lTransitionProfile,
           enableStyleFallback,

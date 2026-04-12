@@ -1738,6 +1738,18 @@ function normalizeStyleProfileRecord(profile) {
   };
 }
 
+function computeStyleProfileSimilarity(candidateProfile, referenceProfile) {
+  const candidate = normalizeStyleProfileRecord(candidateProfile);
+  const reference = normalizeStyleProfileRecord(referenceProfile);
+  if (!candidate || !reference) return null;
+  const rotationDistance = Math.abs(Number(candidate.rotationWeight) - Number(reference.rotationWeight)) / 12;
+  const aufDistance = Math.abs(Number(candidate.aufWeight) - Number(reference.aufWeight)) / 12;
+  const wideTurnDistance = Math.abs(Number(candidate.wideTurnWeight) - Number(reference.wideTurnWeight)) / 12;
+  const weightedDistance = (rotationDistance * 3 + aufDistance * 3 + wideTurnDistance * 2) / 8;
+  const similarity = Math.max(0, Math.min(1, 1 - weightedDistance));
+  return Number(similarity.toFixed(6));
+}
+
 function getGlobalSpeedStyleProfile() {
   return normalizeStyleProfileRecord(globalSpeedStyleProfile) || DEFAULT_SPEED_STYLE_PROFILE;
 }
@@ -1750,6 +1762,7 @@ function getGlobalMixedCfopStyleProfile() {
   return {
     ...profile,
     rotationWeight: Math.max(profile.rotationWeight, 3),
+    styleSimilarity: 1,
     caseBias: profile.caseBias || deriveCaseBiasFromMixedSummary(summary),
     mixedCfopSummary: summary || null,
   };
@@ -1805,12 +1818,28 @@ function getPlayerStyleProfile(playerName, methodHint = "") {
     }
     const mixedProfile = normalizeStyleProfileRecord(profile.mixedCfopStyleProfile);
     if (mixedProfile) {
-      return applyCaseBiasToStyleProfile(
+      const styleSimilarityReference =
+        normalizeStyleProfileRecord(globalMixedCfopStyleProfile) || DEFAULT_MIXED_CFOP_STYLE_PROFILE;
+      const adjustedMixedProfile = applyCaseBiasToStyleProfile(
         mixedProfile,
         profile.caseBias,
         profile.mixedCfopSummary,
         profile.crossSamplingCalibration,
       );
+      if (adjustedMixedProfile) {
+        const styleSimilarity = computeStyleProfileSimilarity(
+          normalizeStyleProfileRecord(profile.learnedStyleProfile) ||
+            normalizeStyleProfileRecord(profile.speedStyleProfile) ||
+            normalizeStyleProfileRecord(profile.detailedStyleProfile) ||
+            normalizeStyleProfileRecord(profile.recommendedStyleProfile) ||
+            mixedProfile,
+          styleSimilarityReference,
+        );
+        return {
+          ...adjustedMixedProfile,
+          styleSimilarity,
+        };
+      }
     }
   }
 
@@ -1901,7 +1930,7 @@ function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}
   }
 
   setStyleProfileMeta(
-    `${playerName}: 추천 ${recommended}, rotation ${formatRatioPercent(profile.rotationRate)}, AUF ${formatRatioPercent(profile.aufRate)}, wide ${formatRatioPercent(profile.wideTurnRate)}, weights ${formatStyleWeightSummary(getPlayerStyleProfile(playerName, recommended))}${profile.forcePureCfop ? " (pure CFOP)" : ""}${profile.speedBestStyle ? `, speed ${profile.speedBestStyle}` : ""}${profile.learnedStyleProfile ? " (ML 가중치 적용)" : ""}${profile.mixedCfopSummary ? `, mixed ${formatMixedCfopSummary(profile.mixedCfopSummary)}` : ""}${profile.caseBias ? `, caseBias ${formatCaseBiasSummary(profile.caseBias)}` : ""}`,
+    `${playerName}: 추천 ${recommended}, rotation ${formatRatioPercent(profile.rotationRate)}, AUF ${formatRatioPercent(profile.aufRate)}, wide ${formatRatioPercent(profile.wideTurnRate)}, weights ${formatStyleWeightSummary(getPlayerStyleProfile(playerName, recommended))}${Number.isFinite(profile.styleSimilarity) ? `, styleSim ${formatRatioPercent(profile.styleSimilarity)}` : ""}${profile.forcePureCfop ? " (pure CFOP)" : ""}${profile.speedBestStyle ? `, speed ${profile.speedBestStyle}` : ""}${profile.learnedStyleProfile ? " (ML 가중치 적용)" : ""}${profile.mixedCfopSummary ? `, mixed ${formatMixedCfopSummary(profile.mixedCfopSummary)}` : ""}${profile.caseBias ? `, caseBias ${formatCaseBiasSummary(profile.caseBias)}` : ""}`,
   );
 
   if (f2lMethodSelect) {
@@ -2002,6 +2031,16 @@ async function loadStyleProfiles({ force = false } = {}) {
           normalizeStyleProfileRecord(mixedEntry.mixedStyleProfile || mixedEntry.mixedCfopStyleProfile) || null;
         const learnedStyleProfile = normalizeStyleProfileRecord(learnedEntry.learnedStyleProfile) || null;
         const speedStyleProfile = normalizeStyleProfileRecord(learnedEntry.speedStyleProfile) || null;
+        const styleSimilaritySource =
+          learnedStyleProfile ||
+          normalizeStyleProfileRecord(entry.detailedStyleProfile) ||
+          normalizeStyleProfileRecord(entry.recommendedStyleProfile) ||
+          speedStyleProfile ||
+          mixedCfopStyleProfile;
+        const styleSimilarity = computeStyleProfileSimilarity(
+          styleSimilaritySource,
+          loadedMixedProfile || DEFAULT_MIXED_CFOP_STYLE_PROFILE,
+        );
         const mixedCaseBias = mixedEntry.caseBias
           ? normalizeCaseBiasRecord(mixedEntry.caseBias)
           : mixedCfopSummary
@@ -2017,6 +2056,7 @@ async function loadStyleProfiles({ force = false } = {}) {
           ...entry,
           learnedStyleProfile,
           speedStyleProfile,
+          styleSimilarity,
           mixedCfopSummary,
           mixedCfopStyleProfile,
           forcePureCfop: mixedEntry.forcePureCfop === true || entry.forcePureCfop === true,

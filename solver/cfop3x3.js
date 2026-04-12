@@ -80,6 +80,10 @@ const DEFAULT_F2L_DOWNSTREAM_WEIGHT = 0.35;
 const MAX_F2L_DOWNSTREAM_PENALTY = 24;
 const MAX_F2L_ZBLL_OPPORTUNITY_BONUS = 1.6;
 const MAX_F2L_MIXED_LL_SIGNAL_BONUS = 3.2;
+// LL merge tuning constants (derived from tools/tune-ll-merge.mjs)
+const LL_MERGE_VARIANT_WEIGHT = 2;
+const LL_MERGE_CANONICAL_ALIAS_WEIGHT = 0;
+const LL_MERGE_CANONICAL_BOOST = 1;
 const ZBLL_CASE_LABEL_RE = /\bZBLL\b/i;
 const ZBLS_CASE_LABEL_RE = /\bZBLS\b/i;
 const EO_CASE_LABEL_RE = /\bEO\b/i;
@@ -1473,12 +1477,26 @@ function normalizeDownstreamStateEntry(entry) {
   const rates = getDownstreamCaseRates(entry, sampleCount, topCases);
 
   if (!Number.isFinite(expectedLlMoves)) return null;
+  // Preserve top formulas and variant lists when present in the source entry
+  const topFormulas = Array.isArray(entry?.topFormulas)
+    ? entry.topFormulas
+        .map((tf) => ({ family: String(tf.family || "").trim(), formula: String(tf.formula || tf.algorithm || tf.formulaKey || "").trim(), count: Number(tf.count || tf.sampleCount || 0) }))
+        .filter((f) => f.formula && Number.isFinite(f.count) && f.count > 0)
+    : [];
+  const topFormulaVariants = Array.isArray(entry?.topFormulaVariants)
+    ? entry.topFormulaVariants
+        .map((v) => ({ family: String(v.family || "").trim(), canonicalFormula: String(v.canonicalFormula || v.canonical || v.canonicalKey || "").trim(), formula: String(v.formula || v.variant || "").trim(), count: Number(v.count || 0) }))
+        .filter((v) => v.canonicalFormula && v.formula && Number.isFinite(v.count) && v.count > 0)
+    : [];
+
   return {
     sampleCount: Number.isFinite(sampleCount) && sampleCount > 0 ? Math.floor(sampleCount) : 0,
     expectedOllMoves: Number.isFinite(expectedOllMoves) ? expectedOllMoves : null,
     expectedPllMoves: Number.isFinite(expectedPllMoves) ? expectedPllMoves : null,
     expectedLlMoves,
     topCases,
+    topFormulas,
+    topFormulaVariants,
     zbllRate: rates.zbllRate,
     zblsRate: rates.zblsRate,
     eoLikeRate: rates.eoLikeRate,
@@ -1663,16 +1681,53 @@ function buildLlFamilyScoresFromStateEntry(stateEntry, mixedCaseBias = null) {
   for (let i = 0; i < topFormulas.length; i++) {
     const normalized = normalizeLlFormulaEntry(topFormulas[i]);
     if (!normalized) continue;
-    const current = formulaPriorityMap.get(normalized.formula) || 0;
-    const next = current + normalized.count;
-    formulaPriorityMap.set(normalized.formula, next);
-    formulaFamilyScores[normalized.family] = (formulaFamilyScores[normalized.family] || 0) + normalized.count;
+    // Add counts under multiple lookup keys with canonical boost.
+    const keys = new Set();
+    keys.add(normalized.formula);
+    const normKey = normalizeFormulaMatchText(normalized.formula);
+    if (normKey) keys.add(normKey);
+    const addCount = normalized.count * LL_MERGE_CANONICAL_BOOST;
+    for (const k of keys) {
+      formulaPriorityMap.set(k, (formulaPriorityMap.get(k) || 0) + addCount);
+    }
+    formulaFamilyScores[normalized.family] = (formulaFamilyScores[normalized.family] || 0) + addCount;
     const currentPreferred = preferredFormulaByFamily[normalized.family];
-    if (!currentPreferred || normalized.count > currentPreferred.count) {
+    if (!currentPreferred || addCount > currentPreferred.count) {
       preferredFormulaByFamily[normalized.family] = {
         formula: normalized.formula,
-        count: normalized.count,
+        count: addCount,
       };
+    }
+  }
+
+  // Incorporate variant counts (same perm, different moves) by adding their counts
+  // under variant, normalized, and canonical keys so lookups find the canonical preference.
+  const topVariants = Array.isArray(stateEntry?.topFormulaVariants) ? stateEntry.topFormulaVariants : [];
+  for (let v = 0; v < topVariants.length; v++) {
+    const variantEntry = topVariants[v];
+    if (!variantEntry || typeof variantEntry !== 'object') continue;
+    const family = String(variantEntry.family || '').trim();
+    const variantFormula = String(variantEntry.formula || variantEntry.variant || '').trim();
+    const canonicalFormula = String(variantEntry.canonicalFormula || variantEntry.canonical || variantEntry.canonicalKey || '').trim();
+    const count = Number(variantEntry.count || 0);
+    if (!variantFormula || !Number.isFinite(count) || count <= 0) continue;
+    const vNorm = normalizeFormulaMatchText(variantFormula) || variantFormula;
+    const cNorm = canonicalFormula ? normalizeFormulaMatchText(canonicalFormula) || canonicalFormula : null;
+    const variantAdd = count * LL_MERGE_VARIANT_WEIGHT;
+    // add variant under raw and normalized keys
+    formulaPriorityMap.set(variantFormula, (formulaPriorityMap.get(variantFormula) || 0) + variantAdd);
+    formulaPriorityMap.set(vNorm, (formulaPriorityMap.get(vNorm) || 0) + variantAdd);
+    // optionally add to canonical normalized key (alias mapping)
+    if (cNorm && LL_MERGE_CANONICAL_ALIAS_WEIGHT > 0) {
+      formulaPriorityMap.set(cNorm, (formulaPriorityMap.get(cNorm) || 0) + count * LL_MERGE_CANONICAL_ALIAS_WEIGHT);
+    }
+    if (family) {
+      formulaFamilyScores[family] = (formulaFamilyScores[family] || 0) + variantAdd;
+      const currentPreferred = preferredFormulaByFamily[family];
+      const preferredCandidate = canonicalFormula || variantFormula;
+      if (!currentPreferred || variantAdd > currentPreferred.count) {
+        preferredFormulaByFamily[family] = { formula: preferredCandidate, count: variantAdd };
+      }
     }
   }
 
