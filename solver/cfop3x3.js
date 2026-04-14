@@ -111,7 +111,7 @@ const CROSS_COLOR_LABELS = {
 };
 const CROSS_COLOR_SEQUENCE = ["D", "U", "F", "B", "R", "L"];
 // Per-color budget for CN cross probe; keeps total probe time bounded regardless of IDA* depth.
-const CN_CROSS_PROBE_BUDGET_MS = 260;
+const CN_CROSS_PROBE_BUDGET_MS = 150;
 const CROSS_EDGE_TARGETS = {
   D: ["DF", "DR", "DB", "DL"],
   U: ["UF", "UR", "UB", "UL"],
@@ -5047,8 +5047,8 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
       if (bestColorProbe && (!bestProbe || compareCrossProbeResults(bestColorProbe, bestProbe) < 0)) {
         bestProbe = bestColorProbe;
       }
-      // Early exit: an ideal cross (≤5 moves) is good enough — no need to probe remaining colors.
-      if (bestProbe && bestProbe.ok && bestProbe.moveCount <= 5) break;
+      // Early exit: a short cross (≤6 moves) is good enough — no need to probe remaining colors.
+      if (bestProbe && bestProbe.ok && bestProbe.moveCount <= 6) break;
     }
 
     const selectedCrossColor = bestProbe?.color || "D";

@@ -2384,11 +2384,9 @@ async function solveCurrentScramble() {
     const solverMode = appState.settings.solverMode || "strict";
     const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
     const selectedPlayerName = String(appState.settings.stylePlayer || "").trim();
-    // If user left the default "D" and a CN player is selected, use their preferred cross color.
-    const playerPreferredCrossColor = selectedPlayerName ? getPlayerPreferredCrossColor(selectedPlayerName) : null;
-    const crossColor = (crossColorSetting === "D" && playerPreferredCrossColor && playerPreferredCrossColor !== "D")
-      ? playerPreferredCrossColor
-      : crossColorSetting;
+    // Always use the user's explicitly selected cross color.
+    // CN is only activated when the user selects "CN" from the dropdown.
+    const crossColor = crossColorSetting;
     const selectedPlayerStyleProfile =
       f2lMethod === "speed" && !selectedPlayerName
         ? getGlobalSpeedStyleProfile()
