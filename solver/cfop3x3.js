@@ -26,10 +26,12 @@ const STRICT_CFOP_PROFILE = {
   f2lFormulaBeamWidth: 7,
   f2lFormulaExpansionLimit: 12,
   f2lFormulaMaxAttempts: 240000,
+  // Max ms the formula beam may run before falling through to compact IDA*.
+  f2lFormulaBeamBudgetMs: 250,
   f2lSearchMaxDepth: 11,
   f2lNodeLimit: 220000,
-  ollMaxDepth: 14,
-  pllMaxDepth: 20,
+  ollMaxDepth: 22,
+  pllMaxDepth: 22,
 };
 const FAST_CFOP_PROFILE = {
   crossMaxDepth: 7,
@@ -38,10 +40,11 @@ const FAST_CFOP_PROFILE = {
   f2lFormulaBeamWidth: 6,
   f2lFormulaExpansionLimit: 10,
   f2lFormulaMaxAttempts: 180000,
+  f2lFormulaBeamBudgetMs: 200,
   f2lSearchMaxDepth: 8,
   f2lNodeLimit: 150000,
-  ollMaxDepth: 12,
-  pllMaxDepth: 18,
+  ollMaxDepth: 22,
+  pllMaxDepth: 22,
 };
 const F2L_STYLE_PROFILE_LEGACY = Object.freeze({
   rotationWeight: 0,
@@ -2472,10 +2475,35 @@ function invertRotation(rot) {
   return "";
 }
 
+// Compose two y-axis rotations (90° increments: 0=none,1=y,2=y2,3=y')
+const Y_ROT_TO_IDX = { "": 0, "y": 1, "y2": 2, "y'": 3 };
+const IDX_TO_Y_ROT = ["", "y", "y2", "y'"];
+function composeYRot(a, b) {
+  const ia = Y_ROT_TO_IDX[a] ?? 0;
+  const ib = Y_ROT_TO_IDX[b] ?? 0;
+  return IDX_TO_Y_ROT[(ia + ib) % 4];
+}
+
+// Extract leading y-axis rotation token from an algorithm string, returning
+// { leadingRot, rest }.  Non-y rotations are left in place.
+function extractLeadingYRot(alg) {
+  const tokens = splitMoves(alg);
+  if (!tokens.length) return { leadingRot: "", rest: alg };
+  const first = tokens[0];
+  if (first === "y" || first === "y'" || first === "y2") {
+    return { leadingRot: first, rest: tokens.slice(1).join(" ") };
+  }
+  return { leadingRot: "", rest: alg };
+}
+
 function buildFormulaCandidate(rot, preAuf, alg, postAuf = "") {
+  // If the algorithm already starts with a y-rotation, absorb it into rot so
+  // the conjugation bracket stays balanced and the net cube-frame change is zero.
+  const { leadingRot, rest: strippedAlg } = extractLeadingYRot(alg);
+  const combinedRot = composeYRot(rot, leadingRot);
   // Use conjugation so rotation variants keep the global cube frame.
   // Example: y (alg) y'
-  return joinMoves([rot, preAuf, alg, invertRotation(rot), postAuf]);
+  return joinMoves([combinedRot, preAuf, strippedAlg, invertRotation(combinedRot), postAuf]);
 }
 
 function normalizeDepth(value, fallback) {
@@ -2623,6 +2651,8 @@ async function getCfopContext() {
       crossEdgePieceIds,
       crossPieceIndexById,
       f2lPairDefs,
+      cornerMoveTables,
+      edgeMoveTables,
     };
   })();
   return contextPromise;
@@ -2673,10 +2703,20 @@ async function getF2LCaseLibrary(ctx) {
           if (moves.length > 24) continue;
           const transformation = tryBuildTransformation(solved, candidate);
           if (!transformation) continue;
+          const td = transformation.transformationData;
+          const compactTransform = td
+            ? {
+                cPerm: new Uint8Array(td.CORNERS.permutation),
+                cTwist: new Uint8Array(td.CORNERS.orientationDelta),
+                ePerm: new Uint8Array(td.EDGES.permutation),
+                eFlip: new Uint8Array(td.EDGES.orientationDelta),
+              }
+            : null;
           const entry = {
             alg: candidate,
             moves,
             transformation,
+            compactTransform,
             cornerPos,
             edgePos,
             cornerPieces: cornerPos.map((p) => caseData.CORNERS.pieces[p]),
@@ -2692,6 +2732,7 @@ async function getF2LCaseLibrary(ctx) {
               alg: candidate,
               moves,
               transformation,
+              compactTransform,
             });
           }
           if (entry.cornerPos.length && entry.edgePos.length) {
@@ -3071,7 +3112,11 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         profile.f2lFormulaExpansionLimit,
       ),
       formulaMaxAttempts: normalizeDepth(options.f2lFormulaMaxAttempts, profile.f2lFormulaMaxAttempts),
-      // Keep fallback almost disabled by default; SCDB formula beam does the heavy lifting.
+      formulaBeamBudgetMs: Number.isFinite(options.f2lFormulaBeamBudgetMs) && options.f2lFormulaBeamBudgetMs > 0
+        ? options.f2lFormulaBeamBudgetMs
+        : profile.f2lFormulaBeamBudgetMs,
+      // compact IDA* runs as fallback inside solveStageByFormulaDb; disable the slow KPattern IDA*
+      disableSearchFallback: true,
       searchMaxDepth: normalizeDepth(options.f2lSearchMaxDepth, profile.f2lSearchMaxDepth),
       nodeLimit: normalizeDepth(options.f2lNodeLimit, profile.f2lNodeLimit),
       f2lTargetPairs,
@@ -3446,7 +3491,7 @@ function isPllLikeFormulaStage(stage) {
 
 function shouldUseSingleStageCaseLibrary(stage, formulas) {
   if (!stage || !Array.isArray(formulas) || !formulas.length) return false;
-  return stage.name === "CMLL" || stage.name === "LSE";
+  return stage.name === "CMLL" || stage.name === "LSE" || stage.name === "OLL" || stage.name === "PLL";
 }
 
 function buildFormulaPreferenceSignature(formulaPreferenceMap, limit = 24) {
@@ -3697,6 +3742,7 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
       ? (nextPattern, formulaKey) => stage.acceptFormulaResult(nextPattern, formulaKey, startPattern, ctx)
       : (nextPattern) => stage.isSolved(nextPattern.patternData, ctx);
 
+  const stageDeadlineTs = Number.isFinite(stage.deadlineTs) && stage.deadlineTs > 0 ? stage.deadlineTs : 0;
   let attempts = 0;
   const preAufList =
     Array.isArray(stage.formulaPreAufList) && stage.formulaPreAufList.length
@@ -3762,6 +3808,9 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
         for (let i = 0; i < validKeyFormulas.length; i++) {
           const alg = validKeyFormulas[i];
           for (let p = 0; p < postAufList.length; p++) {
+            if (stageDeadlineTs > 0 && (attempts & 63) === 0 && Date.now() >= stageDeadlineTs) {
+              return null;
+            }
             const postAuf = postAufList[p];
             const candidate = buildFormulaCandidate(rot, preAuf, alg, postAuf);
             const nextPattern = tryApplyAlg(startPattern, candidate);
@@ -3790,6 +3839,228 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
   return null;
 }
 
+// Fast F2L IDA* using precomputed integer move tables — avoids KPattern allocations entirely.
+// Solves each F2L pair SEQUENTIALLY (pair 0 → pair 1 → pair 2 → pair 3) so the
+// heuristic stays tight (BFS-exact for the current pair alone).  The combined
+// 4-pair IDA* had a gap of ~16 between heuristic and true depth, requiring 15^16
+// nodes. Sequential solving keeps the gap ≤ 4 per pair → tiny search trees.
+function solveF2LCompactIDA(startPattern, stage, ctx) {
+  const startData = startPattern.patternData;
+  if (stage.isSolved(startData, ctx)) {
+    return { ok: true, moves: [], depth: 0, nodes: 0, bound: 0 };
+  }
+
+  const deadlineTs = Number.isFinite(stage.deadlineTs) && stage.deadlineTs > 0 ? stage.deadlineTs : 0;
+  if (deadlineTs > 0 && Date.now() >= deadlineTs) return null;
+
+  const cornerMoveTables = ctx.cornerMoveTables;
+  const edgeMoveTables = ctx.edgeMoveTables;
+  if (!cornerMoveTables || !edgeMoveTables) return null;
+
+  const moveIndices = ctx.noDMoveIndices;
+  const numMoves = moveIndices.length;
+  const bottomEdgePositions = ctx.bottomEdgePositions;
+  const crossEdgePieceIds = ctx.crossEdgePieceIds;
+  const solvedEdgeOri = ctx.solvedData.EDGES.orientation;
+  const f2lPairDefs = ctx.f2lPairDefs;
+  const f2lTargetPairs = Math.min(
+    Number.isFinite(stage.f2lTargetPairs) ? stage.f2lTargetPairs : 4,
+    f2lPairDefs.length,
+  );
+  // Per-pair max depth. 18 moves is more than enough for any F2L pair.
+  const MAX_PAIR_DEPTH = 18;
+  const NODE_LIMIT = deadlineTs > 0 ? 200000000 : 12000000; // generous limit; deadline is the real cap
+  const NXEDGE = 4;       // cross edges
+  const NPAIRS = f2lTargetPairs;
+  const STACK_SIZE = MAX_PAIR_DEPTH + 2;
+
+  // Track only 12 relevant pieces: 4 cross edges + 4 F2L corners + 4 F2L edges
+  // Indexed as [level * NTRACK + pieceIndex]
+  const NTRACK = NXEDGE + NPAIRS + NPAIRS; // 12 total
+  const tPos = new Uint8Array(STACK_SIZE * NTRACK);
+  const tOri = new Uint8Array(STACK_SIZE * NTRACK);
+
+  // Target positions/orientations (fixed for the whole solve)
+  const tTargetPos = new Uint8Array(NTRACK);
+  const tTargetOri = new Uint8Array(NTRACK);
+
+  const startCorners = startData.CORNERS;
+  const startEdges = startData.EDGES;
+
+  const cornerPosById = new Uint8Array(8);
+  const edgePosById = new Uint8Array(12);
+  for (let p = 0; p < 8; p++) cornerPosById[startCorners.pieces[p]] = p;
+  for (let p = 0; p < 12; p++) edgePosById[startEdges.pieces[p]] = p;
+
+  for (let i = 0; i < NXEDGE; i++) {
+    const pieceId = crossEdgePieceIds[i];
+    const pos = edgePosById[pieceId];
+    tPos[i] = pos;
+    tOri[i] = startEdges.orientation[pos] & 1;
+    tTargetPos[i] = bottomEdgePositions[i];
+    tTargetOri[i] = solvedEdgeOri[bottomEdgePositions[i]] & 1;
+  }
+  for (let k = 0; k < NPAIRS; k++) {
+    const def = f2lPairDefs[k];
+    const cpos = cornerPosById[def.cornerPieceId];
+    tPos[NXEDGE + k] = cpos;
+    tOri[NXEDGE + k] = startCorners.orientation[cpos] % 3;
+    tTargetPos[NXEDGE + k] = def.cornerTargetPos;
+    tTargetOri[NXEDGE + k] = def.cornerTargetOri;
+    const epos = edgePosById[def.edgePieceId];
+    tPos[NXEDGE + NPAIRS + k] = epos;
+    tOri[NXEDGE + NPAIRS + k] = startEdges.orientation[epos] & 1;
+    tTargetPos[NXEDGE + NPAIRS + k] = def.edgeTargetPos;
+    tTargetOri[NXEDGE + NPAIRS + k] = def.edgeTargetOri;
+  }
+
+  const pruneTables = f2lPairDefs.slice(0, NPAIRS).map((d) => d.pruneTable);
+  const crossPruneTable = ctx.crossPruneTable;
+
+  function applyMoveAt(fromBase, toBase, moveIndex) {
+    const cMap = cornerMoveTables[moveIndex];
+    const eMap = edgeMoveTables[moveIndex];
+    for (let i = 0; i < NXEDGE; i++) {
+      const oldPos = tPos[fromBase + i];
+      tPos[toBase + i] = eMap.edgePosMap[oldPos];
+      tOri[toBase + i] = tOri[fromBase + i] ^ eMap.edgeOriDelta[oldPos];
+    }
+    for (let k = 0; k < NPAIRS; k++) {
+      const idx = NXEDGE + k;
+      const oldPos = tPos[fromBase + idx];
+      tPos[toBase + idx] = cMap.cornerPosMap[oldPos];
+      tOri[toBase + idx] = (tOri[fromBase + idx] + cMap.cornerOriDelta[oldPos]) % 3;
+    }
+    for (let k = 0; k < NPAIRS; k++) {
+      const idx = NXEDGE + NPAIRS + k;
+      const oldPos = tPos[fromBase + idx];
+      tPos[toBase + idx] = eMap.edgePosMap[oldPos];
+      tOri[toBase + idx] = tOri[fromBase + idx] ^ eMap.edgeOriDelta[oldPos];
+    }
+  }
+
+  // movePath is reused across sequential pair solves
+  const movePath = new Uint8Array(MAX_PAIR_DEPTH + 1);
+  let totalNodes = 0;
+  let nodeLimitHit = false;
+  let deadlineHit = false;
+  const allMoves = [];
+
+  // Solve each pair in order. Each sub-IDA* has a tight single-pair heuristic.
+  for (let k = 0; k < NPAIRS; k++) {
+    const ci = NXEDGE + k;
+    const ei = NXEDGE + NPAIRS + k;
+    const pruneTableK = pruneTables[k];
+
+    // Check if pair k (and cross + previously solved pairs) are already satisfied
+    function isPairGoalMet(base) {
+      for (let i = 0; i < NXEDGE; i++) {
+        if (tPos[base + i] !== tTargetPos[i] || tOri[base + i] !== tTargetOri[i]) return false;
+      }
+      for (let j = 0; j <= k; j++) {
+        const ci2 = NXEDGE + j, ei2 = NXEDGE + NPAIRS + j;
+        if (tPos[base + ci2] !== tTargetPos[ci2] || tOri[base + ci2] !== tTargetOri[ci2]) return false;
+        if (tPos[base + ei2] !== tTargetPos[ei2] || tOri[base + ei2] !== tTargetOri[ei2]) return false;
+      }
+      return true;
+    }
+
+    if (isPairGoalMet(0)) continue; // already solved, move to next pair
+
+    let solutionDepth = -1;
+
+    function dfs(level, bound, lastFace) {
+      if ((totalNodes & 8191) === 0) {
+        if (totalNodes >= NODE_LIMIT) { nodeLimitHit = true; return Infinity; }
+        if (deadlineTs > 0 && Date.now() >= deadlineTs) { deadlineHit = true; return Infinity; }
+      }
+      const base = level * NTRACK;
+      // Combined admissible heuristic: max(pair_dist, cross_dist).
+      // Adding the cross heuristic prevents exploring paths where the cross
+      // gets disturbed (F/B moves), which was the main cause of node explosion.
+      const hPair = pruneTableK[encodeF2LPairState(
+        tPos[base + ci], tOri[base + ci],
+        tPos[base + ei], tOri[base + ei],
+      )];
+      const hCross = crossPruneTable[encodeCrossStateFromParts(
+        tPos[base], tPos[base + 1], tPos[base + 2], tPos[base + 3],
+        tOri[base], tOri[base + 1], tOri[base + 2], tOri[base + 3],
+      )];
+      const h = hPair > hCross ? hPair : hCross;
+      const f = level + h;
+      if (f > bound) return f;
+      if (isPairGoalMet(base)) { solutionDepth = level; return true; }
+      const nextBase = (level + 1) * NTRACK;
+      let minNext = Infinity;
+      for (let mi = 0; mi < numMoves; mi++) {
+        const moveIndex = moveIndices[mi];
+        const face = ctx.moveFace[moveIndex];
+        if (lastFace !== -1) {
+          if (face === lastFace) continue;
+          if (face === OPPOSITE_FACE[lastFace] && face < lastFace) continue;
+        }
+        totalNodes++;
+        applyMoveAt(base, nextBase, moveIndex);
+        movePath[level] = moveIndex;
+        const res = dfs(level + 1, bound, face);
+        if (res === true) return true;
+        if (nodeLimitHit || deadlineHit) return Infinity;
+        if (res < minNext) minNext = res;
+      }
+      return minNext;
+    }
+
+    let bound = Math.max(
+      pruneTableK[encodeF2LPairState(tPos[ci], tOri[ci], tPos[ei], tOri[ei])],
+      crossPruneTable[encodeCrossStateFromParts(tPos[0],tPos[1],tPos[2],tPos[3],tOri[0],tOri[1],tOri[2],tOri[3])],
+      1,
+    );
+    let pairSolved = false;
+    while (bound <= MAX_PAIR_DEPTH && !nodeLimitHit && !deadlineHit) {
+      const res = dfs(0, bound, -1);
+      if (res === true) {
+        pairSolved = true;
+        break;
+      }
+      if (!Number.isFinite(res)) break;
+      bound = res;
+    }
+
+    if (!pairSolved) {
+      return {
+        ok: false,
+        reason: nodeLimitHit
+          ? "F2L_COMPACT_NODE_LIMIT"
+          : deadlineHit
+            ? "F2L_COMPACT_DEADLINE"
+            : "F2L_COMPACT_NOT_FOUND",
+        nodes: totalNodes,
+        bound,
+      };
+    }
+
+    // Collect the moves from this pair's solution
+    for (let d = 0; d < solutionDepth; d++) allMoves.push(MOVE_NAMES[movePath[d]]);
+
+    // Advance the level-0 state to the state after applying this pair's solution
+    if (solutionDepth > 0) {
+      const solvedBase = solutionDepth * NTRACK;
+      for (let i = 0; i < NTRACK; i++) {
+        tPos[i] = tPos[solvedBase + i];
+        tOri[i] = tOri[solvedBase + i];
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    moves: allMoves,
+    depth: allMoves.length,
+    nodes: totalNodes,
+    bound: allMoves.length,
+  };
+}
+
 function solveWithFormulaDbF2L(startPattern, stage, ctx) {
   const formulas = filterValidFormulas(getFormulaListForStage(stage), ctx);
   if (!formulas.length) return null;
@@ -3798,9 +4069,17 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
   const transitionPenaltyCache = new Map();
   const downstreamPenaltyCache = new Map();
   const deadlineTs = Number.isFinite(stage.deadlineTs) && stage.deadlineTs > 0 ? stage.deadlineTs : 0;
+  // Tight beam-local deadline: don't let the formula beam run longer than formulaBeamBudgetMs.
+  // Exceeding it causes the beam to bail early → compact IDA* takes over (fast path).
+  const beamBudgetMs = Number.isFinite(stage.formulaBeamBudgetMs) && stage.formulaBeamBudgetMs > 0
+    ? stage.formulaBeamBudgetMs
+    : 250;
+  const beamDeadlineTs = deadlineTs > 0
+    ? Math.min(deadlineTs, Date.now() + beamBudgetMs)
+    : Date.now() + beamBudgetMs;
   const styleFallbackEnabled = stage.enableStyleFallback !== false;
   const f2lStyleProfile = styleFallbackEnabled
-    ? getBudgetAwareF2LStyleProfile(stage.f2lStyleProfile, deadlineTs)
+    ? getBudgetAwareF2LStyleProfile(stage.f2lStyleProfile, beamDeadlineTs)
     : normalizeF2LStyleProfile(stage.f2lStyleProfile);
   const f2lTransitionProfile = normalizeF2LTransitionProfile(stage.f2lTransitionProfile);
   const f2lDownstreamProfile = normalizeF2LDownstreamProfile(stage.f2lDownstreamProfile);
@@ -3820,7 +4099,7 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
   const downstreamBiasLevel = downstreamProfileActive ? getF2LDownstreamBiasLevel(downstreamWeight) : 0;
   const mixedCfopStages = stage.mixedCfopStages === true;
   const mixedCaseBias = normalizeMixedCaseBias(stage.mixedCaseBias || stage.f2lStyleProfile);
-  const isDeadlineExceeded = () => deadlineTs > 0 && Date.now() >= deadlineTs;
+  const isDeadlineExceeded = () => Date.now() >= beamDeadlineTs;
   const stylePenaltyGuard = styleProfileActive
     ? Math.max(
         10,
@@ -3888,9 +4167,9 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
     );
   }
 
-  function stylePenaltyForMoves(candidateMoves) {
+  function stylePenaltyForMoves(candidateMoves, precomputedKey = null) {
     if (!candidateMoves.length) return 0;
-    const key = joinMoves(candidateMoves);
+    const key = precomputedKey !== null ? precomputedKey : joinMoves(candidateMoves);
     const cached = stylePenaltyCache.get(key);
     if (typeof cached === "number") return cached;
     const penalty = getF2LStylePenalty(candidateMoves, f2lStyleProfile);
@@ -3936,22 +4215,58 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
   }
   const attemptsRef = { count: 0 };
 
+  // Reusable output buffers for compact transform — avoids per-entry allocations in hot path
+  const _outCPiece = new Uint8Array(8);
+  const _outCOri = new Uint8Array(8);
+  const _outEPiece = new Uint8Array(12);
+  const _outEOri = new Uint8Array(12);
+  // Shared mock data wrappers — fields reassigned per use; no new objects in hot path
+  const _outMockData = { CORNERS: { pieces: _outCPiece, orientation: _outCOri }, EDGES: { pieces: _outEPiece, orientation: _outEOri } };
+  const _nodeMockData = { CORNERS: { pieces: null, orientation: null }, EDGES: { pieces: null, orientation: null } };
+
   function collectCandidates(node, nextFormulaDepth, bestDepthByState) {
     if (isDeadlineExceeded()) return [];
-    const currentPattern = node.pattern;
-    const currentData = currentPattern.patternData;
+    // Use compact state from node — avoids KPattern.patternData access in hot path
+    const curCPiece = node.cPiece;
+    const curCOri = node.cOri;
+    const curEPiece = node.ePiece;
+    const curEOri = node.eOri;
+    const currentData = { CORNERS: { pieces: curCPiece, orientation: curCOri }, EDGES: { pieces: curEPiece, orientation: curEOri } };
     const currentMetrics = metricsFor(currentData, node.key);
+    // Lazy KPattern — only computed if entries without compactTransform are encountered (rare)
+    let _lazyPattern = node._pattern !== undefined ? node._pattern : null;
+    function getCurrentPattern() {
+      if (!_lazyPattern) _lazyPattern = startPattern.applyAlg(node.moves.join(' '));
+      return _lazyPattern;
+    }
     const improveMap = new Map();
     const fallbackMap = new Map();
 
-    function consider(nextPattern, candidateMoves) {
-      if (!nextPattern || !candidateMoves.length) return;
-      if (node.moves.length + candidateMoves.length > stage.maxDepth) return;
-      const nextData = nextPattern.patternData;
-      if (!isCrossSolved(nextData, ctx)) return;
-      const nextStateKey = stage.key(nextData);
+    // Returns nextStateKey (number) if entry passes all filters, or null to reject.
+    // Also populates _outCPiece/_outCOri/_outEPiece/_outEOri with the resulting state.
+    function compactPreFilter(ct, candidateMoves, nextFormulaDepth, bestDepthByState) {
+      const cPerm = ct.cPerm, cTwist = ct.cTwist;
+      const ePerm = ct.ePerm, eFlip = ct.eFlip;
+      for (let i = 0; i < 8; i++) {
+        const src = cPerm[i];
+        _outCPiece[i] = curCPiece[src];
+        _outCOri[i] = (curCOri[src] + cTwist[i]) % 3;
+      }
+      for (let i = 0; i < 12; i++) {
+        const src = ePerm[i];
+        _outEPiece[i] = curEPiece[src];
+        _outEOri[i] = (curEOri[src] + eFlip[i]) & 1;
+      }
+      if (node.moves.length + candidateMoves.length > stage.maxDepth) return null;
+      if (!isCrossSolved(_outMockData, ctx)) return null;
+      const nextStateKey = stage.key(_outMockData);
       const seenDepth = bestDepthByState.get(nextStateKey);
-      if (typeof seenDepth === "number" && nextFormulaDepth > seenDepth) return;
+      if (typeof seenDepth === "number" && nextFormulaDepth > seenDepth) return null;
+      return nextStateKey;
+    }
+
+    // Core ranking/storage logic. nextData may be a mock object (compact path) or real KPattern data.
+    function considerCore(nextData, nextStateKey, candidateMoves) {
       const nextMetrics = metricsFor(nextData, nextStateKey);
       const isImprove = improvesOver(nextMetrics, currentMetrics);
       const stylePenalty = stylePenaltyForMoves(candidateMoves);
@@ -3985,7 +4300,6 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
         (!transitionProfileActive || transitionPenaltyRaw === null || transitionPenalty > transitionPenaltyGuard) &&
         (!downstreamProfileActive || downstreamPenaltyRaw === null || downstreamBasePenalty > -0.25)
       ) {
-        // Skip style-hostile non-improving branches early to reduce latency and noise.
         return;
       }
       const downstreamPenalty = downstreamBasePenalty + zbllOpportunityBonus;
@@ -4002,8 +4316,12 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
         downstreamBiasLevel: effectiveDownstreamBiasLevel,
         moveLen: candidateMoves.length,
       };
+      // Store compact arrays (copies from nextData) — no KPattern reference needed
       const candidate = {
-        pattern: nextPattern,
+        cPiece: new Uint8Array(nextData.CORNERS.pieces),
+        cOri: new Uint8Array(nextData.CORNERS.orientation),
+        ePiece: new Uint8Array(nextData.EDGES.pieces),
+        eOri: new Uint8Array(nextData.EDGES.orientation),
         moves: candidateMoves,
         nextStateKey,
         ranking,
@@ -4013,6 +4331,23 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
       if (!prev || isBetterF2LRanking(ranking, prev.ranking)) {
         targetMap.set(nextStateKey, candidate);
       }
+    }
+
+    // Fast compact path: _outMockData already populated by compactPreFilter, cross/seenDepth already checked
+    function considerCompact(candidateMoves, nextStateKey) {
+      considerCore(_outMockData, nextStateKey, candidateMoves);
+    }
+
+    // Fallback path for entries without compactTransform (rare): extract data from real KPattern
+    function consider(nextPattern, candidateMoves) {
+      if (!nextPattern || !candidateMoves.length) return;
+      if (node.moves.length + candidateMoves.length > stage.maxDepth) return;
+      const nextData = nextPattern.patternData;
+      if (!isCrossSolved(nextData, ctx)) return;
+      const nextStateKey = stage.key(nextData);
+      const seenDepth = bestDepthByState.get(nextStateKey);
+      if (typeof seenDepth === "number" && nextFormulaDepth > seenDepth) return;
+      considerCore(nextData, nextStateKey, candidateMoves);
     }
 
     const libData = stage.f2lCaseLibrary || { entries: [] };
@@ -4086,8 +4421,14 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
         }
       }
       if (!matches) continue;
-      const nextPattern = tryApplyTransformation(currentPattern, entry.transformation);
       attemptsRef.count += 1;
+      if (entry.compactTransform) {
+        const nextKey = compactPreFilter(entry.compactTransform, entry.moves, nextFormulaDepth, bestDepthByState);
+        if (nextKey === null) continue;
+        considerCompact(entry.moves, nextKey);
+        continue;
+      }
+      const nextPattern = tryApplyTransformation(getCurrentPattern(), entry.transformation);
       if (!nextPattern) continue;
       consider(nextPattern, entry.moves);
     }
@@ -4101,10 +4442,17 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
         for (let i = 0; i < fallbackCandidates.length; i++) {
           if ((i & 63) === 0 && isDeadlineExceeded()) break;
           if (attemptsRef.count >= maxAttempts) break;
-          const nextPattern = tryApplyTransformation(currentPattern, fallbackCandidates[i].transformation);
+          const fc = fallbackCandidates[i];
           attemptsRef.count += 1;
+          if (fc.compactTransform) {
+            const nextKey = compactPreFilter(fc.compactTransform, fc.moves, nextFormulaDepth, bestDepthByState);
+            if (nextKey === null) continue;
+            considerCompact(fc.moves, nextKey);
+            continue;
+          }
+          const nextPattern = tryApplyTransformation(getCurrentPattern(), fc.transformation);
           if (!nextPattern) continue;
-          consider(nextPattern, fallbackCandidates[i].moves);
+          consider(nextPattern, fc.moves);
         }
       } else {
         let stop = false;
@@ -4123,7 +4471,7 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
               }
               const candidateText = buildFormulaCandidate(rot, preAuf, formulas[i]);
               const candidateMoves = splitMoves(candidateText);
-              const nextPattern = tryApplyMoves(currentPattern, candidateMoves);
+              const nextPattern = tryApplyMoves(getCurrentPattern(), candidateMoves);
               attemptsRef.count += 1;
               if (!nextPattern) continue;
               consider(nextPattern, candidateMoves);
@@ -4176,7 +4524,11 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
   const startMetrics = metricsFor(startData, startKey);
   let beam = [
     {
-      pattern: startPattern,
+      cPiece: new Uint8Array(startData.CORNERS.pieces),
+      cOri: new Uint8Array(startData.CORNERS.orientation),
+      ePiece: new Uint8Array(startData.EDGES.pieces),
+      eOri: new Uint8Array(startData.EDGES.orientation),
+      _pattern: startPattern,
       moves: [],
       key: startKey,
       ranking: {
@@ -4205,7 +4557,11 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
     for (let i = 0; i < beam.length; i++) {
       if (isDeadlineExceeded()) break;
       const node = beam[i];
-      if (stage.isSolved(node.pattern.patternData, ctx)) {
+      _nodeMockData.CORNERS.pieces = node.cPiece;
+      _nodeMockData.CORNERS.orientation = node.cOri;
+      _nodeMockData.EDGES.pieces = node.ePiece;
+      _nodeMockData.EDGES.orientation = node.eOri;
+      if (stage.isSolved(_nodeMockData, ctx)) {
         return {
           ok: true,
           moves: node.moves.slice(),
@@ -4220,7 +4576,10 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
         const candidate = candidates[c];
         const mergedMoves = node.moves.concat(candidate.moves);
         const entry = {
-          pattern: candidate.pattern,
+          cPiece: candidate.cPiece,
+          cOri: candidate.cOri,
+          ePiece: candidate.ePiece,
+          eOri: candidate.eOri,
           moves: mergedMoves,
           key: candidate.nextStateKey,
           ranking: candidate.ranking,
@@ -4252,7 +4611,11 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
       if (typeof prevDepth !== "number" || nextFormulaDepth < prevDepth) {
         bestDepthByState.set(beam[i].key, nextFormulaDepth);
       }
-      if (stage.isSolved(beam[i].pattern.patternData, ctx)) {
+      _nodeMockData.CORNERS.pieces = beam[i].cPiece;
+      _nodeMockData.CORNERS.orientation = beam[i].cOri;
+      _nodeMockData.EDGES.pieces = beam[i].ePiece;
+      _nodeMockData.EDGES.orientation = beam[i].eOri;
+      if (stage.isSolved(_nodeMockData, ctx)) {
         return {
           ok: true,
           moves: beam[i].moves.slice(),
@@ -4273,7 +4636,10 @@ function solveStageByFormulaDb(startPattern, stage, ctx) {
     stage.name === "F2L" ||
     (Array.isArray(stage.formulaKeys) && stage.formulaKeys.includes("F2L"))
   ) {
-    return solveWithFormulaDbF2L(startPattern, stage, ctx);
+    const beamResult = solveWithFormulaDbF2L(startPattern, stage, ctx);
+    if (beamResult?.ok) return beamResult;
+    // Beam failed — fall back to compact integer-state IDA* (100x faster than KPattern IDA*)
+    return solveF2LCompactIDA(startPattern, stage, ctx);
   }
   if (isSingleStageFormulaStage(stage)) {
     const primary = solveWithFormulaDbSingleStage(startPattern, stage, ctx);
