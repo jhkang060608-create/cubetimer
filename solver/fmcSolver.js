@@ -1139,10 +1139,13 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   }
 
   const preferNonCfop = options.preferNonCfop === true;
-  const nonReverseCandidates = validCandidates.filter(
+  // FMC rule: a solution that is simply the inverse scramble is not allowed.
+  const reverseAwareCandidates = validCandidates.filter(
     (candidate) => !isReverseScrambleSolution(candidate.solution, reverseScrambleCanonical),
   );
-  const reverseAwareCandidates = nonReverseCandidates.length ? nonReverseCandidates : validCandidates;
+  if (!reverseAwareCandidates.length) {
+    return { ok: false, reason: "FMC_NO_VALID_SOLUTION", attempts };
+  }
   const nonCfopCandidates = preferNonCfop ? reverseAwareCandidates.filter((candidate) => !candidate.usesCfop) : [];
   const rankedCandidates = (nonCfopCandidates.length ? nonCfopCandidates : reverseAwareCandidates)
     .slice()
