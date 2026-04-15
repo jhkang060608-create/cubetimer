@@ -167,7 +167,7 @@ const INSPECTION_KEY = "cubeTimerInspection";
 const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
 const AO5_KEY = "cubeTimerShowAo5";
 const AO12_KEY = "cubeTimerShowAo12";
-const VALID_SOLVER_MODES = new Set(["strict", "zb", "roux", "fmc", "optimal"]);
+const VALID_SOLVER_MODES = new Set(["strict", "zb", "roux", "fmc"]);
 const VALID_F2L_METHODS = new Set(["legacy", "balanced", "rotationless", "low-auf", "speed", "mixed"]);
 const DEFAULT_F2L_METHOD = "legacy";
 const DEFAULT_F2L_METHOD_SOURCE = "default";
@@ -2303,16 +2303,14 @@ async function solveCurrentScramble() {
     const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
     if (isThreeByThreeFamilyEvent(appState.settings.eventId)) {
       solverStatus.textContent =
-        solverMode === "optimal"
-          ? "계산 중... (3x3 최소 수 우선 내부 탐색, 느릴 수 있음)"
-          : solverMode === "fmc"
+        solverMode === "fmc"
             ? "계산 중... (3x3 FMC 스타일 탐색: Direct + NISS + Premove)"
             : solverMode === "roux"
               ? "계산 중... (3x3 Roux 4단계: FB → SB → CMLL → LSE)"
             : `계산 중... (3x3 CFOP 4단계, ${solverMode}, F2L: ${f2lMethod})`;
     } else if (appState.settings.eventId === "222") {
       solverStatus.textContent =
-        solverMode === "optimal" || solverMode === "fmc"
+        solverMode === "fmc"
           ? "계산 중... (2x2 최소 수 우선 탐색)"
           : "계산 중...";
     } else {

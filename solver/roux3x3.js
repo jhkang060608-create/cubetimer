@@ -635,17 +635,86 @@ function lseIDASearch(startPattern, tables) {
   return { ok: false, reason: "LSE_IDA_LIMIT", nodes };
 }
 
+// Rotation to apply (via conjugation) so that the selected face becomes D for the FB.
+// Matches the first rotation candidate used by CFOP for each cross color.
+const ROUX_FACE_ROTATION = {
+  D: "",
+  U: "x2",
+  F: "x",
+  B: "x'",
+  R: "z'",
+  L: "z",
+};
+
+const ROTATION_INVERSE = {
+  "x": "x'", "x'": "x", "x2": "x2",
+  "z": "z'", "z'": "z", "z2": "z2",
+  "y": "y'", "y'": "y", "y2": "y2",
+};
+
+// Conjugation: R^{-1} * P * R — transforms the pattern into the rotated reference frame
+// so the standard DL 1x2x3 FB solver targets the selected face.
+function transformPatternForRouxFace(pattern, solvedPattern, rotationAlg) {
+  if (!rotationAlg) return pattern;
+  try {
+    const patternTransform = pattern.experimentalToTransformation();
+    const rotationTransform = solvedPattern.applyAlg(rotationAlg).experimentalToTransformation();
+    return rotationTransform.invert()
+      .applyTransformation(patternTransform)
+      .applyTransformation(rotationTransform)
+      .toKPattern();
+  } catch (_) {
+    return null;
+  }
+}
+
 // ============================================================
 // Main Solve Function - FB → SB → CMLL → LSE
 // ============================================================
 
 export async function solve3x3RouxFromPattern(pattern, options = {}) {
+  const { getDefaultPattern } = await import('./context.js');
+  await ensurePruneTables(getDefaultPattern);
+  const solvedPattern = await getDefaultPattern("333");
+
+  // Apply a rotation (via conjugation) so the selected cross color face is treated as D.
+  const rawCrossColor = String(options.crossColor || "D").toUpperCase();
+  const colorKey =
+    rawCrossColor === "CN" || rawCrossColor === "COLOR_NEUTRAL" ? "D" : rawCrossColor;
+  const preRotation = ROUX_FACE_ROTATION[colorKey] ?? "";
+
+  const workingPattern = preRotation
+    ? transformPatternForRouxFace(pattern, solvedPattern, preRotation)
+    : pattern;
+
+  if (!workingPattern) {
+    return { ok: false, reason: "CROSS_COLOR_TRANSFORM_FAILED", source: "INTERNAL_3X3_ROUX" };
+  }
+
+  const result = await _solveRouxFromPattern(workingPattern, options, solvedPattern);
+
+  if (result?.ok && preRotation) {
+    const invRotation = ROTATION_INVERSE[preRotation] || "";
+    const rotMoves = preRotation.split(" ").filter(Boolean);
+    const solMoves = result.solution ? result.solution.split(/\s+/).filter(Boolean) : [];
+    const invMoves = invRotation ? invRotation.split(" ").filter(Boolean) : [];
+    const combined = simplifyMoves([...rotMoves, ...solMoves, ...invMoves]);
+    return {
+      ...result,
+      solution: combined.join(" "),
+      moveCount: combined.length,
+    };
+  }
+  return result;
+}
+
+async function _solveRouxFromPattern(pattern, options = {}, solvedPatternArg) {
   const deadlineTs = options.deadlineTs || Date.now() + 60000;
   const stageDeadlineMs = 6000; // Max time per Roux stage before fallback
 
   const { getDefaultPattern } = await import('./context.js');
   await ensurePruneTables(getDefaultPattern);
-  const solvedPattern = await getDefaultPattern("333");
+  const solvedPattern = solvedPatternArg || await getDefaultPattern("333");
 
   let currentPattern = pattern;
   const stages = [];

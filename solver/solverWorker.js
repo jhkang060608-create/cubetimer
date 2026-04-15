@@ -209,6 +209,9 @@ async function solveWithInternal3x3StrictRetries(scramble, onProgress, options =
   let firstFailureReason = "";
   let lastFailure = null;
   const failureHistory = [];
+  // After the first CN probe, reuse the selected color in subsequent retries to avoid
+  // re-running the expensive 6-color probe on every attempt.
+  let resolvedCrossColor = options.crossColor;
   for (let i = 0; i < attempts.length; i++) {
     const attempt = attempts[i];
     const deadlineTs = Date.now() + Math.max(250, attempt.timeoutMs - 120);
@@ -225,11 +228,17 @@ async function solveWithInternal3x3StrictRetries(scramble, onProgress, options =
     const strictResult = await withTimeout(
       solveWithInternal3x3StrictCfop(scramble, onProgress, {
         ...options,
+        crossColor: resolvedCrossColor,
         ...(attempt.extraOptions || {}),
         deadlineTs,
       }),
       attempt.timeoutMs,
     ).catch(() => ({ ok: false, reason: "INTERNAL_3X3_CFOP_TIMEOUT" }));
+
+    // After first attempt, capture the CN-selected cross color so retries skip the probe.
+    if (i === 0 && strictResult?.selectedCrossColor) {
+      resolvedCrossColor = strictResult.selectedCrossColor;
+    }
 
     if (strictResult?.ok) {
       if (i > 0) {
@@ -454,53 +463,52 @@ const api = {
           }
         }
 
-        if (mode === "fmc" || mode === "optimal") {
-          const isOptimalMode = mode === "optimal";
+        if (mode === "fmc") {
           const fmcResult = await withTimeout(
             solveWithFMCSearch(scramble, onProgress, {
-              maxPremoveSets: isOptimalMode ? 90 : 16,
-              timeBudgetMs: isOptimalMode ? 95000 : 20000,
-              sweepBudgetMs: isOptimalMode ? 52000 : 7000,
+              maxPremoveSets: 16,
+              timeBudgetMs: 20000,
+              sweepBudgetMs: 7000,
               sweepIncludeInverse: true,
-              targetMoveCount: isOptimalMode ? 20 : 24,
+              targetMoveCount: 24,
               allowCfopFallback: false,
               premoveAllowCfopFallback: false,
               preferNonCfop: true,
-              directProfileLevel: isOptimalMode ? "xdeep" : "deep",
-              directPhaseAttemptTimeoutMs: isOptimalMode ? 6000 : 2800,
-              directStageBudgetMs: isOptimalMode ? 22000 : 6000,
-              nissStageBudgetMs: isOptimalMode ? 22000 : 6000,
-              phaseTimeCheckInterval: isOptimalMode ? 1024 : 768,
-              directCfopPerColorTimeoutMs: isOptimalMode ? 1500 : 1000,
-              sweepProfileLevel: isOptimalMode ? "medium" : "light",
-              sweepPhaseAttemptTimeoutMs: isOptimalMode ? 1700 : 1200,
-              sweepAttemptBudgetMs: isOptimalMode ? 1700 : 1200,
-              sweepCfopPerColorTimeoutMs: isOptimalMode ? 900 : 800,
+              directProfileLevel: "deep",
+              directPhaseAttemptTimeoutMs: 2800,
+              directStageBudgetMs: 6000,
+              nissStageBudgetMs: 6000,
+              phaseTimeCheckInterval: 768,
+              directCfopPerColorTimeoutMs: 1000,
+              sweepProfileLevel: "light",
+              sweepPhaseAttemptTimeoutMs: 1200,
+              sweepAttemptBudgetMs: 1200,
+              sweepCfopPerColorTimeoutMs: 800,
               sweepUseScout: true,
               sweepScoutProfileLevel: "micro",
-              sweepScoutPhaseAttemptTimeoutMs: isOptimalMode ? 700 : 500,
-              sweepScoutAttemptBudgetMs: isOptimalMode ? 700 : 500,
-              sweepScoutCfopPerColorTimeoutMs: isOptimalMode ? 750 : 600,
+              sweepScoutPhaseAttemptTimeoutMs: 500,
+              sweepScoutAttemptBudgetMs: 500,
+              sweepScoutCfopPerColorTimeoutMs: 600,
               sweepScoutIncludeInverse: true,
-              sweepRefineSets: isOptimalMode ? 36 : 8,
-              verifyLimit: isOptimalMode ? 30 : 16,
+              sweepRefineSets: 8,
+              verifyLimit: 16,
               enableInsertions: true,
-              insertionCandidateLimit: isOptimalMode ? 3 : 2,
-              insertionMaxPasses: isOptimalMode ? 3 : 2,
+              insertionCandidateLimit: 2,
+              insertionMaxPasses: 2,
               insertionMinWindow: 3,
-              insertionMaxWindow: isOptimalMode ? 7 : 6,
-              insertionMaxDepth: isOptimalMode ? 6 : 5,
-              insertionTimeMs: isOptimalMode ? 9000 : 2500,
-              insertionThreshold: isOptimalMode ? 23 : 24,
+              insertionMaxWindow: 6,
+              insertionMaxDepth: 5,
+              insertionTimeMs: 2500,
+              insertionThreshold: 24,
               crossColors: normalizeCrossColorList(crossColor),
             }),
             FMC_333_TIMEOUT_MS,
-          ).catch(() => ({ ok: false, reason: isOptimalMode ? "OPTIMAL_TIMEOUT" : "FMC_TIMEOUT" }));
+          ).catch(() => ({ ok: false, reason: "FMC_TIMEOUT" }));
           if (fmcResult?.ok) {
             return fmcResult;
           }
-          if (mode === "fmc" || mode === "optimal") {
-            const safetyStageName = isOptimalMode ? "Optimal Safety Phase" : "FMC Safety Phase";
+          {
+            const safetyStageName = "FMC Safety Phase";
             if (typeof onProgress === "function") {
               try {
                 void onProgress({
@@ -528,9 +536,7 @@ const api = {
               }
               return {
                 ...phaseSafety,
-                source: isOptimalMode
-                  ? "INTERNAL_3X3_PHASE_OPTIMAL_SAFETY"
-                  : "INTERNAL_3X3_PHASE_FMC_SAFETY",
+                source: "INTERNAL_3X3_PHASE_FMC_SAFETY",
                 fallbackFrom: fmcResult?.reason || "FMC_NO_VALID_SOLUTION",
               };
             }
@@ -542,7 +548,7 @@ const api = {
                 });
               } catch (_) {}
             }
-            return fmcResult || { ok: false, reason: isOptimalMode ? "OPTIMAL_FAILED" : "FMC_FAILED" };
+            return fmcResult || { ok: false, reason: "FMC_FAILED" };
           }
         }
         if (mode === "roux") {
@@ -557,6 +563,7 @@ const api = {
             (async () => {
               const fastDeadlineTs = Math.min(hardDeadlineTs, Date.now() + 5000);
               const fastResult = await solve3x3RouxFromPattern(pattern, {
+                crossColor,
                 deadlineTs: fastDeadlineTs,
                 enableRecovery: true,
                 onStageUpdate(progress) {
@@ -571,6 +578,7 @@ const api = {
                 return fastResult;
               }
               return await solve3x3RouxFromPattern(pattern, {
+                crossColor,
                 deadlineTs: hardDeadlineTs,
                 enableRecovery: true,
                 onStageUpdate(progress) {
