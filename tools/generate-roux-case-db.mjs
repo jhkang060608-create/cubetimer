@@ -1,13 +1,7 @@
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-
-import { getDefaultPattern } from "../solver/context.js";
-import {
-  buildRouxAugmentationCandidatesFromPattern,
-  buildRouxCaseDbArtifacts,
-} from "../solver/roux3x3.js";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -142,6 +136,26 @@ function mergeSerializedCandidate(table, key, text, maxPerKey = 8) {
   return true;
 }
 
+let getDefaultPatternFn = null;
+let buildRouxCaseDbArtifactsFn = null;
+let buildRouxAugmentationCandidatesFromPatternFn = null;
+
+async function loadSolverExports() {
+  const contextPath = path.join(rootDir, "solver", "context.js");
+  const rouxPath = path.join(rootDir, "solver", "roux3x3.js");
+  const [ctxMod, rouxMod] = await Promise.all([
+    import(pathToFileURL(contextPath).href),
+    import(pathToFileURL(rouxPath).href),
+  ]);
+  getDefaultPatternFn = ctxMod.getDefaultPattern || ctxMod.default?.getDefaultPattern;
+  buildRouxCaseDbArtifactsFn = rouxMod.buildRouxCaseDbArtifacts || rouxMod.default?.buildRouxCaseDbArtifacts;
+  buildRouxAugmentationCandidatesFromPatternFn =
+    rouxMod.buildRouxAugmentationCandidatesFromPattern || rouxMod.default?.buildRouxAugmentationCandidatesFromPattern;
+  if (typeof buildRouxCaseDbArtifactsFn !== "function") {
+    throw new Error("buildRouxCaseDbArtifacts not found in solver/roux3x3.js");
+  }
+}
+
 async function applyAugmentation(artifacts, options) {
   if (!options.augmentInput) {
     return {
@@ -158,7 +172,7 @@ async function applyAugmentation(artifacts, options) {
 
   const allRecords = loadRecords(options.augmentInput);
   const selectedRecords = selectRecords(allRecords, options);
-  const solved = await getDefaultPattern("333");
+  const solved = await getDefaultPatternFn("333");
   const deadlineMs = Math.max(1500, toNonNegativeInt(options.augmentDeadlineMs, 15000));
   const progressEvery = Math.max(1, toNonNegativeInt(options.progressEvery, 10));
 
@@ -184,7 +198,7 @@ async function applyAugmentation(artifacts, options) {
     }
 
     const pattern = solved.applyAlg(scramble);
-    const candidateResult = await buildRouxAugmentationCandidatesFromPattern(pattern, {
+    const candidateResult = await buildRouxAugmentationCandidatesFromPatternFn(pattern, {
       deadlineTs: Date.now() + deadlineMs,
       tryAlternate: true,
       collectAllCandidates: true,
@@ -279,9 +293,10 @@ async function main() {
     printHelp();
     return;
   }
+  await loadSolverExports();
 
   const startedAt = Date.now();
-  const artifacts = await buildRouxCaseDbArtifacts();
+  const artifacts = await buildRouxCaseDbArtifactsFn();
   const augmentation = await applyAugmentation(artifacts, opts);
   refreshMetaCounts(artifacts);
   artifacts.generatedAt = new Date().toISOString();

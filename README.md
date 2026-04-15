@@ -82,6 +82,8 @@ node tools/report-roux-recovery-cases.mjs --input vendor-data/reco/reco-all-3x3-
 
 기본 timeout은 `strict=3000ms`, `zb=5000ms`입니다. 필요하면 `STRICT_TIMEOUT_MS`, `ZB_TIMEOUT_MS`, `TIMEOUT_MS`로 조정하세요.
 Roux 웹 DB 갱신은 네트워크가 필요합니다. 실패 시 에러 메시지(HTTP 코드/timeout)를 확인해 재시도하세요.
+배치 벤치는 기본값으로 기존 batch 결과를 지우고 전체를 새로 실행합니다. 이어서 돌리고 싶을 때만 `BATCH_RESUME=1 ./run-full-style-dataset-batched.sh` 또는 `BATCH_RESUME=1 ./run-both-style-benchmarks.sh` 를 사용하세요.
+강제로 fresh rerun 의도를 명확히 하려면 `BENCH_FORCE=1` 도 같이 사용할 수 있습니다.
 
 옵션 확인:
 

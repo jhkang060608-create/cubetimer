@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-04-12T02:24:41.308Z",
-  "sourceBenchmark": "vendor-data/reco/reco-3x3-style-benchmark.json",
+  "generatedAt": "2026-04-15T02:00:30.431Z",
+  "sourceBenchmark": "/home/jhkang/cubetimer/vendor-data/reco/reco-3x3-style-benchmark.json",
   "sourceBenchmarks": [
-    "vendor-data/reco/reco-3x3-style-benchmark.json"
+    "/home/jhkang/cubetimer/vendor-data/reco/reco-3x3-style-benchmark.json"
   ],
-  "sourcePlayers": "vendor-data/reco/reco-3x3-style-details.json",
+  "sourcePlayers": "/home/jhkang/cubetimer/vendor-data/reco/reco-3x3-style-details.json",
   "modes": [
     "strict",
     "zb"
@@ -23,26 +23,26 @@
   "speedProfile": {
     "generatedFrom": "lowest-average-duration-across-strict-cfop-solvers",
     "playerCount": 15,
-    "bestStyle": "legacy",
+    "bestStyle": "rotationless",
     "preset": "speed",
-    "rotationWeight": 0,
-    "aufWeight": 0,
-    "wideTurnWeight": 0,
-    "sampleCount": 4742,
-    "avgDurationMs": 1596.3137916490932,
-    "avgMoveCount": 61.23808519611978
+    "rotationWeight": 5,
+    "aufWeight": 1,
+    "wideTurnWeight": 2,
+    "sampleCount": 5556,
+    "avgDurationMs": 329.9649028077754,
+    "avgMoveCount": 53.50701943844492
   },
   "globalSpeedStyleProfile": {
     "generatedFrom": "lowest-average-duration-across-strict-cfop-solvers",
     "playerCount": 15,
-    "bestStyle": "legacy",
+    "bestStyle": "rotationless",
     "preset": "speed",
-    "rotationWeight": 0,
-    "aufWeight": 0,
-    "wideTurnWeight": 0,
-    "sampleCount": 4742,
-    "avgDurationMs": 1596.3137916490932,
-    "avgMoveCount": 61.23808519611978
+    "rotationWeight": 5,
+    "aufWeight": 1,
+    "wideTurnWeight": 2,
+    "sampleCount": 5556,
+    "avgDurationMs": 329.9649028077754,
+    "avgMoveCount": 53.50701943844492
   },
   "players": [
     {
@@ -59,25 +59,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
-        "wideTurnWeight": 1
+        "rotationWeight": 11,
+        "aufWeight": 10,
+        "wideTurnWeight": 0
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 2,
+        "rotationWeight": 5,
         "aufWeight": 1,
-        "wideTurnWeight": 1,
-        "bestStyle": "balanced",
-        "sampleCount": 1635,
-        "avgDurationMs": 1889.5345565749235,
-        "avgMoveCount": 61.9565749235474
+        "wideTurnWeight": 2,
+        "bestStyle": "rotationless",
+        "sampleCount": 1830,
+        "avgDurationMs": 431.4551912568306,
+        "avgMoveCount": 52.90054644808743
       },
-      "speedBestStyle": "balanced",
+      "speedBestStyle": "rotationless",
       "speedObservation": {
-        "sampleCount": 1635,
-        "avgDurationMs": 1889.5345565749235,
-        "avgMoveCount": 61.9565749235474
+        "sampleCount": 1830,
+        "avgDurationMs": 431.4551912568306,
+        "avgMoveCount": 52.90054644808743
       },
       "coverage": {
         "totalSolves": 959,
@@ -95,72 +95,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 1608,
+          "sampleCount": 1837,
           "metrics": {
-            "rotationRate": 0.009602976827811345,
-            "aufRate": 0.3594035546100181,
-            "wideTurnRate": 0.05847449369915706
+            "rotationRate": 0.00416801276175518,
+            "aufRate": 0.30409431068199494,
+            "wideTurnRate": 0.03021476381267876
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 1635,
+          "sampleCount": 1833,
           "metrics": {
-            "rotationRate": 0.0037962988820944062,
-            "aufRate": 0.33463705687162487,
-            "wideTurnRate": 0.0317532502796701
+            "rotationRate": 0.0041685839843667565,
+            "aufRate": 0.3041080981704475,
+            "wideTurnRate": 0.03024913783921853
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 1642,
+          "sampleCount": 1830,
           "metrics": {
-            "rotationRate": 0.004237895304546509,
-            "aufRate": 0.3349605529621874,
-            "wideTurnRate": 0.028711295545494946
+            "rotationRate": 0.004175417728603424,
+            "aufRate": 0.30405988294063807,
+            "wideTurnRate": 0.03028723138101275
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 1613,
+          "sampleCount": 1834,
           "metrics": {
-            "rotationRate": 0.03942740852226235,
-            "aufRate": 0.2953020578261942,
-            "wideTurnRate": 0.041170832298243816
+            "rotationRate": 0.0041505065082322184,
+            "aufRate": 0.3040261845401452,
+            "wideTurnRate": 0.030304190054199466
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 1608,
+          "sampleCount": 1837,
           "metrics": {
-            "durationMs": 1900.1380597014925,
-            "moveCount": 60.47761194029851
+            "durationMs": 437.8965704953729,
+            "moveCount": 52.90528034839412
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 1635,
+          "sampleCount": 1833,
           "metrics": {
-            "durationMs": 1889.5345565749235,
-            "moveCount": 61.9565749235474
+            "durationMs": 432.7015821058374,
+            "moveCount": 52.90289143480633
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 1642,
+          "sampleCount": 1830,
           "metrics": {
-            "durationMs": 1920.8075517661389,
-            "moveCount": 61.96224116930573
+            "durationMs": 431.4551912568306,
+            "moveCount": 52.90054644808743
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 1613,
+          "sampleCount": 1834,
           "metrics": {
-            "durationMs": 2016.6534407935524,
-            "moveCount": 63.21140731556107
+            "durationMs": 437.4596510359869,
+            "moveCount": 52.89258451472192
           }
         }
       ]
@@ -179,8 +179,8 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
+        "rotationWeight": 11,
+        "aufWeight": 10,
         "wideTurnWeight": 1
       },
       "speedStyleProfile": {
@@ -189,15 +189,15 @@
         "aufWeight": 0,
         "wideTurnWeight": 0,
         "bestStyle": "legacy",
-        "sampleCount": 1232,
-        "avgDurationMs": 1753.2573051948052,
-        "avgMoveCount": 60.49512987012987
+        "sampleCount": 1443,
+        "avgDurationMs": 402.6548856548857,
+        "avgMoveCount": 52.78932778932779
       },
       "speedBestStyle": "legacy",
       "speedObservation": {
-        "sampleCount": 1232,
-        "avgDurationMs": 1753.2573051948052,
-        "avgMoveCount": 60.49512987012987
+        "sampleCount": 1443,
+        "avgDurationMs": 402.6548856548857,
+        "avgMoveCount": 52.78932778932779
       },
       "coverage": {
         "totalSolves": 771,
@@ -215,72 +215,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 1232,
+          "sampleCount": 1443,
           "metrics": {
-            "rotationRate": 0.00978314878791314,
-            "aufRate": 0.35729451463771156,
-            "wideTurnRate": 0.059642752296736504
+            "rotationRate": 0.004037539298078262,
+            "aufRate": 0.3037755077252537,
+            "wideTurnRate": 0.032065815526753395
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 1229,
+          "sampleCount": 1443,
           "metrics": {
-            "rotationRate": 0.0040825002435581495,
-            "aufRate": 0.33305360686026253,
-            "wideTurnRate": 0.03139016105705837
+            "rotationRate": 0.004037539298078262,
+            "aufRate": 0.30376647623862413,
+            "wideTurnRate": 0.03204601550695337
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 1246,
+          "sampleCount": 1443,
           "metrics": {
-            "rotationRate": 0.004227610542768798,
-            "aufRate": 0.3342812514761627,
-            "wideTurnRate": 0.027214559860267305
+            "rotationRate": 0.004037539298078262,
+            "aufRate": 0.3037755077252537,
+            "wideTurnRate": 0.032065815526753395
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 1242,
+          "sampleCount": 1444,
           "metrics": {
-            "rotationRate": 0.03900350302930631,
-            "aufRate": 0.29576468114516496,
-            "wideTurnRate": 0.038920789195357325
+            "rotationRate": 0.004034743218231948,
+            "aufRate": 0.30372168600636,
+            "wideTurnRate": 0.03204823765942491
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 1232,
+          "sampleCount": 1443,
           "metrics": {
-            "durationMs": 1753.2573051948052,
-            "moveCount": 60.49512987012987
+            "durationMs": 402.6548856548857,
+            "moveCount": 52.78932778932779
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 1229,
+          "sampleCount": 1443,
           "metrics": {
-            "durationMs": 1762.5028478437755,
-            "moveCount": 61.92432872253865
+            "durationMs": 403.0942480942481,
+            "moveCount": 52.78586278586278
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 1246,
+          "sampleCount": 1443,
           "metrics": {
-            "durationMs": 1782.733547351525,
-            "moveCount": 62.00882825040129
+            "durationMs": 402.7006237006237,
+            "moveCount": 52.78932778932779
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 1242,
+          "sampleCount": 1444,
           "metrics": {
-            "durationMs": 1884.1030595813204,
-            "moveCount": 63.02012882447665
+            "durationMs": 405.34072022160666,
+            "moveCount": 52.79085872576177
           }
         }
       ]
@@ -299,9 +299,9 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 1,
-        "aufWeight": 0,
-        "wideTurnWeight": 1
+        "rotationWeight": 0,
+        "aufWeight": 10,
+        "wideTurnWeight": 0
       },
       "speedStyleProfile": {
         "preset": "speed",
@@ -309,15 +309,15 @@
         "aufWeight": 0,
         "wideTurnWeight": 0,
         "bestStyle": "legacy",
-        "sampleCount": 1109,
-        "avgDurationMs": 1853.3155996393148,
-        "avgMoveCount": 60.1605049594229
+        "sampleCount": 1271,
+        "avgDurationMs": 418.10306845003936,
+        "avgMoveCount": 52.65381589299764
       },
       "speedBestStyle": "legacy",
       "speedObservation": {
-        "sampleCount": 1109,
-        "avgDurationMs": 1853.3155996393148,
-        "avgMoveCount": 60.1605049594229
+        "sampleCount": 1271,
+        "avgDurationMs": 418.10306845003936,
+        "avgMoveCount": 52.65381589299764
       },
       "coverage": {
         "totalSolves": 756,
@@ -335,72 +335,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 1109,
+          "sampleCount": 1271,
           "metrics": {
-            "rotationRate": 0.010525908352399182,
-            "aufRate": 0.3561290162714095,
-            "wideTurnRate": 0.05809423837952377
+            "rotationRate": 0.0038661214041035333,
+            "aufRate": 0.30297919760190817,
+            "wideTurnRate": 0.02962471135000254
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 1105,
+          "sampleCount": 1273,
           "metrics": {
-            "rotationRate": 0.00411689344974123,
-            "aufRate": 0.3342993498462433,
-            "wideTurnRate": 0.0316809697402393
+            "rotationRate": 0.0038600473720468115,
+            "aufRate": 0.3029494860528245,
+            "wideTurnRate": 0.029578168205697742
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 1099,
+          "sampleCount": 1272,
           "metrics": {
-            "rotationRate": 0.00391998479655164,
-            "aufRate": 0.3361721436875929,
-            "wideTurnRate": 0.028710490574127754
+            "rotationRate": 0.003863082000483955,
+            "aufRate": 0.302957055791541,
+            "wideTurnRate": 0.029630538650070967
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 1111,
+          "sampleCount": 1271,
           "metrics": {
-            "rotationRate": 0.03933647359138265,
-            "aufRate": 0.2977401057236078,
-            "wideTurnRate": 0.04049265557275969
+            "rotationRate": 0.0038346501216487733,
+            "aufRate": 0.3029869450132058,
+            "wideTurnRate": 0.029653851426349544
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 1109,
+          "sampleCount": 1271,
           "metrics": {
-            "durationMs": 1853.3155996393148,
-            "moveCount": 60.1605049594229
+            "durationMs": 418.10306845003936,
+            "moveCount": 52.65381589299764
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 1105,
+          "sampleCount": 1273,
           "metrics": {
-            "durationMs": 1855.3058823529411,
-            "moveCount": 61.42171945701357
+            "durationMs": 423.74783974862527,
+            "moveCount": 52.656716417910445
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 1099,
+          "sampleCount": 1272,
           "metrics": {
-            "durationMs": 1910.0691537761602,
-            "moveCount": 61.696087352138306
+            "durationMs": 425.2429245283019,
+            "moveCount": 52.65487421383648
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 1111,
+          "sampleCount": 1271,
           "metrics": {
-            "durationMs": 2004.12601260126,
-            "moveCount": 63.13951395139514
+            "durationMs": 428.33910306845,
+            "moveCount": 52.65774980330448
           }
         }
       ]
@@ -419,25 +419,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 1,
+        "rotationWeight": 11,
         "aufWeight": 0,
-        "wideTurnWeight": 1
+        "wideTurnWeight": 0
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 914,
-        "avgDurationMs": 1909.2275711159737,
-        "avgMoveCount": 60.74617067833698
+        "rotationWeight": 1,
+        "aufWeight": 4,
+        "wideTurnWeight": 1,
+        "bestStyle": "low-auf",
+        "sampleCount": 1023,
+        "avgDurationMs": 415.6930596285435,
+        "avgMoveCount": 52.66862170087977
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "low-auf",
       "speedObservation": {
-        "sampleCount": 914,
-        "avgDurationMs": 1909.2275711159737,
-        "avgMoveCount": 60.74617067833698
+        "sampleCount": 1023,
+        "avgDurationMs": 415.6930596285435,
+        "avgMoveCount": 52.66862170087977
       },
       "coverage": {
         "totalSolves": 584,
@@ -455,72 +455,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 914,
+          "sampleCount": 1024,
           "metrics": {
-            "rotationRate": 0.01000403300551892,
-            "aufRate": 0.3570693920444614,
-            "wideTurnRate": 0.06003156620228561
+            "rotationRate": 0.0041399920424254645,
+            "aufRate": 0.30659601068724424,
+            "wideTurnRate": 0.02960624444377699
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 901,
+          "sampleCount": 1024,
           "metrics": {
-            "rotationRate": 0.004158483646229093,
-            "aufRate": 0.3353580194351897,
-            "wideTurnRate": 0.032493188300628376
+            "rotationRate": 0.0041399920424254645,
+            "aufRate": 0.3062240926339326,
+            "wideTurnRate": 0.029553952857779234
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 903,
+          "sampleCount": 1024,
           "metrics": {
-            "rotationRate": 0.003879532648905023,
-            "aufRate": 0.3361391668642224,
-            "wideTurnRate": 0.0287033674965367
+            "rotationRate": 0.004172010485048416,
+            "aufRate": 0.30635407502484013,
+            "wideTurnRate": 0.029520539006006007
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 893,
+          "sampleCount": 1023,
           "metrics": {
-            "rotationRate": 0.038936286291404665,
-            "aufRate": 0.29621843259997765,
-            "wideTurnRate": 0.04051052025945322
+            "rotationRate": 0.004144038955467914,
+            "aufRate": 0.30628197645523897,
+            "wideTurnRate": 0.029494686315218007
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 914,
+          "sampleCount": 1024,
           "metrics": {
-            "durationMs": 1909.2275711159737,
-            "moveCount": 60.74617067833698
+            "durationMs": 419.7822265625,
+            "moveCount": 52.63671875
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 901,
+          "sampleCount": 1024,
           "metrics": {
-            "durationMs": 1930.7758046614872,
-            "moveCount": 61.81354051054384
+            "durationMs": 422.9375,
+            "moveCount": 52.6513671875
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 903,
+          "sampleCount": 1024,
           "metrics": {
-            "durationMs": 1941.28349944629,
-            "moveCount": 62.09856035437431
+            "durationMs": 420.736328125,
+            "moveCount": 52.6552734375
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 893,
+          "sampleCount": 1023,
           "metrics": {
-            "durationMs": 2033.3852183650615,
-            "moveCount": 63.48824188129899
+            "durationMs": 415.6930596285435,
+            "moveCount": 52.66862170087977
           }
         }
       ]
@@ -539,9 +539,9 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
+        "rotationWeight": 11,
         "aufWeight": 0,
-        "wideTurnWeight": 1
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
@@ -549,15 +549,15 @@
         "aufWeight": 0,
         "wideTurnWeight": 0,
         "bestStyle": "legacy",
-        "sampleCount": 789,
-        "avgDurationMs": 1876.2585551330799,
-        "avgMoveCount": 59.874524714828894
+        "sampleCount": 915,
+        "avgDurationMs": 414.95628415300547,
+        "avgMoveCount": 52.79562841530055
       },
       "speedBestStyle": "legacy",
       "speedObservation": {
-        "sampleCount": 789,
-        "avgDurationMs": 1876.2585551330799,
-        "avgMoveCount": 59.874524714828894
+        "sampleCount": 915,
+        "avgDurationMs": 414.95628415300547,
+        "avgMoveCount": 52.79562841530055
       },
       "coverage": {
         "totalSolves": 515,
@@ -575,72 +575,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 789,
+          "sampleCount": 915,
           "metrics": {
-            "rotationRate": 0.010259070075599069,
-            "aufRate": 0.3570853492902995,
-            "wideTurnRate": 0.05682896427404033
+            "rotationRate": 0.004136415056963362,
+            "aufRate": 0.3049417216728684,
+            "wideTurnRate": 0.02973627132820082
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 795,
+          "sampleCount": 915,
           "metrics": {
-            "rotationRate": 0.004702414413007728,
-            "aufRate": 0.3352106141933309,
-            "wideTurnRate": 0.032181082283162334
+            "rotationRate": 0.00411099886685026,
+            "aufRate": 0.30489339240227453,
+            "wideTurnRate": 0.02981362361876819
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 809,
+          "sampleCount": 915,
           "metrics": {
-            "rotationRate": 0.004673576115097927,
-            "aufRate": 0.33556489473859336,
-            "wideTurnRate": 0.02913090523988487
+            "rotationRate": 0.00411099886685026,
+            "aufRate": 0.30492375062935406,
+            "wideTurnRate": 0.02973555960627795
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 797,
+          "sampleCount": 913,
           "metrics": {
-            "rotationRate": 0.039211261636203684,
-            "aufRate": 0.29639872670940604,
-            "wideTurnRate": 0.03938186880721508
+            "rotationRate": 0.00414547620714291,
+            "aufRate": 0.3048555281950674,
+            "wideTurnRate": 0.02964234467236105
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 789,
+          "sampleCount": 915,
           "metrics": {
-            "durationMs": 1876.2585551330799,
-            "moveCount": 59.874524714828894
+            "durationMs": 414.95628415300547,
+            "moveCount": 52.79562841530055
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 795,
+          "sampleCount": 915,
           "metrics": {
-            "durationMs": 1890.2993710691824,
-            "moveCount": 61.432704402515725
+            "durationMs": 424.01311475409835,
+            "moveCount": 52.79562841530055
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 809,
+          "sampleCount": 915,
           "metrics": {
-            "durationMs": 1930.7466007416563,
-            "moveCount": 61.46847960444994
+            "durationMs": 417.59562841530055,
+            "moveCount": 52.79344262295082
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 797,
+          "sampleCount": 913,
           "metrics": {
-            "durationMs": 2005.4065244667504,
-            "moveCount": 62.65244667503137
+            "durationMs": 417.1358159912377,
+            "moveCount": 52.77984665936473
           }
         }
       ]
@@ -659,25 +659,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
+        "rotationWeight": 11,
         "aufWeight": 0,
-        "wideTurnWeight": 1
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 777,
-        "avgDurationMs": 1846.823680823681,
-        "avgMoveCount": 59.988416988416986
+        "rotationWeight": 5,
+        "aufWeight": 1,
+        "wideTurnWeight": 2,
+        "bestStyle": "rotationless",
+        "sampleCount": 867,
+        "avgDurationMs": 429.1764705882353,
+        "avgMoveCount": 52.88119953863899
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "rotationless",
       "speedObservation": {
-        "sampleCount": 777,
-        "avgDurationMs": 1846.823680823681,
-        "avgMoveCount": 59.988416988416986
+        "sampleCount": 867,
+        "avgDurationMs": 429.1764705882353,
+        "avgMoveCount": 52.88119953863899
       },
       "coverage": {
         "totalSolves": 441,
@@ -695,72 +695,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 777,
+          "sampleCount": 873,
           "metrics": {
-            "rotationRate": 0.01041310892453478,
-            "aufRate": 0.35601580987544407,
-            "wideTurnRate": 0.05816485390235247
+            "rotationRate": 0.00421803788732012,
+            "aufRate": 0.30618509320082,
+            "wideTurnRate": 0.03222514297148469
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 767,
+          "sampleCount": 870,
           "metrics": {
-            "rotationRate": 0.004276014009628,
-            "aufRate": 0.3339745980616251,
-            "wideTurnRate": 0.030704611156910526
+            "rotationRate": 0.004232582845552258,
+            "aufRate": 0.3061105610000076,
+            "wideTurnRate": 0.03220604504181567
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 771,
+          "sampleCount": 867,
           "metrics": {
-            "rotationRate": 0.004191612184171443,
-            "aufRate": 0.33598530494783413,
-            "wideTurnRate": 0.02672191830487688
+            "rotationRate": 0.0043058760475866015,
+            "aufRate": 0.3061833165302135,
+            "wideTurnRate": 0.032088354635404805
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 744,
+          "sampleCount": 865,
           "metrics": {
-            "rotationRate": 0.0386969509649293,
-            "aufRate": 0.2951583022724121,
-            "wideTurnRate": 0.04105821163550939
+            "rotationRate": 0.004257048642347358,
+            "aufRate": 0.3060252985504584,
+            "wideTurnRate": 0.03222520400448952
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 777,
+          "sampleCount": 873,
           "metrics": {
-            "durationMs": 1846.823680823681,
-            "moveCount": 59.988416988416986
+            "durationMs": 438.1729667812142,
+            "moveCount": 52.899198167239405
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 767,
+          "sampleCount": 870,
           "metrics": {
-            "durationMs": 1867.5267275097783,
-            "moveCount": 61.47718383311604
+            "durationMs": 434.5264367816092,
+            "moveCount": 52.88850574712644
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 771,
+          "sampleCount": 867,
           "metrics": {
-            "durationMs": 1904.1089494163425,
-            "moveCount": 61.69520103761349
+            "durationMs": 429.1764705882353,
+            "moveCount": 52.88119953863899
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 744,
+          "sampleCount": 865,
           "metrics": {
-            "durationMs": 1993.1922043010752,
-            "moveCount": 62.91532258064516
+            "durationMs": 433.5780346820809,
+            "moveCount": 52.87514450867052
           }
         }
       ]
@@ -779,9 +779,9 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
+        "rotationWeight": 11,
         "aufWeight": 0,
-        "wideTurnWeight": 3
+        "wideTurnWeight": 0
       },
       "speedStyleProfile": {
         "preset": "speed",
@@ -789,15 +789,15 @@
         "aufWeight": 0,
         "wideTurnWeight": 0,
         "bestStyle": "legacy",
-        "sampleCount": 490,
-        "avgDurationMs": 1843.965306122449,
-        "avgMoveCount": 59.72857142857143
+        "sampleCount": 557,
+        "avgDurationMs": 420.2836624775583,
+        "avgMoveCount": 52.83842010771993
       },
       "speedBestStyle": "legacy",
       "speedObservation": {
-        "sampleCount": 490,
-        "avgDurationMs": 1843.965306122449,
-        "avgMoveCount": 59.72857142857143
+        "sampleCount": 557,
+        "avgDurationMs": 420.2836624775583,
+        "avgMoveCount": 52.83842010771993
       },
       "coverage": {
         "totalSolves": 310,
@@ -815,72 +815,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 490,
+          "sampleCount": 557,
           "metrics": {
-            "rotationRate": 0.010989449395647468,
-            "aufRate": 0.3560165527974626,
-            "wideTurnRate": 0.057476757123384424
+            "rotationRate": 0.003929037631363097,
+            "aufRate": 0.30156134363575343,
+            "wideTurnRate": 0.03232701634728896
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 475,
+          "sampleCount": 559,
           "metrics": {
-            "rotationRate": 0.002912004294570717,
-            "aufRate": 0.33619521765780397,
-            "wideTurnRate": 0.03269229432200471
+            "rotationRate": 0.003946903539381687,
+            "aufRate": 0.30162406613930354,
+            "wideTurnRate": 0.03239051749019623
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 475,
+          "sampleCount": 558,
           "metrics": {
-            "rotationRate": 0.0029320353449322047,
-            "aufRate": 0.3361809234604084,
-            "wideTurnRate": 0.029836607749925463
+            "rotationRate": 0.003921996345285386,
+            "aufRate": 0.3017566493648155,
+            "wideTurnRate": 0.03258880815779492
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 473,
+          "sampleCount": 557,
           "metrics": {
-            "rotationRate": 0.03763495858792531,
-            "aufRate": 0.2965248303161461,
-            "wideTurnRate": 0.038514470452543664
+            "rotationRate": 0.003929037631363097,
+            "aufRate": 0.3016669148786437,
+            "wideTurnRate": 0.03247357407271306
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 490,
+          "sampleCount": 557,
           "metrics": {
-            "durationMs": 1843.965306122449,
-            "moveCount": 59.72857142857143
+            "durationMs": 420.2836624775583,
+            "moveCount": 52.83842010771993
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 475,
+          "sampleCount": 559,
           "metrics": {
-            "durationMs": 1871.8905263157894,
-            "moveCount": 61.688421052631575
+            "durationMs": 428.72093023255815,
+            "moveCount": 52.83542039355993
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 475,
+          "sampleCount": 558,
           "metrics": {
-            "durationMs": 1934.6526315789474,
-            "moveCount": 61.80421052631579
+            "durationMs": 424.1200716845878,
+            "moveCount": 52.84767025089606
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 473,
+          "sampleCount": 557,
           "metrics": {
-            "durationMs": 1988.1289640591965,
-            "moveCount": 62.59196617336152
+            "durationMs": 420.48294434470375,
+            "moveCount": 52.820466786355475
           }
         }
       ]
@@ -899,25 +899,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
-        "wideTurnWeight": 1
+        "rotationWeight": 11,
+        "aufWeight": 10,
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 496,
-        "avgDurationMs": 1848.1754032258063,
-        "avgMoveCount": 60.296370967741936
+        "rotationWeight": 1,
+        "aufWeight": 4,
+        "wideTurnWeight": 1,
+        "bestStyle": "low-auf",
+        "sampleCount": 587,
+        "avgDurationMs": 417.190800681431,
+        "avgMoveCount": 52.73253833049404
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "low-auf",
       "speedObservation": {
-        "sampleCount": 496,
-        "avgDurationMs": 1848.1754032258063,
-        "avgMoveCount": 60.296370967741936
+        "sampleCount": 587,
+        "avgDurationMs": 417.190800681431,
+        "avgMoveCount": 52.73253833049404
       },
       "coverage": {
         "totalSolves": 308,
@@ -935,72 +935,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 496,
+          "sampleCount": 587,
           "metrics": {
-            "rotationRate": 0.010288975193902,
-            "aufRate": 0.35612075742023935,
-            "wideTurnRate": 0.061138850033900155
+            "rotationRate": 0.004262852528693748,
+            "aufRate": 0.30459194473541684,
+            "wideTurnRate": 0.03162484583470119
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 497,
+          "sampleCount": 587,
           "metrics": {
-            "rotationRate": 0.004482628233093409,
-            "aufRate": 0.33422371527205386,
-            "wideTurnRate": 0.03409122647870415
+            "rotationRate": 0.004262852528693748,
+            "aufRate": 0.3045692303685798,
+            "wideTurnRate": 0.03162484583470119
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 512,
+          "sampleCount": 587,
           "metrics": {
-            "rotationRate": 0.00448392263277435,
-            "aufRate": 0.33498309413948163,
-            "wideTurnRate": 0.03159837476336003
+            "rotationRate": 0.004262852528693748,
+            "aufRate": 0.30459194473541684,
+            "wideTurnRate": 0.03162484583470119
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 498,
+          "sampleCount": 587,
           "metrics": {
-            "rotationRate": 0.039397841826529285,
-            "aufRate": 0.29566118747669495,
-            "wideTurnRate": 0.03960776351828891
+            "rotationRate": 0.004156274854385128,
+            "aufRate": 0.3043941997149969,
+            "wideTurnRate": 0.03158214137992657
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 496,
+          "sampleCount": 587,
           "metrics": {
-            "durationMs": 1848.1754032258063,
-            "moveCount": 60.296370967741936
+            "durationMs": 419.1465076660988,
+            "moveCount": 52.759795570698465
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 497,
+          "sampleCount": 587,
           "metrics": {
-            "durationMs": 1894.4325955734407,
-            "moveCount": 61.62374245472837
+            "durationMs": 421.60988074957413,
+            "moveCount": 52.75298126064736
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 512,
+          "sampleCount": 587,
           "metrics": {
-            "durationMs": 1940,
-            "moveCount": 61.58984375
+            "durationMs": 420.98977853492335,
+            "moveCount": 52.759795570698465
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 498,
+          "sampleCount": 587,
           "metrics": {
-            "durationMs": 2026.9056224899598,
-            "moveCount": 62.92570281124498
+            "durationMs": 417.190800681431,
+            "moveCount": 52.73253833049404
           }
         }
       ]
@@ -1019,9 +1019,9 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
-        "wideTurnWeight": 1
+        "rotationWeight": 11,
+        "aufWeight": 1,
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
@@ -1029,15 +1029,15 @@
         "aufWeight": 1,
         "wideTurnWeight": 1,
         "bestStyle": "balanced",
-        "sampleCount": 437,
-        "avgDurationMs": 1951.1945080091534,
-        "avgMoveCount": 61.90617848970252
+        "sampleCount": 504,
+        "avgDurationMs": 448.125,
+        "avgMoveCount": 52.75992063492063
       },
       "speedBestStyle": "balanced",
       "speedObservation": {
-        "sampleCount": 437,
-        "avgDurationMs": 1951.1945080091534,
-        "avgMoveCount": 61.90617848970252
+        "sampleCount": 504,
+        "avgDurationMs": 448.125,
+        "avgMoveCount": 52.75992063492063
       },
       "coverage": {
         "totalSolves": 272,
@@ -1055,72 +1055,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 425,
+          "sampleCount": 504,
           "metrics": {
-            "rotationRate": 0.009292249898672743,
-            "aufRate": 0.3563568693957139,
-            "wideTurnRate": 0.06284833900734428
+            "rotationRate": 0.004059930589230109,
+            "aufRate": 0.2984699298864195,
+            "wideTurnRate": 0.03096365774742474
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 437,
+          "sampleCount": 504,
           "metrics": {
-            "rotationRate": 0.003965739801886133,
-            "aufRate": 0.3336020045121273,
-            "wideTurnRate": 0.0314076168055224
+            "rotationRate": 0.004100422976661273,
+            "aufRate": 0.2985516128058927,
+            "wideTurnRate": 0.030920372781550045
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 439,
+          "sampleCount": 504,
           "metrics": {
-            "rotationRate": 0.004360904635357756,
-            "aufRate": 0.3324432599788969,
-            "wideTurnRate": 0.028947248362873296
+            "rotationRate": 0.004100422976661273,
+            "aufRate": 0.2985516128058927,
+            "wideTurnRate": 0.030920372781550045
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 433,
+          "sampleCount": 504,
           "metrics": {
-            "rotationRate": 0.03927737708694933,
-            "aufRate": 0.29115880246053216,
-            "wideTurnRate": 0.03795139132286983
+            "rotationRate": 0.004059930589230109,
+            "aufRate": 0.2984699298864195,
+            "wideTurnRate": 0.03096365774742474
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 425,
+          "sampleCount": 504,
           "metrics": {
-            "durationMs": 1980.5670588235294,
-            "moveCount": 60.83529411764706
+            "durationMs": 454.1507936507937,
+            "moveCount": 52.77777777777778
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 437,
+          "sampleCount": 504,
           "metrics": {
-            "durationMs": 1951.1945080091534,
-            "moveCount": 61.90617848970252
+            "durationMs": 448.125,
+            "moveCount": 52.75992063492063
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 439,
+          "sampleCount": 504,
           "metrics": {
-            "durationMs": 1989.6742596810934,
-            "moveCount": 61.747152619589976
+            "durationMs": 448.92261904761904,
+            "moveCount": 52.75992063492063
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 433,
+          "sampleCount": 504,
           "metrics": {
-            "durationMs": 2069.295612009238,
-            "moveCount": 62.91916859122402
+            "durationMs": 453.57142857142856,
+            "moveCount": 52.77777777777778
           }
         }
       ]
@@ -1139,25 +1139,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 1,
-        "aufWeight": 0,
+        "rotationWeight": 0,
+        "aufWeight": 10,
         "wideTurnWeight": 1
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 379,
-        "avgDurationMs": 1676.8416886543537,
-        "avgMoveCount": 60.62269129287599
+        "rotationWeight": 1,
+        "aufWeight": 4,
+        "wideTurnWeight": 1,
+        "bestStyle": "low-auf",
+        "sampleCount": 397,
+        "avgDurationMs": 531.1284634760706,
+        "avgMoveCount": 53.012594458438286
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "low-auf",
       "speedObservation": {
-        "sampleCount": 379,
-        "avgDurationMs": 1676.8416886543537,
-        "avgMoveCount": 60.62269129287599
+        "sampleCount": 397,
+        "avgDurationMs": 531.1284634760706,
+        "avgMoveCount": 53.012594458438286
       },
       "coverage": {
         "totalSolves": 240,
@@ -1175,72 +1175,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 379,
+          "sampleCount": 411,
           "metrics": {
-            "rotationRate": 0.01040064034066408,
-            "aufRate": 0.35672564240065685,
-            "wideTurnRate": 0.058113651855535416
+            "rotationRate": 0.0038192588515585375,
+            "aufRate": 0.3032597929260259,
+            "wideTurnRate": 0.031806207216499696
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 380,
+          "sampleCount": 407,
           "metrics": {
-            "rotationRate": 0.0036389625750506303,
-            "aufRate": 0.33264209543936846,
-            "wideTurnRate": 0.02912673790450925
+            "rotationRate": 0.0037604415275578596,
+            "aufRate": 0.3033153468080328,
+            "wideTurnRate": 0.03192780176148593
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 380,
+          "sampleCount": 404,
           "metrics": {
-            "rotationRate": 0.0031740612459379403,
-            "aufRate": 0.3342610535621752,
-            "wideTurnRate": 0.02622684342947006
+            "rotationRate": 0.0037441647496507576,
+            "aufRate": 0.3030768000292339,
+            "wideTurnRate": 0.03176702536380489
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 368,
+          "sampleCount": 397,
           "metrics": {
-            "rotationRate": 0.038366916891193065,
-            "aufRate": 0.2941023729973053,
-            "wideTurnRate": 0.03995967963681438
+            "rotationRate": 0.0036726960922325406,
+            "aufRate": 0.3027255771672106,
+            "wideTurnRate": 0.03227962297846064
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 379,
+          "sampleCount": 411,
           "metrics": {
-            "durationMs": 1676.8416886543537,
-            "moveCount": 60.62269129287599
+            "durationMs": 564.338199513382,
+            "moveCount": 53.038929440389296
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 380,
+          "sampleCount": 407,
           "metrics": {
-            "durationMs": 1691.3552631578948,
-            "moveCount": 62.02105263157895
+            "durationMs": 561.063882063882,
+            "moveCount": 53.04914004914005
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 380,
+          "sampleCount": 404,
           "metrics": {
-            "durationMs": 1701.4842105263158,
-            "moveCount": 62.10526315789474
+            "durationMs": 556.8366336633663,
+            "moveCount": 53.01485148514851
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 368,
+          "sampleCount": 397,
           "metrics": {
-            "durationMs": 1810.4673913043478,
-            "moveCount": 63.00815217391305
+            "durationMs": 531.1284634760706,
+            "moveCount": 53.012594458438286
           }
         }
       ]
@@ -1259,25 +1259,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
+        "rotationWeight": 11,
+        "aufWeight": 10,
         "wideTurnWeight": 1
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 2,
-        "aufWeight": 1,
+        "rotationWeight": 1,
+        "aufWeight": 4,
         "wideTurnWeight": 1,
-        "bestStyle": "balanced",
-        "sampleCount": 376,
-        "avgDurationMs": 1747.4202127659576,
-        "avgMoveCount": 60.96010638297872
+        "bestStyle": "low-auf",
+        "sampleCount": 434,
+        "avgDurationMs": 435.8963133640553,
+        "avgMoveCount": 52.47235023041475
       },
-      "speedBestStyle": "balanced",
+      "speedBestStyle": "low-auf",
       "speedObservation": {
-        "sampleCount": 376,
-        "avgDurationMs": 1747.4202127659576,
-        "avgMoveCount": 60.96010638297872
+        "sampleCount": 434,
+        "avgDurationMs": 435.8963133640553,
+        "avgMoveCount": 52.47235023041475
       },
       "coverage": {
         "totalSolves": 238,
@@ -1295,72 +1295,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 375,
+          "sampleCount": 435,
           "metrics": {
-            "rotationRate": 0.012319396549467723,
-            "aufRate": 0.35530481736036656,
-            "wideTurnRate": 0.06033833610095679
+            "rotationRate": 0.0034828196631546573,
+            "aufRate": 0.30085659931594383,
+            "wideTurnRate": 0.033422195644929334
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 376,
+          "sampleCount": 435,
           "metrics": {
-            "rotationRate": 0.004804165248918636,
-            "aufRate": 0.33434835429592513,
-            "wideTurnRate": 0.03328634035100578
+            "rotationRate": 0.0034828196631546573,
+            "aufRate": 0.3009292096749684,
+            "wideTurnRate": 0.03328536620340798
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 386,
+          "sampleCount": 434,
           "metrics": {
-            "rotationRate": 0.004878178294784364,
-            "aufRate": 0.33522532729504506,
-            "wideTurnRate": 0.02901703760962571
+            "rotationRate": 0.003486999541163249,
+            "aufRate": 0.3009343361088402,
+            "wideTurnRate": 0.03355749280650925
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 369,
+          "sampleCount": 434,
           "metrics": {
-            "rotationRate": 0.03813899728711736,
-            "aufRate": 0.29981389281423815,
-            "wideTurnRate": 0.040457362244823984
+            "rotationRate": 0.0034418201790958414,
+            "aufRate": 0.3009820254354668,
+            "wideTurnRate": 0.033421954720307026
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 375,
+          "sampleCount": 435,
           "metrics": {
-            "durationMs": 1751.6133333333332,
-            "moveCount": 59.794666666666664
+            "durationMs": 442.51264367816094,
+            "moveCount": 52.43448275862069
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 376,
+          "sampleCount": 435,
           "metrics": {
-            "durationMs": 1747.4202127659576,
-            "moveCount": 60.96010638297872
+            "durationMs": 440.0735632183908,
+            "moveCount": 52.40229885057471
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 386,
+          "sampleCount": 434,
           "metrics": {
-            "durationMs": 1790.479274611399,
-            "moveCount": 61.082901554404145
+            "durationMs": 438.3341013824885,
+            "moveCount": 52.465437788018434
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 369,
+          "sampleCount": 434,
           "metrics": {
-            "durationMs": 1916.4932249322494,
-            "moveCount": 62.15989159891599
+            "durationMs": 435.8963133640553,
+            "moveCount": 52.47235023041475
           }
         }
       ]
@@ -1379,25 +1379,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 1,
-        "aufWeight": 0,
-        "wideTurnWeight": 1
+        "rotationWeight": 11,
+        "aufWeight": 10,
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 288,
-        "avgDurationMs": 2061.0798611111113,
-        "avgMoveCount": 60.079861111111114
+        "rotationWeight": 5,
+        "aufWeight": 1,
+        "wideTurnWeight": 2,
+        "bestStyle": "rotationless",
+        "sampleCount": 340,
+        "avgDurationMs": 433.1735294117647,
+        "avgMoveCount": 52.69117647058823
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "rotationless",
       "speedObservation": {
-        "sampleCount": 288,
-        "avgDurationMs": 2061.0798611111113,
-        "avgMoveCount": 60.079861111111114
+        "sampleCount": 340,
+        "avgDurationMs": 433.1735294117647,
+        "avgMoveCount": 52.69117647058823
       },
       "coverage": {
         "totalSolves": 197,
@@ -1415,72 +1415,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 288,
+          "sampleCount": 341,
           "metrics": {
-            "rotationRate": 0.010723776398435818,
-            "aufRate": 0.3535958001891477,
-            "wideTurnRate": 0.05553134681842645
+            "rotationRate": 0.004091030395464414,
+            "aufRate": 0.30441827784803704,
+            "wideTurnRate": 0.030389996669398234
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 267,
+          "sampleCount": 341,
           "metrics": {
-            "rotationRate": 0.00456934291949104,
-            "aufRate": 0.33490143037479597,
-            "wideTurnRate": 0.03273658732042711
+            "rotationRate": 0.0041375788291096215,
+            "aufRate": 0.30444939356276923,
+            "wideTurnRate": 0.030385445621854874
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 276,
+          "sampleCount": 340,
           "metrics": {
-            "rotationRate": 0.0042114735466336605,
-            "aufRate": 0.3365726025649371,
-            "wideTurnRate": 0.030301616047251546
+            "rotationRate": 0.004103062837804015,
+            "aufRate": 0.30438293876396194,
+            "wideTurnRate": 0.030390252452828725
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 280,
+          "sampleCount": 340,
           "metrics": {
-            "rotationRate": 0.037297305427681574,
-            "aufRate": 0.2942814463442186,
-            "wideTurnRate": 0.04318444429472969
+            "rotationRate": 0.004103062837804015,
+            "aufRate": 0.3041959786652371,
+            "wideTurnRate": 0.03036173195371999
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 288,
+          "sampleCount": 341,
           "metrics": {
-            "durationMs": 2061.0798611111113,
-            "moveCount": 60.079861111111114
+            "durationMs": 443.7155425219941,
+            "moveCount": 52.71847507331378
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 267,
+          "sampleCount": 341,
           "metrics": {
-            "durationMs": 2073.2022471910113,
-            "moveCount": 61.86516853932584
+            "durationMs": 446.7038123167155,
+            "moveCount": 52.70674486803519
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 276,
+          "sampleCount": 340,
           "metrics": {
-            "durationMs": 2117.7427536231885,
-            "moveCount": 62
+            "durationMs": 433.1735294117647,
+            "moveCount": 52.69117647058823
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 280,
+          "sampleCount": 340,
           "metrics": {
-            "durationMs": 2202.5035714285714,
-            "moveCount": 63.43928571428572
+            "durationMs": 440.42058823529413,
+            "moveCount": 52.726470588235294
           }
         }
       ]
@@ -1499,25 +1499,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
-        "wideTurnWeight": 1
+        "rotationWeight": 0,
+        "aufWeight": 11,
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 334,
-        "avgDurationMs": 1743.820359281437,
-        "avgMoveCount": 60.33832335329341
+        "rotationWeight": 2,
+        "aufWeight": 1,
+        "wideTurnWeight": 1,
+        "bestStyle": "balanced",
+        "sampleCount": 390,
+        "avgDurationMs": 423.56410256410254,
+        "avgMoveCount": 52.712820512820514
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "balanced",
       "speedObservation": {
-        "sampleCount": 334,
-        "avgDurationMs": 1743.820359281437,
-        "avgMoveCount": 60.33832335329341
+        "sampleCount": 390,
+        "avgDurationMs": 423.56410256410254,
+        "avgMoveCount": 52.712820512820514
       },
       "coverage": {
         "totalSolves": 196,
@@ -1535,72 +1535,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 334,
+          "sampleCount": 391,
           "metrics": {
-            "rotationRate": 0.011038576657235505,
-            "aufRate": 0.35854891465160793,
-            "wideTurnRate": 0.06118270230165362
+            "rotationRate": 0.0040368044461341086,
+            "aufRate": 0.3049897585249521,
+            "wideTurnRate": 0.02655483607636034
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 316,
+          "sampleCount": 390,
           "metrics": {
-            "rotationRate": 0.004300699855129444,
-            "aufRate": 0.33588571959776004,
-            "wideTurnRate": 0.03357705055256187
+            "rotationRate": 0.004047155226765221,
+            "aufRate": 0.3049326227076501,
+            "wideTurnRate": 0.026529685306392964
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 329,
+          "sampleCount": 390,
           "metrics": {
-            "rotationRate": 0.00465209245970757,
-            "aufRate": 0.3368200675543894,
-            "wideTurnRate": 0.02939808927123707
+            "rotationRate": 0.004047155226765221,
+            "aufRate": 0.3049326227076501,
+            "wideTurnRate": 0.026529685306392964
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 332,
+          "sampleCount": 390,
           "metrics": {
-            "rotationRate": 0.039859894225640055,
-            "aufRate": 0.2955367480461412,
-            "wideTurnRate": 0.039556173204447785
+            "rotationRate": 0.004047155226765221,
+            "aufRate": 0.30521738299241036,
+            "wideTurnRate": 0.026622925399633058
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 334,
+          "sampleCount": 391,
           "metrics": {
-            "durationMs": 1743.820359281437,
-            "moveCount": 60.33832335329341
+            "durationMs": 433.0460358056266,
+            "moveCount": 52.71867007672634
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 316,
+          "sampleCount": 390,
           "metrics": {
-            "durationMs": 1774.3037974683543,
-            "moveCount": 61.610759493670884
+            "durationMs": 423.56410256410254,
+            "moveCount": 52.712820512820514
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 329,
+          "sampleCount": 390,
           "metrics": {
-            "durationMs": 1811.9908814589667,
-            "moveCount": 61.483282674772035
+            "durationMs": 424.25384615384615,
+            "moveCount": 52.712820512820514
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 332,
+          "sampleCount": 390,
           "metrics": {
-            "durationMs": 1898.6234939759036,
-            "moveCount": 63.256024096385545
+            "durationMs": 425.2358974358974,
+            "moveCount": 52.758974358974356
           }
         }
       ]
@@ -1619,25 +1619,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
+        "rotationWeight": 11,
+        "aufWeight": 11,
         "wideTurnWeight": 1
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 2,
-        "aufWeight": 1,
-        "wideTurnWeight": 1,
-        "bestStyle": "balanced",
-        "sampleCount": 312,
-        "avgDurationMs": 1743.371794871795,
-        "avgMoveCount": 61.794871794871796
+        "rotationWeight": 0,
+        "aufWeight": 0,
+        "wideTurnWeight": 0,
+        "bestStyle": "legacy",
+        "sampleCount": 353,
+        "avgDurationMs": 414.9801699716714,
+        "avgMoveCount": 52.36827195467422
       },
-      "speedBestStyle": "balanced",
+      "speedBestStyle": "legacy",
       "speedObservation": {
-        "sampleCount": 312,
-        "avgDurationMs": 1743.371794871795,
-        "avgMoveCount": 61.794871794871796
+        "sampleCount": 353,
+        "avgDurationMs": 414.9801699716714,
+        "avgMoveCount": 52.36827195467422
       },
       "coverage": {
         "totalSolves": 181,
@@ -1655,72 +1655,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 311,
+          "sampleCount": 353,
           "metrics": {
-            "rotationRate": 0.010431302438781185,
-            "aufRate": 0.35518847066975884,
-            "wideTurnRate": 0.05879472274256102
+            "rotationRate": 0.0035386689618415222,
+            "aufRate": 0.3054550125464826,
+            "wideTurnRate": 0.030816041278283354
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 312,
+          "sampleCount": 354,
           "metrics": {
-            "rotationRate": 0.003933196445138515,
-            "aufRate": 0.3331706982560947,
-            "wideTurnRate": 0.03186286298509757
+            "rotationRate": 0.0035286727218363204,
+            "aufRate": 0.3054346470139645,
+            "wideTurnRate": 0.030927226016470383
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 310,
+          "sampleCount": 353,
           "metrics": {
-            "rotationRate": 0.005223657687205976,
-            "aufRate": 0.3367577522997729,
-            "wideTurnRate": 0.027087115690483582
+            "rotationRate": 0.0035386689618415222,
+            "aufRate": 0.3054550125464826,
+            "wideTurnRate": 0.030816041278283354
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 315,
+          "sampleCount": 354,
           "metrics": {
-            "rotationRate": 0.03797899466723602,
-            "aufRate": 0.2958066417034307,
-            "wideTurnRate": 0.03673446658255975
+            "rotationRate": 0.0035286727218363204,
+            "aufRate": 0.3054346470139645,
+            "wideTurnRate": 0.030927226016470383
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 311,
+          "sampleCount": 353,
           "metrics": {
-            "durationMs": 1752.3118971061094,
-            "moveCount": 60.0096463022508
+            "durationMs": 414.9801699716714,
+            "moveCount": 52.36827195467422
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 312,
+          "sampleCount": 354,
           "metrics": {
-            "durationMs": 1743.371794871795,
-            "moveCount": 61.794871794871796
+            "durationMs": 418.9039548022599,
+            "moveCount": 52.38135593220339
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 310,
+          "sampleCount": 353,
           "metrics": {
-            "durationMs": 1761.316129032258,
-            "moveCount": 62.05161290322581
+            "durationMs": 416.3399433427762,
+            "moveCount": 52.36827195467422
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 315,
+          "sampleCount": 354,
           "metrics": {
-            "durationMs": 1859.0603174603175,
-            "moveCount": 63.22222222222222
+            "durationMs": 417.3474576271187,
+            "moveCount": 52.38135593220339
           }
         }
       ]
@@ -1739,25 +1739,25 @@
       },
       "learnedStyleProfile": {
         "preset": "ml-aggressive",
-        "rotationWeight": 2,
-        "aufWeight": 0,
-        "wideTurnWeight": 2
+        "rotationWeight": 11,
+        "aufWeight": 1,
+        "wideTurnWeight": 10
       },
       "speedStyleProfile": {
         "preset": "speed",
-        "rotationWeight": 0,
-        "aufWeight": 0,
-        "wideTurnWeight": 0,
-        "bestStyle": "legacy",
-        "sampleCount": 172,
-        "avgDurationMs": 1724.906976744186,
-        "avgMoveCount": 60.77906976744186
+        "rotationWeight": 5,
+        "aufWeight": 1,
+        "wideTurnWeight": 2,
+        "bestStyle": "rotationless",
+        "sampleCount": 200,
+        "avgDurationMs": 412.635,
+        "avgMoveCount": 52.41
       },
-      "speedBestStyle": "legacy",
+      "speedBestStyle": "rotationless",
       "speedObservation": {
-        "sampleCount": 172,
-        "avgDurationMs": 1724.906976744186,
-        "avgMoveCount": 60.77906976744186
+        "sampleCount": 200,
+        "avgDurationMs": 412.635,
+        "avgMoveCount": 52.41
       },
       "coverage": {
         "totalSolves": 101,
@@ -1775,72 +1775,72 @@
       "observations": [
         {
           "style": "legacy",
-          "sampleCount": 172,
+          "sampleCount": 201,
           "metrics": {
-            "rotationRate": 0.013263884627464313,
-            "aufRate": 0.35491906806167034,
-            "wideTurnRate": 0.05882018122893283
+            "rotationRate": 0.004605772935155823,
+            "aufRate": 0.30519729038413135,
+            "wideTurnRate": 0.03072040784844322
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 181,
+          "sampleCount": 201,
           "metrics": {
-            "rotationRate": 0.004642220364182513,
-            "aufRate": 0.3315907900776086,
-            "wideTurnRate": 0.034507653896724444
+            "rotationRate": 0.004605772935155823,
+            "aufRate": 0.30555911761163024,
+            "wideTurnRate": 0.030539494234693793
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 179,
+          "sampleCount": 200,
           "metrics": {
-            "rotationRate": 0.004002337861456792,
-            "aufRate": 0.3315773354406979,
-            "wideTurnRate": 0.029975456561255075
+            "rotationRate": 0.004628801799831602,
+            "aufRate": 0.3055414586542338,
+            "wideTurnRate": 0.03069219170586726
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 178,
+          "sampleCount": 201,
           "metrics": {
-            "rotationRate": 0.042380638015707184,
-            "aufRate": 0.2912168642992539,
-            "wideTurnRate": 0.044782072825624304
+            "rotationRate": 0.004605772935155823,
+            "aufRate": 0.30519729038413135,
+            "wideTurnRate": 0.03072040784844322
           }
         }
       ],
       "speedObservations": [
         {
           "style": "legacy",
-          "sampleCount": 172,
+          "sampleCount": 201,
           "metrics": {
-            "durationMs": 1724.906976744186,
-            "moveCount": 60.77906976744186
+            "durationMs": 431.8606965174129,
+            "moveCount": 52.4228855721393
           }
         },
         {
           "style": "balanced",
-          "sampleCount": 181,
+          "sampleCount": 201,
           "metrics": {
-            "durationMs": 1746.3259668508288,
-            "moveCount": 62.110497237569064
+            "durationMs": 427.7412935323383,
+            "moveCount": 52.4228855721393
           }
         },
         {
           "style": "rotationless",
-          "sampleCount": 179,
+          "sampleCount": 200,
           "metrics": {
-            "durationMs": 1801.1061452513966,
-            "moveCount": 62.24022346368715
+            "durationMs": 412.635,
+            "moveCount": 52.41
           }
         },
         {
           "style": "low-auf",
-          "sampleCount": 178,
+          "sampleCount": 201,
           "metrics": {
-            "durationMs": 1840.4831460674156,
-            "moveCount": 64.19662921348315
+            "durationMs": 429.86567164179104,
+            "moveCount": 52.4228855721393
           }
         }
       ]

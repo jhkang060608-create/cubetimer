@@ -2803,6 +2803,45 @@ function _warmOllPllLibraries(ctx) {
       pllStage, ctx, pllFormulas, FORMULA_AUF, FORMULA_AUF, ["PLL"], null, null, null,
     );
   }
+
+  // Pre-warm ZBLS and ZBLL case libraries — enables O(1) lookup so ZBLS never falls
+  // back to the 280K-node brute formula search (which took 13s without this warmup).
+  const zblsStage = {
+    name: "ZBLS",
+    formulaKeys: ["ZBLS"],
+    maxDepth: 22,
+    formulaPreAufList: FORMULA_AUF,
+    key(data) {
+      const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
+      const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
+      const ollE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true);
+      return `FC:${f2lC}|FE:${f2lE}|OE:${ollE}`;
+    },
+  };
+  const zbllStage = {
+    name: "ZBLL",
+    formulaKeys: ["ZBLL"],
+    maxDepth: 22,
+    formulaPreAufList: FORMULA_AUF,
+    formulaPostAufList: FORMULA_AUF,
+    key(data) {
+      const c = buildKeyForOrbit(data.CORNERS, [0, 1, 2, 3, 4, 5, 6, 7], true, true);
+      const e = buildKeyForOrbit(data.EDGES, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], true, true);
+      return `C:${c}|E:${e}`;
+    },
+  };
+  const zblsFormulas = filterValidFormulas(getFormulaListForStage(zblsStage), ctx);
+  const zbllFormulas = filterValidFormulas(getFormulaListForStage(zbllStage), ctx);
+  if (zblsFormulas.length) {
+    getSingleStageFormulaCaseLibrary(
+      zblsStage, ctx, zblsFormulas, FORMULA_AUF, [""], ["ZBLS"], null, null, null,
+    );
+  }
+  if (zbllFormulas.length) {
+    getSingleStageFormulaCaseLibrary(
+      zbllStage, ctx, zbllFormulas, FORMULA_AUF, FORMULA_AUF, ["ZBLL"], null, null, null,
+    );
+  }
 }
 
 async function getF2LCaseLibrary(ctx) {
@@ -3376,6 +3415,8 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         useZbStages ? 11 : profile.ollMaxDepth,
       ),
       nodeLimit: normalizeDepth(options.zblsNodeLimit, useZbStages ? 280000 : 0),
+      // ZBLS uses case library (O(1) lookup) — no IDA* fallback needed; missing case = OLL fallback
+      disableSearchFallback: useZbStages,
       moveIndices: ctx.noDMoveIndices,
       isSolved: useZbStages ? isZBLSSolved : isOLLSolved,
       mismatch(data) {
@@ -3488,6 +3529,8 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         useZbStages ? 10 : profile.pllMaxDepth,
       ),
       nodeLimit: normalizeDepth(options.zbllNodeLimit, useZbStages ? 180000 : 0),
+      // ZBLL uses case library (O(1) lookup) — no IDA* fallback needed; missing case = PLL fallback
+      disableSearchFallback: useZbStages,
       moveIndices: ctx.noDMoveIndices,
       isSolved: isPLLSolved,
       mismatch(data) {
@@ -3638,7 +3681,11 @@ function isPllLikeFormulaStage(stage) {
 
 function shouldUseSingleStageCaseLibrary(stage, formulas) {
   if (!stage || !Array.isArray(formulas) || !formulas.length) return false;
-  return stage.name === "CMLL" || stage.name === "LSE" || stage.name === "OLL" || stage.name === "PLL";
+  return (
+    stage.name === "CMLL" || stage.name === "LSE" ||
+    stage.name === "OLL" || stage.name === "PLL" ||
+    stage.name === "ZBLS" || stage.name === "ZBLL"
+  );
 }
 
 function buildFormulaPreferenceSignature(formulaPreferenceMap, limit = 24) {
@@ -3932,6 +3979,8 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
         };
       }
     }
+    // Library is comprehensive — state not in map means no formula applies
+    return null;
   }
 
   for (let r = 0; r < FORMULA_ROTATIONS.length; r++) {

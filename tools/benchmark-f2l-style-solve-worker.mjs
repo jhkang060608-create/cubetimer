@@ -4,26 +4,14 @@ import { getDefaultPattern } from "../solver/context.js";
 import { solve3x3StrictCfopFromPattern } from "../solver/cfop3x3.js";
 import { getF2LTransitionProfileForSolver } from "../solver/f2lTransitionProfiles.js";
 
-const STRICT_BENCHMARK_RETRY_OPTIONS = Object.freeze([
-  Object.freeze({
-    // Match the app's first strict retry budget.
-    f2lFormulaMaxSteps: 16,
-    f2lFormulaBeamWidth: 12,
-    f2lFormulaExpansionLimit: 20,
-    f2lFormulaMaxAttempts: 600000,
-    f2lSearchMaxDepth: 14,
-    f2lNodeLimit: 600000,
-  }),
-  Object.freeze({
-    // Match the app's second strict retry budget.
-    f2lFormulaMaxSteps: 18,
-    f2lFormulaBeamWidth: 16,
-    f2lFormulaExpansionLimit: 28,
-    f2lFormulaMaxAttempts: 1200000,
-    f2lSearchMaxDepth: 16,
-    f2lNodeLimit: 1500000,
-  }),
-]);
+// Benchmark uses deadline-based approach so hard cases give up promptly.
+// Node limits match the default CFOP profile (compact IDA* is now fast enough).
+const STRICT_BENCHMARK_SOLVE_OPTIONS = Object.freeze({
+  f2lFormulaBeamWidth: 7,
+  f2lFormulaMaxAttempts: 240000,
+  f2lSearchMaxDepth: 11,
+  f2lNodeLimit: 220000,
+});
 
 function toNullableNumber(value) {
   return Number.isFinite(value) ? value : null;
@@ -153,8 +141,8 @@ async function solveTask(task) {
   const strictSolveOptions =
     mode === "strict"
       ? {
-          ...STRICT_BENCHMARK_RETRY_OPTIONS[0],
-          deadlineTs: 0,
+          ...STRICT_BENCHMARK_SOLVE_OPTIONS,
+          deadlineTs: Date.now() + Math.max(250, timeoutMs - 100),
         }
       : {
           deadlineTs: Date.now() + Math.max(250, timeoutMs - 100),
@@ -199,9 +187,35 @@ async function solveTask(task) {
   };
 }
 
+// A simple known scramble used only for context warming — builds cross/F2L tables and OLL/PLL libraries.
+const PREWARM_SCRAMBLE = "R U R' F' R U R' U' R' F R2 U' R'";
+
+async function prewarmContext() {
+  try {
+    const solvedPattern = await getDefaultPattern("333");
+    const scrambledPattern = solvedPattern.applyAlg(PREWARM_SCRAMBLE);
+    // One strict solve builds cross prune/move tables and warms OLL/PLL libraries (~1200ms first call).
+    await solve3x3StrictCfopFromPattern(scrambledPattern, {
+      mode: "strict",
+      crossColor: "D",
+    });
+    // One ZB solve warms any ZB-specific stage libraries (ZBLS/ZBLL case tables).
+    await solve3x3StrictCfopFromPattern(scrambledPattern, {
+      mode: "zb",
+      crossColor: "D",
+    });
+  } catch (_) {
+    // Warmup failures are non-fatal — first solve will pay the init cost instead.
+  }
+}
+
 async function main() {
   if (workerData && workerData.__poolMode) {
     if (parentPort) {
+      // Pre-warm context (cross tables + OLL/PLL libraries) before accepting tasks.
+      // Without this, the first solve in each worker pays ~1200ms cold-start cost
+      // which causes spurious timeouts on initially assigned scrambles.
+      await prewarmContext();
       parentPort.on("message", async (message) => {
         if (!message || message.type !== "solve") return;
         try {
