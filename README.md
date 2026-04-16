@@ -206,8 +206,8 @@ npx serve .
 
 ## 문서와 참고 파일
 
-- [ROUX_IMPLEMENTATION_REPORT.md](/home/jhkang/cubetimer/ROUX_IMPLEMENTATION_REPORT.md)
-- [ROUX_PROGRESS.md](/home/jhkang/cubetimer/ROUX_PROGRESS.md)
-- [ROUX_FINAL_REPORT.md](/home/jhkang/cubetimer/ROUX_FINAL_REPORT.md)
+- [ROUX_IMPLEMENTATION_REPORT.md](ROUX_IMPLEMENTATION_REPORT.md)
+- [ROUX_PROGRESS.md](ROUX_PROGRESS.md)
+- [ROUX_FINAL_REPORT.md](ROUX_FINAL_REPORT.md)
 
 ROUX 관련 구현 경과나 성능/설계 메모는 위 문서들에 정리되어 있습니다.
