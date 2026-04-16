@@ -1,5 +1,5 @@
 import { getDefaultPattern } from "./context.js";
-import { buildPhase1Input, solvePhase1 } from "./solver3x3Phase/phase1.js";
+import { buildPhase1Input, solvePhase1, findShortEOSequences, solveDomino } from "./solver3x3Phase/phase1.js";
 import { buildPhase2Input, solvePhase2 } from "./solver3x3Phase/phase2.js";
 import { MOVE_NAMES } from "./moves.js";
 import { parsePatternToCoords3x3 } from "./solver3x3Phase/state3x3.js";
@@ -61,6 +61,34 @@ function buildFmcPremoveSets() {
 }
 
 const FMC_PREMOVE_SETS = buildFmcPremoveSets();
+
+// Face indices: U=0, D=1, R=2, L=3, F=4, B=5
+const FACE_TO_IDX = { U: 0, D: 1, R: 2, L: 3, F: 4, B: 5 };
+const IDX_TO_FACE = ["U", "D", "R", "L", "F", "B"];
+
+// EO axis configurations for multi-axis FMC solving.
+// scramble_map: original_face_idx → rotated_frame_face_idx (to express scramble in rotated frame)
+// solution_map: rotated_frame_face_idx → original_face_idx (to convert solution back)
+// Axes use conjugation by cube rotations: x (for FB axis), z (for RL axis).
+// x rotation: F→U, U→B, B→D, D→F, R→R, L→L
+// z rotation: U→R, R→D, D→L, L→U, F→F, B→B
+const EO_AXIS_CONFIGS = [
+  { name: "UD", identity: true,  scramble_map: [0, 1, 2, 3, 4, 5], solution_map: [0, 1, 2, 3, 4, 5] },
+  { name: "FB", identity: false, scramble_map: [5, 4, 2, 3, 0, 1], solution_map: [4, 5, 2, 3, 1, 0] },
+  { name: "RL", identity: false, scramble_map: [2, 3, 1, 0, 4, 5], solution_map: [3, 2, 0, 1, 4, 5] },
+];
+
+function conjugateMove(moveStr, faceMap) {
+  if (!moveStr || typeof moveStr !== "string") return moveStr;
+  const letter = moveStr[0].toUpperCase();
+  const faceIdx = FACE_TO_IDX[letter];
+  if (faceIdx === undefined) return moveStr; // cube rotations (x/y/z), wide moves, etc.
+  return IDX_TO_FACE[faceMap[faceIdx]] + moveStr.slice(1);
+}
+
+function conjugateMoves(moves, faceMap) {
+  return moves.map((m) => conjugateMove(m, faceMap));
+}
 
 let solvedPatternPromise = null;
 const FMC_INSERTION_MOVE_NAMES = MOVE_NAMES.slice();
@@ -371,43 +399,139 @@ function pushUniqueCandidate(list, candidate) {
 }
 
 /**
- * Solve via human FMC technique: EO → DR (domino reduction) → Phase 2 (finish).
- * Replaces the old Kociemba-based solveInternal333.
- * @param {string|null} scrambleText
- * @param {{startPattern?, deadlineTs?, maxDrDepth?, maxP2Depth?, drNodeLimit?}} options
- * @returns {Promise<{ok:true, solution:string, moveCount:number, source:string}|null>}
+ * EO-first step: given a pattern already in UD-axis domino frame orientation,
+ * find short EO sequences, then run DR (domino reduction), then Phase 2 finish.
+ * Returns the best (shortest) solution found, or null.
  */
-async function solveFmcEO(scrambleText, options = {}) {
+async function solveFmcEOFirst(pattern, options = {}) {
   try {
-    if (remainingMs(options.deadlineTs) <= 250) return null;
-    let pattern = options.startPattern || null;
-    if (!pattern) {
-      const solvedPattern = await getSolvedPattern();
-      if (!scrambleText || typeof scrambleText !== "string") return null;
-      pattern = solvedPattern.applyAlg(scrambleText);
-    }
-    if (remainingMs(options.deadlineTs) <= 250) return null;
+    const { deadlineTs, maxDRDepth = 14, maxP2Depth = 18 } = options;
 
     const coords = parsePatternToCoords3x3(pattern);
     if (!coords) return null;
 
-    const maxP1Depth = options.maxDrDepth ?? 14;
-    const p1NodeLimit = options.drNodeLimit ?? 5000000;
-    const maxP2Depth = options.maxP2Depth ?? 18;
-    const deadlineTs = options.deadlineTs;
+    const eoSeqs = await findShortEOSequences(coords, 6, 4).catch(() => []);
+    if (!eoSeqs.length) return null;
 
-    // Phase 1: find moves that solve EO + corner orientation + E-slice edge placement
+    let best = null;
+
+    for (const eoMoves of eoSeqs) {
+      if (remainingMs(deadlineTs) <= 150) break;
+
+      const patternAfterEO = eoMoves.length ? applyMovesToPattern(pattern, eoMoves) : pattern;
+      const coordsAfterEO = parsePatternToCoords3x3(patternAfterEO);
+      if (!coordsAfterEO) continue;
+
+      const drResult = await solveDomino(coordsAfterEO, {
+        maxDepth: maxDRDepth,
+        nodeLimit: 1000000,
+        deadlineTs: clampAttemptDeadline(deadlineTs, 2500, 150),
+      }).catch(() => null);
+      if (!drResult?.ok) continue;
+
+      const patternAfterDR = drResult.moves.length
+        ? applyMovesToPattern(patternAfterEO, drResult.moves)
+        : patternAfterEO;
+      const p2Input = buildPhase2Input(patternAfterDR, {
+        phase2MaxDepth: maxP2Depth,
+        phase2NodeLimit: 500000,
+        deadlineTs: clampAttemptDeadline(deadlineTs, 2000, 100),
+      });
+      const p2Result = await solvePhase2(p2Input).catch(() => null);
+      if (!p2Result?.ok) continue;
+
+      const allMoves = [...eoMoves, ...drResult.moves, ...p2Result.moves];
+      const simplified = simplifyMoves(allMoves);
+      if (simplified.length > 0 && (!best || simplified.length < best.length)) {
+        best = simplified;
+      }
+    }
+
+    if (!best) return null;
+    return { ok: true, solution: joinMoves(best), moveCount: best.length, source: "EO_DR_P2" };
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * FMC solve: tries EO-first on all 3 EO axes (UD, FB, RL) via scramble conjugation,
+ * then falls back to Kociemba phase1+phase2 if none succeed.
+ * @param {string|null} scrambleText
+ * @param {{startPattern?, premoveMoves?, deadlineTs?, maxDrDepth?, maxP2Depth?, drNodeLimit?}} options
+ */
+async function solveFmcEO(scrambleText, options = {}) {
+  try {
+    if (remainingMs(options.deadlineTs) <= 250) return null;
+
+    const deadlineTs = options.deadlineTs;
+    const maxDrDepth = options.maxDrDepth ?? 14;
+    const maxP2Depth = options.maxP2Depth ?? 18;
+    const premoveMoves = options.premoveMoves || [];
+    const startPattern = options.startPattern || null;
+
+    const solvedPattern = await getSolvedPattern();
+    if (remainingMs(deadlineTs) <= 250) return null;
+
+    const scrambleMoves = splitMoves(scrambleText || "");
+    const hasScrambleText = scrambleMoves.length > 0;
+    const effectiveMoves = hasScrambleText ? [...scrambleMoves, ...premoveMoves] : [];
+
+    // Try EO-first on each EO axis. FB/RL axes require converting moves to that axis's frame.
+    let bestResult = null;
+    const axisConfigs = hasScrambleText ? EO_AXIS_CONFIGS : [EO_AXIS_CONFIGS[0]];
+    const axisTimeBudget = Math.max(300, Math.floor((remainingMs(deadlineTs) - 500) / axisConfigs.length));
+
+    for (const axisConfig of axisConfigs) {
+      if (remainingMs(deadlineTs) <= 400) break;
+      if (bestResult && bestResult.moveCount <= 18) break;
+
+      let patternForAxis;
+      if (axisConfig.identity) {
+        patternForAxis = startPattern || solvedPattern.applyAlg(joinMoves(effectiveMoves));
+      } else {
+        const rotatedMoves = conjugateMoves(effectiveMoves, axisConfig.scramble_map);
+        patternForAxis = solvedPattern.applyAlg(joinMoves(rotatedMoves));
+      }
+
+      const axisDeadline = clampAttemptDeadline(deadlineTs, axisTimeBudget, 200);
+      const result = await solveFmcEOFirst(patternForAxis, {
+        deadlineTs: axisDeadline,
+        maxDRDepth: maxDrDepth,
+        maxP2Depth: maxP2Depth,
+      }).catch(() => null);
+      if (!result?.ok) continue;
+
+      const solutionMoves = splitMoves(result.solution);
+      const originalMoves = axisConfig.identity
+        ? solutionMoves
+        : conjugateMoves(solutionMoves, axisConfig.solution_map);
+      const simplified = simplifyMoves(originalMoves);
+      if (simplified.length > 0 && (!bestResult || simplified.length < bestResult.moveCount)) {
+        bestResult = { ok: true, solution: joinMoves(simplified), moveCount: simplified.length, source: `FMC_EO_${axisConfig.name}` };
+      }
+    }
+
+    if (bestResult) return bestResult;
+
+    // Fallback: Kociemba phase1 (EO+CO+E-slice simultaneously) + phase2
+    if (remainingMs(deadlineTs) <= 250) return null;
+
+    const pattern = startPattern || (hasScrambleText ? solvedPattern.applyAlg(scrambleText) : null);
+    if (!pattern) return null;
+
+    const coords = parsePatternToCoords3x3(pattern);
+    if (!coords) return null;
+
     const p1Input = buildPhase1Input(coords, {
-      phase1MaxDepth: maxP1Depth,
-      phase1NodeLimit: p1NodeLimit,
+      phase1MaxDepth: maxDrDepth,
+      phase1NodeLimit: options.drNodeLimit ?? 5000000,
       deadlineTs: clampAttemptDeadline(deadlineTs, 6000, 200),
     });
     const p1Result = await solvePhase1(p1Input).catch(() => null);
     if (!p1Result?.ok) return null;
 
     const patternAfterP1 = p1Result.moves.length ? applyMovesToPattern(pattern, p1Result.moves) : pattern;
-
-    // Phase 2: finish from the domino-reduced state
     const p2Input = buildPhase2Input(patternAfterP1, {
       phase2MaxDepth: maxP2Depth,
       phase2NodeLimit: options.p2NodeLimit ?? 2000000,
@@ -585,6 +709,7 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
         const directPatternWithPremove = applyMovesToPattern(scramblePattern, premove);
         const directScout = await solveFmcEO(scramble, {
           startPattern: directPatternWithPremove,
+          premoveMoves: premove,
           deadlineTs: scoutDeadlineTs,
         });
         attempts += 1;
@@ -606,6 +731,7 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
           const inversePatternWithPremove = applyMovesToPattern(inversePattern, premove);
           const inverseScout = await solveFmcEO(inverseScramble, {
             startPattern: inversePatternWithPremove,
+            premoveMoves: premove,
             deadlineTs: scoutDeadlineTs,
           });
           attempts += 1;
@@ -665,6 +791,7 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       const directPatternWithPremove = applyMovesToPattern(scramblePattern, premove);
       const directWithPremove = await solveFmcEO(scramble, {
         startPattern: directPatternWithPremove,
+        premoveMoves: premove,
         deadlineTs: iterationDeadlineTs,
       });
       attempts += 1;
@@ -690,6 +817,7 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       const inversePatternWithPremove = applyMovesToPattern(inversePattern, premove);
       const inverseWithPremove = await solveFmcEO(inverseScramble, {
         startPattern: inversePatternWithPremove,
+        premoveMoves: premove,
         deadlineTs: iterationDeadlineTs,
       });
       attempts += 1;
