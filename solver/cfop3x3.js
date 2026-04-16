@@ -2,6 +2,7 @@ import { getDefaultPattern } from "./context.js";
 import { MOVE_NAMES } from "./moves.js";
 import { SCDB_CFOP_ALGS } from "./scdbCfopAlgs.js";
 import { ZB_FORMULAS } from "./zbDataset.js";
+import { SV_FORMULAS, WV_FORMULAS, SV_BL_FORMULAS, WV_BL_FORMULAS } from "./svWvDataset.js";
 
 const FACE_TO_INDEX = { U: 0, R: 1, F: 2, D: 3, L: 4, B: 5 };
 const OPPOSITE_FACE = [3, 4, 5, 0, 1, 2];
@@ -1049,6 +1050,22 @@ function getF2LPairDeficit(data, ctx, targetPairs) {
   return Math.max(0, targetPairs - getF2LPairProgress(data, ctx));
 }
 
+// Check that the first `n` F2L pairs (by index order) are ALL solved.
+// Used when svWvMode is active to ensure the last (BL) pair is always unsolved,
+// not just any n of 4 pairs.
+function isF2LFirstNPairsSolved(data, ctx, n) {
+  if (!ctx?.f2lPairDefs) return false;
+  for (let i = 0; i < n; i++) {
+    const def = ctx.f2lPairDefs[i];
+    if (!def) return false;
+    if (data.CORNERS.pieces[def.cornerTargetPos] !== def.cornerPieceId) return false;
+    if ((data.CORNERS.orientation[def.cornerTargetPos] % 3) !== def.cornerTargetOri) return false;
+    if (data.EDGES.pieces[def.edgeTargetPos] !== def.edgePieceId) return false;
+    if ((data.EDGES.orientation[def.edgeTargetPos] & 1) !== def.edgeTargetOri) return false;
+  }
+  return true;
+}
+
 function isCrossWithF2LPairTarget(data, ctx, targetPairs) {
   if (!isCrossSolved(data, ctx)) return false;
   return getF2LPairProgress(data, ctx) >= targetPairs;
@@ -1160,8 +1177,9 @@ function getColorNeutralProbeTargetPairs(solveMode, styleProfileInput) {
 }
 
 function normalizeSolveMode(mode) {
-  const normalized = String(mode || "strict").toLowerCase();
+  const normalized = String(mode || "strict").toLowerCase().replace(/-/g, "_");
   if (normalized === "zb") return "zb";
+  if (normalized === "zb_recovery") return "zb_recovery";
   return "strict";
 }
 
@@ -1749,6 +1767,35 @@ function normalizeF2LDownstreamProfile(downstreamProfile, seen = new WeakSet()) 
     ? globalExpectedLlMoves
     : baselineOll + baselinePll;
 
+  // Aggregate all llCaseStats across all F2L states so formula preferences apply to
+  // OLL/PLL cases not covered by the specific active F2L state entry.
+  // This significantly increases per-player formula coverage (from ~1 state to all states).
+  const aggregatedCaseStatsMap = new Map(); // stageKey|family|canonicalFormula → merged stat
+  for (const [, entry] of stateMap) {
+    for (const stat of (entry.llCaseStats || [])) {
+      if (!stat.canonicalFormula || !stat.stageKey || !stat.family) continue;
+      const aggKey = `${stat.stageKey}|${stat.family}|${stat.canonicalFormula}`;
+      const existing = aggregatedCaseStatsMap.get(aggKey);
+      if (!existing) {
+        aggregatedCaseStatsMap.set(aggKey, { ...stat });
+      } else {
+        existing.count += stat.count;
+        existing.playerWeight = Math.max(existing.playerWeight, stat.playerWeight);
+        if (stat.count > (existing._bestCount || 0)) {
+          existing._bestCount = stat.count;
+          existing.variantFormula = stat.variantFormula;
+        }
+      }
+    }
+  }
+  const aggregatedLlCaseStats = Array.from(aggregatedCaseStatsMap.values()).map(s => {
+    const { _bestCount: _unused, ...rest } = s;
+    return rest;
+  });
+  const aggregatedStateEntry = aggregatedLlCaseStats.length
+    ? { llCaseStats: aggregatedLlCaseStats, sampleCount: stateMap.size }
+    : null;
+
   return {
     solver: typeof sourceProfile.solver === "string" ? sourceProfile.solver : "",
     solveCount: Number.isFinite(Number(sourceProfile.solveCount))
@@ -1759,6 +1806,7 @@ function normalizeF2LDownstreamProfile(downstreamProfile, seen = new WeakSet()) 
     globalExpectedPllMoves: baselinePll,
     globalExpectedLlMoves: baselineLl,
     stateMap,
+    aggregatedStateEntry,
     fallbackProfile: normalizedFallback,
   };
 }
@@ -2125,6 +2173,7 @@ function buildExactCaseFormulaPreferenceMap(
   stageKey,
   family,
   basePreferenceMap = null,
+  aggregatedStateEntry = null,
 ) {
   if (!startPattern || !stage || !ctx || typeof stage.key !== "function") {
     return basePreferenceMap;
@@ -2132,13 +2181,42 @@ function buildExactCaseFormulaPreferenceMap(
   const startCaseKey = stage.key(startPattern.patternData);
   if (!startCaseKey) return basePreferenceMap;
 
+  // Helper: build case-matched map from a set of preference entries
+  function matchCaseEntries(entries) {
+    const map = new Map();
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const casePattern = tryApplyAlg(ctx.solvedPattern, invertAlg(entry.formula));
+      if (!casePattern) continue;
+      const caseKey = stage.key(casePattern.patternData);
+      if (caseKey !== startCaseKey) continue;
+      addWeightedFormulaPreference(map, entry.formula, entry.weight);
+    }
+    return map;
+  }
+
+  // Try exact per-state entries first (highest priority)
   const exactEntries = getLlCaseFormulaPreferenceEntries(
     stateEntry,
     fallbackStateEntry,
     stageKey,
     family,
   );
-  if (!exactEntries.length) return basePreferenceMap;
+  const exactMap = matchCaseEntries(exactEntries);
+
+  // Fall back to aggregated entries when exact state doesn't cover this OLL/PLL case
+  let resolvedMap = exactMap;
+  if (!exactMap.size && aggregatedStateEntry) {
+    const aggEntries = getLlCaseFormulaPreferenceEntries(
+      aggregatedStateEntry,
+      null,
+      stageKey,
+      family,
+    ).map((e) => ({ ...e, weight: e.weight * 0.55 }));
+    resolvedMap = matchCaseEntries(aggEntries);
+  }
+
+  if (!resolvedMap.size) return basePreferenceMap || null;
 
   const combined = new Map();
   if (basePreferenceMap && typeof basePreferenceMap.get === "function") {
@@ -2146,20 +2224,7 @@ function buildExactCaseFormulaPreferenceMap(
       addWeightedFormulaPreference(combined, formula, Number(count) || 0);
     }
   }
-
-  const exactMap = new Map();
-  for (let i = 0; i < exactEntries.length; i++) {
-    const entry = exactEntries[i];
-    const casePattern = tryApplyAlg(ctx.solvedPattern, invertAlg(entry.formula));
-    if (!casePattern) continue;
-    const caseKey = stage.key(casePattern.patternData);
-    if (caseKey !== startCaseKey) continue;
-    addWeightedFormulaPreference(exactMap, entry.formula, entry.weight);
-  }
-
-  if (!exactMap.size) return basePreferenceMap || null;
-
-  for (const [formula, count] of exactMap.entries()) {
+  for (const [formula, count] of resolvedMap.entries()) {
     addWeightedFormulaPreference(combined, formula, count * 3.2);
   }
   return combined.size ? combined : basePreferenceMap;
@@ -2292,6 +2357,9 @@ function chooseLlFamilyForStage({
   const rollSeed = `${scrambleSeed}|${stateKey}|${stageKey}|${familyA}|${familyB}|${effectiveTemperature.toFixed(3)}`;
   const roll = hashStringToUnitInterval(rollSeed);
   const selectedFamily = roll < probabilityB ? familyB : familyA;
+  if (typeof process !== 'undefined' && process.env.DEBUG_ZBLL) {
+    console.log(`[chooseLlFamily] ${stageKey} stateKey=${stateKey} prob=${probabilityB.toFixed(4)} roll=${roll.toFixed(4)} cap=${capB} → ${selectedFamily}`);
+  }
   return {
     familyA,
     familyB,
@@ -2312,6 +2380,16 @@ function isTopEdgeOrientationSolvedForLL(data, ctx) {
     data.EDGES,
     ctx.solvedData.EDGES,
     ctx.topEdgePositions,
+    false,
+    true,
+  );
+}
+
+function isTopCornersOrientedForLL(data, ctx) {
+  return orbitMatches(
+    data.CORNERS,
+    ctx.solvedData.CORNERS,
+    ctx.topCornerPositions,
     false,
     true,
   );
@@ -2654,6 +2732,50 @@ function maybePostOptimizeMoves(startPattern, moves, solveMode, options, ctx) {
   return optimized;
 }
 
+// Match each D-layer corner with the middle edge in the same F2L slot.
+// By default index-based pairing maps corner[2]=BL to edge[2]=BR (wrong).
+// This function returns pairs where each corner+edge share the same 2 face adjacencies.
+// Reorders so the BL slot (L+B faces) is last (index 3) for SVWV compatibility.
+function slotMatchF2LPairs(cornerPositions, edgePositions, cornerMoveTables, edgeMoveTables, moveFace) {
+  const getCornerFaces = (pos) => {
+    const faces = new Set();
+    for (let mi = 0; mi < cornerMoveTables.length; mi++) {
+      if (cornerMoveTables[mi].cornerPosMap[pos] !== pos) faces.add(moveFace[mi]);
+    }
+    return faces;
+  };
+  const getEdgeFaces = (pos) => {
+    const faces = new Set();
+    for (let mi = 0; mi < edgeMoveTables.length; mi++) {
+      if (edgeMoveTables[mi].edgePosMap[pos] !== pos) faces.add(moveFace[mi]);
+    }
+    return faces;
+  };
+
+  const edgeFaceMap = new Map();
+  for (const ep of edgePositions) edgeFaceMap.set(ep, getEdgeFaces(ep));
+
+  const matched = cornerPositions.map((cPos) => {
+    const cFaces = getCornerFaces(cPos);
+    const ePos = edgePositions.find((ep) => {
+      const eFaces = edgeFaceMap.get(ep);
+      return eFaces.size === 2 && [...eFaces].every((f) => cFaces.has(f));
+    });
+    return { cornerPos: cPos, edgePos: ePos, cFaces };
+  });
+
+  // Put BL slot (L+B faces) last so solveF2LCompactIDA with NPAIRS=3 solves FR+FL+BR,
+  // leaving BL for the SVWV stage to handle.
+  const FACE_IDX_L = FACE_TO_INDEX.L;
+  const FACE_IDX_B = FACE_TO_INDEX.B;
+  const blIdx = matched.findIndex((d) => d.cFaces.has(FACE_IDX_L) && d.cFaces.has(FACE_IDX_B));
+  if (blIdx >= 0 && blIdx !== matched.length - 1) {
+    const blEntry = matched.splice(blIdx, 1)[0];
+    matched.push(blEntry);
+  }
+  return matched;
+}
+
 async function getCfopContext() {
   if (contextPromise) return contextPromise;
   contextPromise = (async () => {
@@ -2715,11 +2837,15 @@ async function getCfopContext() {
       crossPieceIndexById.set(crossEdgePieceIds[i], i);
     }
 
+    const slotPairs = slotMatchF2LPairs(
+      f2lCornerPositions,
+      middleEdgePositions,
+      cornerMoveTables,
+      edgeMoveTables,
+      moveFace,
+    );
     const f2lPairDefs = [];
-    const pairCount = Math.min(f2lCornerPositions.length, middleEdgePositions.length);
-    for (let i = 0; i < pairCount; i++) {
-      const cornerTargetPos = f2lCornerPositions[i];
-      const edgeTargetPos = middleEdgePositions[i];
+    for (const { cornerPos: cornerTargetPos, edgePos: edgeTargetPos } of slotPairs) {
       f2lPairDefs.push({
         cornerTargetPos,
         edgeTargetPos,
@@ -2783,6 +2909,32 @@ async function getCfopContext() {
   return contextPromise;
 }
 
+// Builds the ZBLS key: TC (positions+ori) | TE (positions+ori) | FC (positions+ori) | FE (positions+ori)
+function buildZblsKey(data, ctx) {
+  const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+  const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
+  const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
+  const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
+  return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
+}
+
+// Returns the ZBLS case-library (hit cache on repeated calls).
+function getZblsLibraryForCtx(ctx) {
+  const zblsStage = {
+    name: "ZBLS",
+    formulaKeys: ["ZBLS"],
+    maxDepth: 22,
+    formulaPreAufList: FORMULA_AUF,
+    key(data) { return buildZblsKey(data, ctx); },
+  };
+  const formulas = filterValidFormulas(getFormulaListForStage(zblsStage), ctx);
+  if (!formulas.length) return null;
+  return getSingleStageFormulaCaseLibrary(
+    zblsStage, ctx, formulas, FORMULA_AUF, [""], ["ZBLS"], null,
+    buildFormulaKeyLookup(["ZBLS"]), null
+  );
+}
+
 function _warmOllPllLibraries(ctx) {
   const ollStage = {
     name: "OLL",
@@ -2834,10 +2986,13 @@ function _warmOllPllLibraries(ctx) {
     maxDepth: 22,
     formulaPreAufList: FORMULA_AUF,
     key(data) {
+      // ZBLS inserts last F2L pair while orienting LL corners; need full top-layer info
+      // (position + orientation) to uniquely identify each of the 302 ZBLS cases.
+      const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+      const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
       const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
       const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-      const ollE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true);
-      return `FC:${f2lC}|FE:${f2lE}|OE:${ollE}`;
+      return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
     },
   };
   const zbllStage = {
@@ -2851,17 +3006,22 @@ function _warmOllPllLibraries(ctx) {
       const e = buildKeyForOrbit(data.EDGES, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], true, true);
       return `C:${c}|E:${e}`;
     },
+    zbllKey(data) {
+      const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+      const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
+      return `ZC:${topC}|ZE:${topE}`;
+    },
   };
   const zblsFormulas = filterValidFormulas(getFormulaListForStage(zblsStage), ctx);
   const zbllFormulas = filterValidFormulas(getFormulaListForStage(zbllStage), ctx);
   if (zblsFormulas.length) {
     getSingleStageFormulaCaseLibrary(
-      zblsStage, ctx, zblsFormulas, FORMULA_AUF, [""], ["ZBLS"], null, null, null,
+      zblsStage, ctx, zblsFormulas, FORMULA_AUF, [""], ["ZBLS"], null, buildFormulaKeyLookup(["ZBLS"]), null,
     );
   }
   if (zbllFormulas.length) {
     getSingleStageFormulaCaseLibrary(
-      zbllStage, ctx, zbllFormulas, FORMULA_AUF, FORMULA_AUF, ["ZBLL"], null, null, null,
+      zbllStage, ctx, zbllFormulas, FORMULA_AUF, FORMULA_AUF, ["ZBLL"], null, buildFormulaKeyLookup(["ZBLL"]), null,
     );
   }
 }
@@ -3026,10 +3186,11 @@ function isOLLSolved(data, ctx) {
 
 function isZBLSSolved(data, ctx) {
   if (!isF2LSolved(data, ctx)) return false;
+  // ZBLS orients LL corners (not edges); goal = F2L complete + LL corners oriented
   return orbitMatches(
-    data.EDGES,
-    ctx.solvedData.EDGES,
-    ctx.topEdgePositions,
+    data.CORNERS,
+    ctx.solvedData.CORNERS,
+    ctx.topCornerPositions,
     false,
     true,
   );
@@ -3066,6 +3227,11 @@ function isPLLSolved(data, ctx) {
 
 function getStageDefinitions(options, ctx, profile, solveMode) {
   const useZbStages = solveMode === "zb";
+  // zb_recovery: full F2L(4) + OLL + ZBLL — used when ZBLS lookup fails in zb mode
+  const useZbRecovery = solveMode === "zb_recovery";
+  // Use ZBLL for stage 4 in both ZB and ZB-recovery modes
+  const useZbLL = useZbStages || useZbRecovery;
+  const useSvWvStages = !useZbStages && !useZbRecovery && options.svWvMode === true;
   const allowRelaxedSearch = options.allowRelaxedSearch !== false;
   const styleProfileInput =
     options.f2lStyleProfile !== undefined ? options.f2lStyleProfile : options.styleProfile;
@@ -3105,7 +3271,9 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
   const mixedXXCrossRate = clampRate01(mixedCaseBias.xxcrossRate) ?? 0;
   const scrambleSeed = buildSolverDecisionSeed(options);
   const scrambleRoll = hashStringToUnitInterval(scrambleSeed);
-  let crossTargetPairs = useZbStages ? 1 : 0;
+  // In ZB mode, default XCross only when player actually uses XCross (xcrossRate >= 0.1).
+  // Pure ZB players like Xuanyi use standard Cross (xcrossRate = 0).
+  let crossTargetPairs = useZbStages ? (mixedXCrossRate >= 0.1 ? 1 : 0) : 0;
   if (!useZbStages && mixedCfopStages) {
     const normalizedXCrossRate = Math.max(0, Math.min(0.98, mixedXCrossRate));
     const normalizedXXCrossRate = Math.max(0, Math.min(normalizedXCrossRate, mixedXXCrossRate));
@@ -3137,13 +3305,13 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
           ),
         )
       : 0;
-  const f2lStageName = useZbStages ? "F2L2" : "F2L";
-  const f2lStageDisplayName = useZbStages ? "F2L (2 Slots)" : "F2L";
-  const f2lTargetPairs = useZbStages ? 3 : 4;
+  const f2lStageName = useZbStages ? "F2L" : "F2L";
+  const f2lStageDisplayName = useZbStages ? "F2L (ZB)" : "F2L";
+  const f2lTargetPairs = (useZbStages || useSvWvStages) ? 3 : 4;
   const stage3Name = useZbStages ? "ZBLS" : "OLL";
   const stage3FormulaKeys = useZbStages ? ["ZBLS", "OLL"] : ["OLL"];
-  const stage4Name = useZbStages ? "ZBLL" : "PLL";
-  const stage4FormulaKeys = useZbStages ? ["ZBLL", "PLL"] : ["PLL"];
+  const stage4Name = useZbLL ? "ZBLL" : "PLL";
+  const stage4FormulaKeys = useZbLL ? ["ZBLL", "PLL"] : ["PLL"];
   const llFamilyPreferenceCache = new Map();
   const llFamilySelectionCache = new Map();
 
@@ -3177,11 +3345,12 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       f2lDownstreamProfile?.fallbackProfile && stateKey !== undefined && stateKey !== null
         ? findDirectF2LDownstreamStateEntry(f2lDownstreamProfile.fallbackProfile, stateKey)
         : null;
+    const playerAggregatedEntry = f2lDownstreamProfile?.aggregatedStateEntry || null;
     const selection = getLlFamilySelection(startPattern, stageKey);
     const selectedFamily = selection?.selectedFamily || (stageKey === "stage4" ? "PLL" : "OLL");
     const basePreferenceMap = getLlFamilyPreference(startPattern)?.formulaPriorityMap || null;
     const familyPreferenceMap = buildCaseAwareFormulaPreferenceMap(
-      playerStateEntry,
+      playerStateEntry ?? playerAggregatedEntry,
       fallbackStateEntry,
       stageKey,
       selectedFamily,
@@ -3196,6 +3365,7 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       stageKey,
       selectedFamily,
       familyPreferenceMap,
+      playerAggregatedEntry,
     );
   }
 
@@ -3332,9 +3502,13 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       // Keep D fixed after cross to reduce branching and match CFOP move habits.
       moveIndices: ctx.noDMoveIndices,
       isSolved(data) {
+        if ((useSvWvStages || useZbStages) && f2lTargetPairs === 3) {
+          // Require specifically FR+FL+BR solved (leaving BL for SVWV/ZBLS).
+          return isCrossSolved(data, ctx) && isF2LFirstNPairsSolved(data, ctx, 3);
+        }
         return isCrossWithF2LPairTarget(data, ctx, f2lTargetPairs);
       },
-      usePairTable: !useZbStages,
+      usePairTable: true,
       f2lTransitionProfile,
       f2lDownstreamProfile,
       f2lDownstreamWeight,
@@ -3345,11 +3519,6 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
           mismatch.pieceMismatch,
           mismatch.orientationMismatch,
         );
-        const pairNeed = getF2LPairDeficit(data, ctx, f2lTargetPairs);
-        if (useZbStages) {
-          if (pairNeed === 0) return 0;
-          return Math.max(pairNeed, Math.min(mismatchBound, pairNeed + 2));
-        }
         const pairTableBound = getF2LPairTableLowerBound(data, ctx);
         return Math.max(mismatchBound, pairTableBound);
       },
@@ -3365,7 +3534,68 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       key(data) {
         return getF2LStateKey(data, ctx);
       },
+      // ZBLS opportunity check: when exactly 3 pairs are solved, test if the state
+      // is in the ZBLS library. Used in F2L beam search to bias toward ZBLS states.
+      ...(useZbStages ? {
+        zblsOpportunityCheck: (() => {
+          let _lib = null;
+          return function(data) {
+            if (!_lib) _lib = getZblsLibraryForCtx(ctx);
+            if (!_lib?.caseMap?.size) return false;
+            return _lib.caseMap.has(buildZblsKey(data, ctx));
+          };
+        })()
+      } : {}),
     },
+    ...(useSvWvStages ? [{
+      name: "SVWV",
+      displayName: "SV/WV",
+      allowRelaxedSearch,
+      // BL-slot variants (y2-conjugated): the F2L solver always leaves the
+      // BL slot as the unsolved 4th pair (solves FR+FL+BR first).
+      formulaKeys: ["SV_BL", "WV_BL"],
+      getFormulaKeys() { return ["SV_BL", "WV_BL"]; },
+      getSolvedDisplayName(result) {
+        if (result?.formulaKey === "WV_BL") return "WV";
+        if (result?.formulaKey === "SV_BL") return "SV";
+        return "4th Pair";
+      },
+      formulaPreAufList: FORMULA_AUF,
+      deadlineTs,
+      omitIfNoMoves: true,
+      // isSolved: all 4 F2L pairs + cross placed (same goal as F2L completing at 4 pairs)
+      isSolved(data) { return isCrossWithF2LPairTarget(data, ctx, 4); },
+      f2lTargetPairs: 4,
+      maxDepth: 14,
+      searchMaxDepth: 12,
+      moveIndices: ctx.noDMoveIndices,
+      acceptFormulaResult(nextPattern, formulaKey) {
+        if (!isCrossWithF2LPairTarget(nextPattern.patternData, ctx, 4)) return false;
+        if (formulaKey === "WV_BL") return isTopCornersOrientedForLL(nextPattern.patternData, ctx);
+        if (formulaKey === "SV_BL") return isTopEdgeOrientationSolvedForLL(nextPattern.patternData, ctx);
+        return false;
+      },
+      heuristic(data) {
+        return getF2LPairDeficit(data, ctx, 4) * 2;
+      },
+      mismatch(data) {
+        const f2lC = countOrbitMismatches(data.CORNERS, ctx.solvedData.CORNERS, ctx.f2lCornerPositions, true, true);
+        const f2lE = countOrbitMismatches(data.EDGES, ctx.solvedData.EDGES, ctx.f2lEdgePositions, true, true);
+        return {
+          pieceMismatch: f2lC.pieceMismatch + f2lE.pieceMismatch,
+          orientationMismatch: f2lC.orientationMismatch + f2lE.orientationMismatch,
+        };
+      },
+      key(data) {
+        const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+        const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
+        const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
+        const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
+        return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
+      },
+      // Disable generic IDA* fallback; solveStageByFormulaDb handles F2L compact IDA* for SVWV
+      disableSearchFallback: true,
+    }] : []),
     {
       name: stage3Name,
       displayName: stage3Name,
@@ -3390,8 +3620,9 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       },
       getFallbackFormulaKeys(startPattern) {
         if (useZbStages) {
-          const selection = getLlFamilySelection(startPattern, "stage3");
-          return selection?.selectedFamily === "ZBLS" ? ["OLL"] : ["ZBLS"];
+          // ZBLS requires unsolved BL pair — OLL fallback won't work here.
+          // ZB recovery (with mode "zb_recovery") handles the fallback correctly.
+          return null;
         }
         if (mixedCfopStages) {
           const selection = getLlFamilySelection(startPattern, "stage3");
@@ -3494,11 +3725,14 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       key(data) {
         const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
         const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-        const ollE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true);
         if (useZbStages) {
-          return `FC:${f2lC}|FE:${f2lE}|OE:${ollE}`;
+          // ZBLS needs full top-layer info to distinguish last-slot position variants.
+          const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+          const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
+          return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
         }
         const ollC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, false, true);
+        const ollE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true);
         return `FC:${f2lC}|FE:${f2lE}|OC:${ollC}|OE:${ollE}`;
       },
       // Full LL key including positions + orientations for ZBLL case library
@@ -3515,7 +3749,7 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
       formulaKeys: stage4FormulaKeys,
       getDisplayName(startPattern) {
         const selection = getLlFamilySelection(startPattern, "stage4");
-        if (!useZbStages) {
+        if (!useZbLL) {
           if (mixedCfopStages && selection?.selectedFamily === "ZBLL") {
             return "ZBLL (case policy)";
           }
@@ -3525,45 +3759,54 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         return stage4Name;
       },
       getSolvedDisplayName(result, startPattern) {
-        if (!useZbStages) return result?.formulaKey === "ZBLL" ? "ZBLL" : "PLL";
+        // In ZB/ZB-recovery mode, PLL ⊆ ZBLL — always label the LL stage "ZBLL".
+        if (useZbLL) return stage4Name;
         return result?.formulaKey === "ZBLL" ? "ZBLL" : "PLL";
       },
       getFormulaKeys(startPattern) {
-        const selection = getLlFamilySelection(startPattern, "stage4");
-        if (!useZbStages) {
+        if (!useZbLL) {
+          const selection = getLlFamilySelection(startPattern, "stage4");
           if (mixedCfopStages && selection?.selectedFamily === "ZBLL") {
             return ["ZBLL"];
           }
           return stage4FormulaKeys;
         }
-        return selection?.selectedFamily === "ZBLL" ? ["ZBLL"] : ["PLL"];
+        // ZB/ZB-recovery mode: after ZBLS or OLL, LL corners are always oriented → use ZBLL.
+        // Only use PLL if corners are somehow not oriented (shouldn't happen).
+        if (startPattern && isTopCornersOrientedForLL(startPattern.patternData, ctx)) {
+          return ["ZBLL"];
+        }
+        return ["PLL"];
       },
       getFormulaPreferenceMap(startPattern) {
         return getCaseAwareFormulaPreference(startPattern, "stage4", this);
       },
       getFallbackFormulaKeys(startPattern) {
-        const selection = getLlFamilySelection(startPattern, "stage4");
-        if (!useZbStages) {
+        if (!useZbLL) {
+          const selection = getLlFamilySelection(startPattern, "stage4");
           if (mixedCfopStages) {
             return selection?.selectedFamily === "ZBLL" ? ["PLL"] : ["ZBLL"];
           }
           return null;
         }
-        return selection?.selectedFamily === "ZBLL" ? ["PLL"] : ["ZBLL"];
+        // ZB/ZB-recovery mode: ZBLL is primary; PLL is the fallback for edge cases
+        return startPattern && isTopCornersOrientedForLL(startPattern.patternData, ctx)
+          ? ["PLL"]
+          : ["ZBLL"];
       },
       omitIfNoMoves: mixedCfopStages === true,
       deadlineTs,
       formulaPreAufList: FORMULA_AUF,
       formulaPostAufList: FORMULA_AUF,
-      formulaAttemptLimit: normalizeDepth(options.zbllFormulaAttemptLimit, useZbStages ? 50000 : 0),
+      formulaAttemptLimit: normalizeDepth(options.zbllFormulaAttemptLimit, useZbLL ? 50000 : 0),
       maxDepth: normalizeDepth(options.pllMaxDepth, profile.pllMaxDepth),
       searchMaxDepth: normalizeDepth(
         options.zbllSearchMaxDepth,
-        useZbStages ? 10 : profile.pllMaxDepth,
+        useZbLL ? 10 : profile.pllMaxDepth,
       ),
-      nodeLimit: normalizeDepth(options.zbllNodeLimit, useZbStages ? 180000 : 0),
+      nodeLimit: normalizeDepth(options.zbllNodeLimit, useZbLL ? 180000 : 0),
       // ZBLL uses case library (O(1) lookup) — no IDA* fallback needed; missing case = PLL fallback
-      disableSearchFallback: useZbStages,
+      disableSearchFallback: useZbLL,
       moveIndices: ctx.noDMoveIndices,
       isSolved: isPLLSolved,
       mismatch(data) {
@@ -3591,6 +3834,12 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         const e = buildKeyForOrbit(data.EDGES, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], true, true);
         return `C:${c}|E:${e}`;
       },
+      // LL-only key for ZBLL case library lookup (same as stage3 zbllKey)
+      zbllKey(data) {
+        const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+        const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
+        return `ZC:${topC}|ZE:${topE}`;
+      },
     },
   ];
 }
@@ -3601,6 +3850,12 @@ function getFormulaListByKey(key) {
   if (key === "PLL") return SCDB_CFOP_ALGS.PLL || [];
   if (key === "ZBLS") return ZB_FORMULAS.ZBLS || [];
   if (key === "ZBLL") return ZB_FORMULAS.ZBLL || [];
+  // FR-slot originals (used for non-SVWV contexts)
+  if (key === "SV") return SV_FORMULAS;
+  if (key === "WV") return WV_FORMULAS;
+  // BL-slot variants (y2-conjugated): SVWV stage always targets BL slot
+  if (key === "SV_BL") return SV_BL_FORMULAS;
+  if (key === "WV_BL") return WV_BL_FORMULAS;
   return [];
 }
 
@@ -3689,7 +3944,8 @@ function isSingleStageFormulaStage(stage) {
     stage.name === "ZBLS" ||
     stage.name === "ZBLL" ||
     stage.name === "CMLL" ||
-    stage.name === "LSE"
+    stage.name === "LSE" ||
+    stage.name === "SVWV"
   ) {
     return true;
   }
@@ -4499,7 +4755,14 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
             mixedCaseBias,
           )
         : null;
-      const llPriority = mixedLlSignal?.llPriority || 0;
+      // ZBLS opportunity: when 3 pairs are solved and the state is in the ZBLS library,
+      // apply a strong llPriority bonus to bias the beam search toward ZBLS states.
+      const zblsOpportunity = stage.zblsOpportunityCheck != null &&
+        nextMetrics.pairProgress >= f2lTargetPairs &&
+        stage.zblsOpportunityCheck(nextData);
+      const llPriority = zblsOpportunity
+        ? Math.max(mixedLlSignal?.llPriority || 0, 5)
+        : (mixedLlSignal?.llPriority || 0);
       const zbllOpportunityBonus = mixedLlSignal?.downstreamBonus || 0;
       const effectiveDownstreamBiasLevel =
         mixedLlSignal && mixedLlSignal.downstreamBonus < 0
@@ -4857,6 +5120,11 @@ function solveStageByFormulaDb(startPattern, stage, ctx) {
   if (isSingleStageFormulaStage(stage)) {
     const primary = solveWithFormulaDbSingleStage(startPattern, stage, ctx);
     if (primary?.ok) return primary;
+
+    // SVWV: SV/WV formula didn't match — fall back to compact F2L IDA* for last pair insertion
+    if (stage.name === "SVWV") {
+      return solveF2LCompactIDA(startPattern, stage, ctx);
+    }
 
     const fallbackKeys =
       typeof stage.getFallbackFormulaKeys === "function"
@@ -5222,7 +5490,7 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
   const styleProfileInput =
     options.f2lStyleProfile !== undefined ? options.f2lStyleProfile : options.styleProfile;
   const mixedCfopStages = options.enableMixedCfopStages === true || isMixedCfopStyleProfile(styleProfileInput);
-  const crossFailureStageName = solveMode === "zb" || mixedCfopStages ? "XCross" : "Cross";
+  const crossFailureStageName = (solveMode === "zb" || solveMode === "zb_recovery") || mixedCfopStages ? "XCross" : "Cross";
   const crossColorRaw = normalizeCrossColor(options.crossColor);
   if (crossColorRaw === "CN" && !options.__colorNeutralProbeApplied) {
     const onStageUpdate = typeof options.onStageUpdate === "function" ? options.onStageUpdate : null;
@@ -5544,7 +5812,9 @@ export async function solve3x3StrictCfopFromPattern(pattern, options = {}) {
 
         const recoveryResult = await solve3x3StrictCfopFromPattern(stageStartPattern, {
           ...options,
-          mode: "strict",
+          // zb_recovery: solves all 4 F2L pairs + OLL + ZBLL (instead of strict OLL + PLL)
+          // This ensures Xuanyi uses ZBLL for the LL even when ZBLS didn't fire.
+          mode: "zb_recovery",
           crossColor: "D",
           __colorNeutralApplied: true,
           __zbRecoveryAttempted: true,
