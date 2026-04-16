@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-04-12T02:35:29.979Z",
+  "generatedAt": "2026-04-16T08:17:26.727Z",
   "currentBenchmark": {
-    "source": "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-3x3-style-benchmark.json",
-    "sampleCount": 5629,
+    "source": "/home/jhkang/cubetimer/vendor-data/reco/reco-3x3-style-benchmark.json",
+    "sampleCount": 24,
     "parameters": {
       "offset": 0,
-      "limit": 5629,
-      "perSolverLimit": 0,
-      "scrambleConcurrency": 3,
+      "limit": 60,
+      "perSolverLimit": 12,
+      "scrambleConcurrency": 1,
       "crossColor": "D",
       "timeoutMs": 5000,
-      "maxWorkers": 6,
+      "maxWorkers": 4,
       "timeoutMsByMode": {
         "strict": 3000,
         "zb": 5000
@@ -33,416 +33,12 @@
         "CFOP",
         "ZB"
       ],
-      "samplingPolicy": "batched-offset-limit",
-      "acceptanceGate": "balanced",
-      "batchSize": 100,
-      "batchCount": 57,
-      "batchMode": true,
-      "batchInputs": [
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0000-0099.json",
-          "offset": 0,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0000-0099.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0100-0199.json",
-          "offset": 100,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0100-0199.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0200-0299.json",
-          "offset": 200,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0200-0299.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0300-0399.json",
-          "offset": 300,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0300-0399.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0400-0499.json",
-          "offset": 400,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0400-0499.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0500-0599.json",
-          "offset": 500,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0500-0599.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0600-0699.json",
-          "offset": 600,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0600-0699.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0700-0799.json",
-          "offset": 700,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0700-0799.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0800-0899.json",
-          "offset": 800,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0800-0899.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-0900-0999.json",
-          "offset": 900,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-0900-0999.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1000-1099.json",
-          "offset": 1000,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1000-1099.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1100-1199.json",
-          "offset": 1100,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1100-1199.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1200-1299.json",
-          "offset": 1200,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1200-1299.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1300-1399.json",
-          "offset": 1300,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1300-1399.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1400-1499.json",
-          "offset": 1400,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1400-1499.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1500-1599.json",
-          "offset": 1500,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1500-1599.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1600-1699.json",
-          "offset": 1600,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1600-1699.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1700-1799.json",
-          "offset": 1700,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1700-1799.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1800-1899.json",
-          "offset": 1800,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1800-1899.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-1900-1999.json",
-          "offset": 1900,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-1900-1999.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2000-2099.json",
-          "offset": 2000,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2000-2099.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2100-2199.json",
-          "offset": 2100,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2100-2199.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2200-2299.json",
-          "offset": 2200,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2200-2299.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2300-2399.json",
-          "offset": 2300,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2300-2399.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2400-2499.json",
-          "offset": 2400,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2400-2499.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2500-2599.json",
-          "offset": 2500,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2500-2599.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2600-2699.json",
-          "offset": 2600,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2600-2699.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2700-2799.json",
-          "offset": 2700,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2700-2799.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2800-2899.json",
-          "offset": 2800,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2800-2899.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-2900-2999.json",
-          "offset": 2900,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-2900-2999.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3000-3099.json",
-          "offset": 3000,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3000-3099.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3100-3199.json",
-          "offset": 3100,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3100-3199.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3200-3299.json",
-          "offset": 3200,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3200-3299.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3300-3399.json",
-          "offset": 3300,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3300-3399.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3400-3499.json",
-          "offset": 3400,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3400-3499.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3500-3599.json",
-          "offset": 3500,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3500-3599.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3600-3699.json",
-          "offset": 3600,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3600-3699.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3700-3799.json",
-          "offset": 3700,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3700-3799.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3800-3899.json",
-          "offset": 3800,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3800-3899.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-3900-3999.json",
-          "offset": 3900,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-3900-3999.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4000-4099.json",
-          "offset": 4000,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4000-4099.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4100-4199.json",
-          "offset": 4100,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4100-4199.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4200-4299.json",
-          "offset": 4200,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4200-4299.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4300-4399.json",
-          "offset": 4300,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4300-4399.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4400-4499.json",
-          "offset": 4400,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4400-4499.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4500-4599.json",
-          "offset": 4500,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4500-4599.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4600-4699.json",
-          "offset": 4600,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4600-4699.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4700-4799.json",
-          "offset": 4700,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4700-4799.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4800-4899.json",
-          "offset": 4800,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4800-4899.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-4900-4999.json",
-          "offset": 4900,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-4900-4999.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5000-5099.json",
-          "offset": 5000,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-5000-5099.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5100-5199.json",
-          "offset": 5100,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-5100-5199.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5200-5299.json",
-          "offset": 5200,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-5200-5299.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5300-5399.json",
-          "offset": 5300,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-5300-5399.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5400-5499.json",
-          "offset": 5400,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-5400-5499.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5500-5599.json",
-          "offset": 5500,
-          "limit": 100,
-          "sampleCount": 100,
-          "label": "strict-5500-5599.json"
-        },
-        {
-          "file": "vendor-data/reco/style-benchmark-batches/strict/strict-5600-5628.json",
-          "offset": 5600,
-          "limit": 29,
-          "sampleCount": 29,
-          "label": "strict-5600-5628.json"
-        }
-      ]
+      "samplingPolicy": "balanced-per-solver",
+      "acceptanceGate": "balanced"
     }
   },
   "baselineBenchmark": {
-    "source": "/home/jhkang/바탕화면/CubeTimer/vendor-data/reco/reco-all-3x3-top10-style-benchmark.json",
+    "source": "/home/jhkang/cubetimer/vendor-data/reco/reco-all-3x3-top10-style-benchmark.json",
     "sampleCount": 100,
     "parameters": {
       "offset": 0,
@@ -471,19 +67,19 @@
     "strict": {
       "mode": "strict",
       "currentOverall": {
-        "attempted": 22516,
-        "solved": 18883,
-        "failed": 3633,
-        "successRate": 0.8386480724817907,
-        "avgMoveCountSolved": 62.896361806916275,
-        "p50MoveCountSolved": 63,
-        "p90MoveCountSolved": 71,
-        "avgDurationMs": 1958.6358145318884,
-        "p50DurationMs": 1665,
-        "p95DurationMs": 3650,
-        "avgNodesSolved": 415303.32420695864,
-        "avgStyleDistanceToTarget": 962562.9078511929,
-        "p50StyleDistanceToTarget": 950001.9101877449
+        "attempted": 96,
+        "solved": 96,
+        "failed": 0,
+        "successRate": 1,
+        "avgMoveCountSolved": 53.333333333333336,
+        "p50MoveCountSolved": 53,
+        "p90MoveCountSolved": 59,
+        "avgDurationMs": 44.03125,
+        "p50DurationMs": 36,
+        "p95DurationMs": 58,
+        "avgNodesSolved": 123482.29166666667,
+        "avgStyleDistanceToTarget": 646876.4020042002,
+        "p50StyleDistanceToTarget": 650001.3243511094
       },
       "baselineOverall": {
         "attempted": 400,
@@ -501,38 +97,32 @@
         "p50StyleDistanceToTarget": 950001.4488222825
       },
       "overallDelta": {
-        "deltaSuccessRate": 0.23864807248179076,
-        "deltaAvgMoveCountSolved": 1.821361806916272,
-        "deltaAvgDurationMs": -2768.839185468112,
-        "deltaP95DurationMs": -5501,
-        "deltaStyleDistanceToTarget": -9313.483087364351
+        "deltaSuccessRate": 0.4,
+        "deltaAvgMoveCountSolved": -7.741666666666667,
+        "deltaAvgDurationMs": -4683.44375,
+        "deltaP95DurationMs": -9093,
+        "deltaStyleDistanceToTarget": -324999.98893435707
       },
       "styles": [
         {
           "style": "legacy",
           "current": {
             "style": "legacy",
-            "attempted": 5629,
-            "solved": 4742,
-            "failed": 887,
-            "successRate": 0.8424231657488008,
-            "avgMoveCountSolved": 61.23808519611978,
-            "p50MoveCountSolved": 61,
-            "p90MoveCountSolved": 69,
-            "avgDurationMs": 1908.6198259015812,
-            "p50DurationMs": 1636,
-            "p95DurationMs": 3650,
-            "avgNodesSolved": 415539.02108814847,
-            "avgStyleDistanceToTarget": 897945.1421843997,
-            "p50StyleDistanceToTarget": 900000.9496280728,
-            "failureReasonCounts": {
-              "TIMEOUT_3000MS": 120,
-              "TIMEOUT_3500MS": 766,
-              "Unexpected character: %": 1
-            },
-            "failureStageCounts": {
-              "UNKNOWN": 887
-            }
+            "attempted": 24,
+            "solved": 24,
+            "failed": 0,
+            "successRate": 1,
+            "avgMoveCountSolved": 53.333333333333336,
+            "p50MoveCountSolved": 53,
+            "p90MoveCountSolved": 58,
+            "avgDurationMs": 43.958333333333336,
+            "p50DurationMs": 35,
+            "p95DurationMs": 51,
+            "avgNodesSolved": 123482.29166666667,
+            "avgStyleDistanceToTarget": 646876.4020042,
+            "p50StyleDistanceToTarget": 650001.3243511094,
+            "failureReasonCounts": {},
+            "failureStageCounts": {}
           },
           "baseline": {
             "style": "legacy",
@@ -557,40 +147,34 @@
             }
           },
           "delta": {
-            "deltaSuccessRate": 0.26242316574880087,
-            "deltaAvgMoveCountSolved": 2.6691196788784026,
-            "deltaAvgDurationMs": -2950.630174098419,
-            "deltaP95DurationMs": -5502,
-            "deltaP95DurationRatio": -0.6011800699300699,
-            "deltaStyleDistanceToTarget": 8863.371492571663,
-            "deltaStyleDistancePct": 0.009969129707467448
+            "deltaSuccessRate": 0.42000000000000004,
+            "deltaAvgMoveCountSolved": -5.235632183908045,
+            "deltaAvgDurationMs": -4815.291666666667,
+            "deltaP95DurationMs": -9101,
+            "deltaP95DurationRatio": -0.9944274475524476,
+            "deltaStyleDistanceToTarget": -242205.36868762795,
+            "deltaStyleDistancePct": -0.2724219263872195
           }
         },
         {
           "style": "balanced",
           "current": {
             "style": "balanced",
-            "attempted": 5629,
-            "solved": 4728,
-            "failed": 901,
-            "successRate": 0.8399360454787707,
-            "avgMoveCountSolved": 62.753807106598984,
-            "p50MoveCountSolved": 63,
-            "p90MoveCountSolved": 70,
-            "avgDurationMs": 1914.4370225617338,
-            "p50DurationMs": 1626,
-            "p95DurationMs": 3650,
-            "avgNodesSolved": 414892.9496615905,
-            "avgStyleDistanceToTarget": 951651.0897220158,
-            "p50StyleDistanceToTarget": 950001.0531530309,
-            "failureReasonCounts": {
-              "TIMEOUT_3000MS": 134,
-              "TIMEOUT_3500MS": 766,
-              "Unexpected character: %": 1
-            },
-            "failureStageCounts": {
-              "UNKNOWN": 901
-            }
+            "attempted": 24,
+            "solved": 24,
+            "failed": 0,
+            "successRate": 1,
+            "avgMoveCountSolved": 53.333333333333336,
+            "p50MoveCountSolved": 53,
+            "p90MoveCountSolved": 58,
+            "avgDurationMs": 42.666666666666664,
+            "p50DurationMs": 35,
+            "p95DurationMs": 45,
+            "avgNodesSolved": 123482.29166666667,
+            "avgStyleDistanceToTarget": 646876.4020042,
+            "p50StyleDistanceToTarget": 650001.3243511094,
+            "failureReasonCounts": {},
+            "failureStageCounts": {}
           },
           "baseline": {
             "style": "balanced",
@@ -615,40 +199,34 @@
             }
           },
           "delta": {
-            "deltaSuccessRate": 0.22993604547877067,
-            "deltaAvgMoveCountSolved": 1.2128235000416083,
-            "deltaAvgDurationMs": -2722.692977438266,
-            "deltaP95DurationMs": -5501,
-            "deltaP95DurationRatio": -0.6011364878155393,
-            "deltaStyleDistanceToTarget": -9279.239251179271,
-            "deltaStyleDistancePct": -0.009656516160848654
+            "deltaSuccessRate": 0.39,
+            "deltaAvgMoveCountSolved": -8.20765027322404,
+            "deltaAvgDurationMs": -4594.463333333333,
+            "deltaP95DurationMs": -9106,
+            "deltaP95DurationRatio": -0.9950825046443011,
+            "deltaStyleDistanceToTarget": -314053.926968995,
+            "deltaStyleDistancePct": -0.326822785689966
           }
         },
         {
           "style": "rotationless",
           "current": {
             "style": "rotationless",
-            "attempted": 5629,
-            "solved": 4782,
-            "failed": 847,
-            "successRate": 0.8495292236631728,
-            "avgMoveCountSolved": 62.96131325805103,
-            "p50MoveCountSolved": 63,
-            "p90MoveCountSolved": 70,
-            "avgDurationMs": 1932.4197903712916,
-            "p50DurationMs": 1650,
-            "p95DurationMs": 3650,
-            "avgNodesSolved": 415858.71392722713,
-            "avgStyleDistanceToTarget": 970395.5228402494,
-            "p50StyleDistanceToTarget": 966667.9552834665,
-            "failureReasonCounts": {
-              "TIMEOUT_3000MS": 143,
-              "TIMEOUT_3500MS": 703,
-              "Unexpected character: %": 1
-            },
-            "failureStageCounts": {
-              "UNKNOWN": 847
-            }
+            "attempted": 24,
+            "solved": 24,
+            "failed": 0,
+            "successRate": 1,
+            "avgMoveCountSolved": 53.333333333333336,
+            "p50MoveCountSolved": 53,
+            "p90MoveCountSolved": 58,
+            "avgDurationMs": 45.333333333333336,
+            "p50DurationMs": 38,
+            "p95DurationMs": 57,
+            "avgNodesSolved": 123482.29166666667,
+            "avgStyleDistanceToTarget": 646876.4020042,
+            "p50StyleDistanceToTarget": 650001.3243511094,
+            "failureReasonCounts": {},
+            "failureStageCounts": {}
           },
           "baseline": {
             "style": "rotationless",
@@ -673,40 +251,34 @@
             }
           },
           "delta": {
-            "deltaSuccessRate": 0.21952922366317285,
-            "deltaAvgMoveCountSolved": 1.6121069088446802,
-            "deltaAvgDurationMs": -2545.5802096287084,
-            "deltaP95DurationMs": -5501,
-            "deltaP95DurationRatio": -0.6011364878155393,
-            "deltaStyleDistanceToTarget": -13203.734779244522,
-            "deltaStyleDistancePct": -0.013423896649942773
+            "deltaSuccessRate": 0.37,
+            "deltaAvgMoveCountSolved": -8.015873015873012,
+            "deltaAvgDurationMs": -4432.666666666667,
+            "deltaP95DurationMs": -9094,
+            "deltaP95DurationRatio": -0.9937711725494481,
+            "deltaStyleDistanceToTarget": -336722.85561529384,
+            "deltaStyleDistancePct": -0.3423374438388966
           }
         },
         {
           "style": "low-auf",
           "current": {
             "style": "low-auf",
-            "attempted": 5629,
-            "solved": 4631,
-            "failed": 998,
-            "successRate": 0.8227038550364185,
-            "avgMoveCountSolved": 64.67285683437703,
-            "p50MoveCountSolved": 65,
-            "p90MoveCountSolved": 72,
-            "avgDurationMs": 2079.066619292947,
-            "p50DurationMs": 1772,
-            "p95DurationMs": 3650,
-            "avgNodesSolved": 414907.4491470525,
-            "avgStyleDistanceToTarget": 1031781.857544362,
-            "p50StyleDistanceToTarget": 1025001.3262693314,
-            "failureReasonCounts": {
-              "TIMEOUT_3000MS": 174,
-              "TIMEOUT_3500MS": 823,
-              "Unexpected character: %": 1
-            },
-            "failureStageCounts": {
-              "UNKNOWN": 998
-            }
+            "attempted": 24,
+            "solved": 24,
+            "failed": 0,
+            "successRate": 1,
+            "avgMoveCountSolved": 53.333333333333336,
+            "p50MoveCountSolved": 53,
+            "p90MoveCountSolved": 58,
+            "avgDurationMs": 44.166666666666664,
+            "p50DurationMs": 32,
+            "p95DurationMs": 57,
+            "avgNodesSolved": 123482.29166666667,
+            "avgStyleDistanceToTarget": 646876.4020042,
+            "p50StyleDistanceToTarget": 650001.3243511094,
+            "failureReasonCounts": {},
+            "failureStageCounts": {}
           },
           "baseline": {
             "style": "low-auf",
@@ -731,13 +303,13 @@
             }
           },
           "delta": {
-            "deltaSuccessRate": 0.24270385503641856,
-            "deltaAvgMoveCountSolved": 1.8797533861011644,
-            "deltaAvgDurationMs": -2856.4533807070534,
-            "deltaP95DurationMs": -5501,
-            "deltaP95DurationRatio": -0.6011364878155393,
-            "deltaStyleDistanceToTarget": -21667.932588993455,
-            "deltaStyleDistancePct": -0.020568548014282227
+            "deltaSuccessRate": 0.42000000000000004,
+            "deltaAvgMoveCountSolved": -9.459770114942529,
+            "deltaAvgDurationMs": -4891.3533333333335,
+            "deltaP95DurationMs": -9094,
+            "deltaP95DurationRatio": -0.9937711725494481,
+            "deltaStyleDistanceToTarget": -406573.3881291554,
+            "deltaStyleDistancePct": -0.3859447236471399
           }
         }
       ]
@@ -745,19 +317,19 @@
     "zb": {
       "mode": "zb",
       "currentOverall": {
-        "attempted": 22516,
-        "solved": 19891,
-        "failed": 2625,
-        "successRate": 0.8834162373423343,
-        "avgMoveCountSolved": 60.60258408325373,
-        "p50MoveCountSolved": 61,
-        "p90MoveCountSolved": 70,
-        "avgDurationMs": 2410.056448747557,
-        "p50DurationMs": 2222,
-        "p95DurationMs": 5150,
-        "avgNodesSolved": 299053.50178472674,
-        "avgStyleDistanceToTarget": 1582252.2216059058,
-        "p50StyleDistanceToTarget": 1550001.2817412517
+        "attempted": 96,
+        "solved": 0,
+        "failed": 96,
+        "successRate": 0,
+        "avgMoveCountSolved": null,
+        "p50MoveCountSolved": null,
+        "p90MoveCountSolved": null,
+        "avgDurationMs": 36.114583333333336,
+        "p50DurationMs": 29,
+        "p95DurationMs": 58,
+        "avgNodesSolved": null,
+        "avgStyleDistanceToTarget": null,
+        "p50StyleDistanceToTarget": null
       },
       "baselineOverall": null,
       "overallDelta": null,
@@ -766,29 +338,24 @@
           "style": "legacy",
           "current": {
             "style": "legacy",
-            "attempted": 5629,
-            "solved": 4957,
-            "failed": 672,
-            "successRate": 0.8806182270385504,
-            "avgMoveCountSolved": 59.40689933427476,
-            "p50MoveCountSolved": 59,
-            "p90MoveCountSolved": 69,
-            "avgDurationMs": 2376.7255285130573,
-            "p50DurationMs": 2203,
-            "p95DurationMs": 5150,
-            "avgNodesSolved": 300381.90296550334,
-            "avgStyleDistanceToTarget": 1506184.5181290838,
-            "p50StyleDistanceToTarget": 1500000.9472438996,
+            "attempted": 24,
+            "solved": 0,
+            "failed": 24,
+            "successRate": 0,
+            "avgMoveCountSolved": null,
+            "p50MoveCountSolved": null,
+            "p90MoveCountSolved": null,
+            "avgDurationMs": 36.083333333333336,
+            "p50DurationMs": 26,
+            "p95DurationMs": 49,
+            "avgNodesSolved": null,
+            "avgStyleDistanceToTarget": null,
+            "p50StyleDistanceToTarget": null,
             "failureReasonCounts": {
-              "TIMEOUT_5000MS": 551,
-              "F2L2_SEARCH_LIMIT": 119,
-              "ZBLS_SEARCH_LIMIT": 1,
-              "Unexpected character: %": 1
+              "ZBLS_NOT_FOUND": 24
             },
             "failureStageCounts": {
-              "UNKNOWN": 552,
-              "F2L2": 119,
-              "ZBLS": 1
+              "ZBLS": 24
             }
           },
           "baseline": null,
@@ -798,29 +365,24 @@
           "style": "balanced",
           "current": {
             "style": "balanced",
-            "attempted": 5629,
-            "solved": 4945,
-            "failed": 684,
-            "successRate": 0.8784864096642387,
-            "avgMoveCountSolved": 60.71607684529828,
-            "p50MoveCountSolved": 61,
-            "p90MoveCountSolved": 70,
-            "avgDurationMs": 2403.0371291526026,
-            "p50DurationMs": 2216,
-            "p95DurationMs": 5150,
-            "avgNodesSolved": 299442.3783619818,
-            "avgStyleDistanceToTarget": 1587433.24416614,
-            "p50StyleDistanceToTarget": 1550001.6361423687,
+            "attempted": 24,
+            "solved": 0,
+            "failed": 24,
+            "successRate": 0,
+            "avgMoveCountSolved": null,
+            "p50MoveCountSolved": null,
+            "p90MoveCountSolved": null,
+            "avgDurationMs": 36.583333333333336,
+            "p50DurationMs": 31,
+            "p95DurationMs": 48,
+            "avgNodesSolved": null,
+            "avgStyleDistanceToTarget": null,
+            "p50StyleDistanceToTarget": null,
             "failureReasonCounts": {
-              "F2L2_SEARCH_LIMIT": 107,
-              "TIMEOUT_5000MS": 573,
-              "ZBLS_SEARCH_LIMIT": 3,
-              "Unexpected character: %": 1
+              "ZBLS_NOT_FOUND": 24
             },
             "failureStageCounts": {
-              "F2L2": 107,
-              "UNKNOWN": 574,
-              "ZBLS": 3
+              "ZBLS": 24
             }
           },
           "baseline": null,
@@ -830,29 +392,24 @@
           "style": "rotationless",
           "current": {
             "style": "rotationless",
-            "attempted": 5629,
-            "solved": 4974,
-            "failed": 655,
-            "successRate": 0.8836383016521585,
-            "avgMoveCountSolved": 60.71391234418979,
-            "p50MoveCountSolved": 61,
-            "p90MoveCountSolved": 70,
-            "avgDurationMs": 2414.7583940309114,
-            "p50DurationMs": 2224,
-            "p95DurationMs": 5150,
-            "avgNodesSolved": 299080.0896662646,
-            "avgStyleDistanceToTarget": 1590481.9890285055,
-            "p50StyleDistanceToTarget": 1550001.5857848092,
+            "attempted": 24,
+            "solved": 0,
+            "failed": 24,
+            "successRate": 0,
+            "avgMoveCountSolved": null,
+            "p50MoveCountSolved": null,
+            "p90MoveCountSolved": null,
+            "avgDurationMs": 36.083333333333336,
+            "p50DurationMs": 28,
+            "p95DurationMs": 52,
+            "avgNodesSolved": null,
+            "avgStyleDistanceToTarget": null,
+            "p50StyleDistanceToTarget": null,
             "failureReasonCounts": {
-              "TIMEOUT_5000MS": 547,
-              "F2L2_SEARCH_LIMIT": 102,
-              "ZBLS_SEARCH_LIMIT": 5,
-              "Unexpected character: %": 1
+              "ZBLS_NOT_FOUND": 24
             },
             "failureStageCounts": {
-              "UNKNOWN": 548,
-              "F2L2": 102,
-              "ZBLS": 5
+              "ZBLS": 24
             }
           },
           "baseline": null,
@@ -862,29 +419,24 @@
           "style": "low-auf",
           "current": {
             "style": "low-auf",
-            "attempted": 5629,
-            "solved": 5015,
-            "failed": 614,
-            "successRate": 0.8909220110143897,
-            "avgMoveCountSolved": 61.562113659022934,
-            "p50MoveCountSolved": 62,
-            "p90MoveCountSolved": 71,
-            "avgDurationMs": 2445.704743293658,
-            "p50DurationMs": 2251,
-            "p95DurationMs": 5150,
-            "avgNodesSolved": 297330.64486540377,
-            "avgStyleDistanceToTarget": 1644168.9885877764,
-            "p50StyleDistanceToTarget": 1600001.4956900144,
+            "attempted": 24,
+            "solved": 0,
+            "failed": 24,
+            "successRate": 0,
+            "avgMoveCountSolved": null,
+            "p50MoveCountSolved": null,
+            "p90MoveCountSolved": null,
+            "avgDurationMs": 35.708333333333336,
+            "p50DurationMs": 29,
+            "p95DurationMs": 53,
+            "avgNodesSolved": null,
+            "avgStyleDistanceToTarget": null,
+            "p50StyleDistanceToTarget": null,
             "failureReasonCounts": {
-              "TIMEOUT_5000MS": 504,
-              "F2L2_SEARCH_LIMIT": 103,
-              "ZBLS_SEARCH_LIMIT": 6,
-              "Unexpected character: %": 1
+              "ZBLS_NOT_FOUND": 24
             },
             "failureStageCounts": {
-              "UNKNOWN": 505,
-              "F2L2": 103,
-              "ZBLS": 6
+              "ZBLS": 24
             }
           },
           "baseline": null,
