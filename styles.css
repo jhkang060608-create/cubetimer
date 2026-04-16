@@ -1034,12 +1034,17 @@ body.timer-only .timer-display {
   box-shadow: var(--button-hover-shadow);
 }
 
-.session-actions-grid #newSessionBtn,
-.session-actions-grid #renameSessionBtn,
-.session-actions-grid #exportBtn {
+.session-actions-grid #newSessionBtn {
   color: var(--accent) !important;
   border-color: var(--accent-border) !important;
   background: var(--action-accent-surface) !important;
+}
+
+.session-actions-grid #renameSessionBtn,
+.session-actions-grid #exportBtn {
+  color: var(--ink) !important;
+  border-color: var(--border) !important;
+  background: var(--button-surface) !important;
 }
 
 .session-actions-grid #deleteSessionBtn,
