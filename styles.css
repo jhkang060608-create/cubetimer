@@ -847,15 +847,15 @@ body.timer-only .timer-display {
 
   .scramble-content {
     flex-direction: column;
-    gap: 0.85rem;
-    padding: 0.2rem 0;
+    gap: 0.65rem;
+    padding: 0.1rem 0;
   }
 
   .scramble-side-controls {
     border-left: none !important;
     border-top: 1px solid var(--border);
     padding-left: 0 !important;
-    padding-top: 0.85rem;
+    padding-top: 0.7rem;
     width: 100%;
     justify-content: center;
   }
@@ -863,7 +863,7 @@ body.timer-only .timer-display {
   .scramble-row-dock {
     width: 100%;
     justify-content: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
 
   .scramble-card {
@@ -873,8 +873,28 @@ body.timer-only .timer-display {
 
   .scramble-text {
     font-size: 1rem;
-    line-height: 1.5;
+    line-height: 1.42;
     text-align: center;
+  }
+
+  .scramble-text-wrapper {
+    padding-inline: 0.1rem;
+  }
+
+  #eventSelect {
+    min-width: 0;
+    width: 12rem;
+    max-width: calc(100vw - 12rem);
+    padding: 0.72rem 0.95rem;
+  }
+
+  .scramble-arrows {
+    gap: 0.45rem;
+  }
+
+  .scramble-arrows .icon-btn {
+    width: 44px;
+    height: 44px;
   }
 
   .timer-display {
@@ -1147,10 +1167,12 @@ body.theme-dark .timer-display.inspect-danger {
 .history-list-wrapper {
   max-height: 300px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 0;
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
   -ms-overflow-style: none;
+  overscroll-behavior-x: none;
 }
 
 .history-list-wrapper::-webkit-scrollbar {
@@ -1166,6 +1188,8 @@ body.theme-dark .timer-display.inspect-danger {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .history-header {
@@ -2287,10 +2311,12 @@ body.hide-preview.hide-chart .bottom-group {
 
 .history-list-wrapper {
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
   -ms-overflow-style: none;
+  overscroll-behavior-x: none;
 }
 
 /* History List Spacing Rollback (Compact) */
@@ -2332,15 +2358,18 @@ body.hide-preview.hide-chart .bottom-group {
 
 .history-list-wrapper {
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: 500px; /* Sensible limit */
   scrollbar-width: none;
   scrollbar-color: transparent transparent;
   -ms-overflow-style: none;
+  overscroll-behavior-x: none;
 }
 
 @media (min-width: 901px) {
   .left-dashboard {
-    padding-bottom: 0.4rem;
+    bottom: 1rem;
+    padding-bottom: 0;
   }
 
   .history-standalone {
