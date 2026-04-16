@@ -1034,7 +1034,9 @@ body.timer-only .timer-display {
   box-shadow: var(--button-hover-shadow);
 }
 
-.session-actions-grid #newSessionBtn {
+.session-actions-grid #newSessionBtn,
+.session-actions-grid #renameSessionBtn,
+.session-actions-grid #exportBtn {
   color: var(--accent) !important;
   border-color: var(--accent-border) !important;
   background: var(--action-accent-surface) !important;
@@ -1042,6 +1044,7 @@ body.timer-only .timer-display {
 
 .session-actions-grid #deleteSessionBtn,
 .session-actions-grid #resetSessionBtn {
+  /* Danger style for delete/reset only */
   color: var(--danger) !important;
   border-color: rgba(239, 35, 60, 0.34) !important;
   background: var(--action-danger-surface) !important;
