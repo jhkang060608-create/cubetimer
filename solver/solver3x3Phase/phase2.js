@@ -17,6 +17,7 @@ let sepMove = null;
 let cpDist = null;
 let epDist = null;
 let sepDist = null;
+let cpSepDist = null; // joint (CP × SEP) pruning table — tighter lower bound than max(cpDist, sepDist)
 let phase2MoveFaces = null;
 let allowedMovesByLastFace = null;
 
@@ -74,6 +75,36 @@ function decodePerm4(idx, out) {
     }
     len -= 1;
   }
+}
+
+// Build joint (CP × SEP) pruning table via BFS. Gives a tighter lower bound
+// than max(cpDist[cp], sepDist[sep]) because it accounts for interactions.
+function buildCpSepDistTable() {
+  const total = CP_SIZE * SEP_SIZE; // 967,680
+  const dist = new Uint8Array(total);
+  dist.fill(NOT_SET);
+  const queue = new Uint32Array(total);
+  let head = 0;
+  let tail = 0;
+  dist[0] = 0;
+  queue[tail++] = 0; // (cp=0, sep=0) → key = 0
+  while (head < tail) {
+    const key = queue[head++];
+    const cp = (key / SEP_SIZE) | 0;
+    const sep = key % SEP_SIZE;
+    const nextDepth = dist[key] + 1;
+    const cpBase = cp * PHASE2_MOVE_COUNT;
+    const sepBase = sep * PHASE2_MOVE_COUNT;
+    for (let m = 0; m < PHASE2_MOVE_COUNT; m++) {
+      const ncp = cpMove[cpBase + m];
+      const nsep = sepMove[sepBase + m];
+      const nkey = ncp * SEP_SIZE + nsep;
+      if (dist[nkey] !== NOT_SET) continue;
+      dist[nkey] = nextDepth;
+      queue[tail++] = nkey;
+    }
+  }
+  return dist;
 }
 
 function buildDistTable(moveTable, size) {
@@ -213,6 +244,7 @@ async function ensurePhase2Tables() {
     cpDist = buildDistTable(cpMove, CP_SIZE);
     epDist = buildDistTable(epMove, EP_SIZE);
     sepDist = buildDistTable(sepMove, SEP_SIZE);
+    cpSepDist = buildCpSepDistTable(); // joint pruning — must come after cpMove/sepMove are built
   })();
   return initPromise;
 }
@@ -242,7 +274,7 @@ export async function solvePhase2(input) {
     return { ok: true, moves: [], depth: 0, nodes: 0 };
   }
 
-  let bound = Math.max(cpDist[cpIdx], epDist[epIdx], sepDist[sepIdx], 1);
+  let bound = Math.max(cpSepDist[cpIdx * SEP_SIZE + sepIdx], epDist[epIdx], 1);
   const path = [];
   let nodes = 0;
   let nodeLimitHit = false;
@@ -273,7 +305,7 @@ export async function solvePhase2(input) {
 
   function dfs(cp, ep, sep, depth, currentBound, lastFace) {
     if (timeLimitHit || nodeLimitHit) return Infinity;
-    const h = Math.max(cpDist[cp], epDist[ep], sepDist[sep]);
+    const h = Math.max(cpSepDist[cp * SEP_SIZE + sep], epDist[ep]);
     const f = depth + h;
     if (f > currentBound) return f;
     if (cp === 0 && ep === 0 && sep === 0) return true;
@@ -293,7 +325,7 @@ export async function solvePhase2(input) {
       const nextCp = cpMove[cp * PHASE2_MOVE_COUNT + m];
       const nextEp = epMove[ep * PHASE2_MOVE_COUNT + m];
       const nextSep = sepMove[sep * PHASE2_MOVE_COUNT + m];
-      const nextH = Math.max(cpDist[nextCp], epDist[nextEp], sepDist[nextSep]);
+      const nextH = Math.max(cpSepDist[nextCp * SEP_SIZE + nextSep], epDist[nextEp]);
       const nextF = depth + 1 + nextH;
       if (nextF > currentBound) {
         if (nextF < minNext) minNext = nextF;
