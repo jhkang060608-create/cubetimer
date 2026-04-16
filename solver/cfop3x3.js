@@ -2935,6 +2935,62 @@ function getZblsLibraryForCtx(ctx) {
   );
 }
 
+// Key function for SVWV case library.
+// SV/WV formulas depend on the BL pair position+orientation AND the current LL edge
+// orientations (SV only orients LL edges correctly when they start at ori=0; WV is
+// similarly constrained). Including the 4 LL edge orientations ensures we only match
+// states where the specific formula will actually achieve the desired LL result.
+function buildSvwvKey(data, ctx) {
+  const pairDefs = ctx.f2lPairDefs;
+  const blDef = pairDefs && pairDefs.length > 0 ? pairDefs[pairDefs.length - 1] : null;
+  if (!blDef) {
+    // Fallback when pair defs are unavailable
+    const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
+    const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
+    const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
+    const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
+    return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
+  }
+  const blCornerPiece = blDef.cornerPieceId;
+  const blEdgePiece = blDef.edgePieceId;
+  let cPos = -1, cOri = 0, ePos = -1, eOri = 0;
+  const corners = data.CORNERS;
+  for (let i = 0; i < corners.pieces.length; i++) {
+    if (corners.pieces[i] === blCornerPiece) { cPos = i; cOri = corners.orientation[i]; break; }
+  }
+  const edges = data.EDGES;
+  for (let i = 0; i < edges.pieces.length; i++) {
+    if (edges.pieces[i] === blEdgePiece) { ePos = i; eOri = edges.orientation[i]; break; }
+  }
+  // Include LL edge orientations at positions 0-3 (UF/UR/UB/UL in solved orientation).
+  // Library entries are built from the solved state (all ori=0), so this restricts matches
+  // to states where all 4 LL edges happen to be correctly oriented — exactly the SV/WV
+  // precondition.
+  const topEdgePositions = ctx.topEdgePositions;
+  let eo = "";
+  for (let i = 0; i < topEdgePositions.length; i++) {
+    eo += (edges.orientation[topEdgePositions[i]] & 1);
+  }
+  return `BLC:${cPos}o${cOri}|BLE:${ePos}o${eOri}|EO:${eo}`;
+}
+
+// Returns the SV/WV case library (BL-slot variants) for a given ctx. Cached on ctx.
+function getSvwvLibraryForCtx(ctx) {
+  const svwvStage = {
+    name: "SVWV",
+    formulaKeys: ["SV_BL", "WV_BL"],
+    maxDepth: 22,
+    formulaPreAufList: FORMULA_AUF,
+    key(data) { return buildSvwvKey(data, ctx); },
+  };
+  const formulas = filterValidFormulas(getFormulaListForStage(svwvStage), ctx);
+  if (!formulas.length) return null;
+  return getSingleStageFormulaCaseLibrary(
+    svwvStage, ctx, formulas, FORMULA_AUF, [""], ["SV_BL", "WV_BL"], null,
+    buildFormulaKeyLookup(["SV_BL", "WV_BL"]), null
+  );
+}
+
 function _warmOllPllLibraries(ctx) {
   const ollStage = {
     name: "OLL",
@@ -3546,6 +3602,19 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
           };
         })()
       } : {}),
+      // SV/WV opportunity check: when exactly 3 pairs are solved, test if the
+      // 4th pair (BL) is already in an SV or WV configuration. Biases the beam
+      // search toward states where SV/WV can fire without extra setup moves.
+      ...(useSvWvStages ? {
+        svwvOpportunityCheck: (() => {
+          let _lib = null;
+          return function(data) {
+            if (!_lib) _lib = getSvwvLibraryForCtx(ctx);
+            if (!_lib?.caseMap?.size) return false;
+            return _lib.caseMap.has(buildSvwvKey(data, ctx));
+          };
+        })()
+      } : {}),
     },
     ...(useSvWvStages ? [{
       name: "SVWV",
@@ -3586,13 +3655,7 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
           orientationMismatch: f2lC.orientationMismatch + f2lE.orientationMismatch,
         };
       },
-      key(data) {
-        const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
-        const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
-        const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
-        const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-        return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
-      },
+      key(data) { return buildSvwvKey(data, ctx); },
       // Disable generic IDA* fallback; solveStageByFormulaDb handles F2L compact IDA* for SVWV
       disableSearchFallback: true,
     }] : []),
@@ -3973,7 +4036,8 @@ function shouldUseSingleStageCaseLibrary(stage, formulas) {
   return (
     stage.name === "CMLL" || stage.name === "LSE" ||
     stage.name === "OLL" || stage.name === "PLL" ||
-    stage.name === "ZBLS" || stage.name === "ZBLL"
+    stage.name === "ZBLS" || stage.name === "ZBLL" ||
+    stage.name === "SVWV"
   );
 }
 
@@ -4181,7 +4245,12 @@ function getSingleStageFormulaCaseLibrary(
             normalizedCandidate,
             formulaCanonicalLookup,
           );
-          const formulaKey = formulaKeyLookup?.get(normalizedCandidate) || null;
+          // Look up by full candidate first; fall back to base formula (without AUF/rotation)
+          // so that AUF-prefixed candidates still get the correct formulaKey
+          const normalizedAlg = normalizeFormulaMatchText(alg);
+          const formulaKey = formulaKeyLookup?.get(normalizedCandidate)
+            ?? formulaKeyLookup?.get(normalizedAlg)
+            ?? null;
           const caseKey = getKeyFn(casePattern.patternData);
           const existing = caseMap.get(caseKey);
           if (
@@ -4760,7 +4829,12 @@ function solveWithFormulaDbF2L(startPattern, stage, ctx) {
       const zblsOpportunity = stage.zblsOpportunityCheck != null &&
         nextMetrics.pairProgress >= f2lTargetPairs &&
         stage.zblsOpportunityCheck(nextData);
-      const llPriority = zblsOpportunity
+      // SV/WV opportunity: same logic as ZBLS — bias toward states where SV/WV fires naturally.
+      const svwvOpportunity = !zblsOpportunity &&
+        stage.svwvOpportunityCheck != null &&
+        nextMetrics.pairProgress >= f2lTargetPairs &&
+        stage.svwvOpportunityCheck(nextData);
+      const llPriority = (zblsOpportunity || svwvOpportunity)
         ? Math.max(mixedLlSignal?.llPriority || 0, 5)
         : (mixedLlSignal?.llPriority || 0);
       const zbllOpportunityBonus = mixedLlSignal?.downstreamBonus || 0;
