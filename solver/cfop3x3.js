@@ -949,6 +949,38 @@ function isCubeRotationFace(face) {
   return face === "x" || face === "y" || face === "z" || face === "X" || face === "Y" || face === "Z";
 }
 
+// Compute the net cube-frame rotation of an algorithm as a short move string
+// (e.g. "y", "y2", "y'", "x", "x y", etc.).  Returns null when there is no net
+// rotation (the common case for well-formed ZBF2L algorithms wrapped by
+// buildFormulaCandidate).  Used to normalize casePattern frame after applying
+// the inverse of a formula that contains embedded y/x/z moves.
+function computeNetCubeRotationMoves(algText) {
+  const tokens = splitMoves(algText).map(normalizeMoveToken).filter(Boolean);
+  let y = 0, x = 0, z = 0;
+  for (const t of tokens) {
+    const lower = t.toLowerCase();
+    const axis = lower[0];
+    if (axis !== "y" && axis !== "x" && axis !== "z") continue;
+    const suffix = lower.slice(1);
+    const delta = suffix === "2" ? 2 : suffix === "'" ? 3 : 1;
+    if (axis === "y") y = (y + delta) & 3;
+    else if (axis === "x") x = (x + delta) & 3;
+    else z = (z + delta) & 3;
+  }
+  if (y === 0 && x === 0 && z === 0) return null;
+  const parts = [];
+  if (y === 1) parts.push("y");
+  else if (y === 2) parts.push("y2");
+  else if (y === 3) parts.push("y'");
+  if (x === 1) parts.push("x");
+  else if (x === 2) parts.push("x2");
+  else if (x === 3) parts.push("x'");
+  if (z === 1) parts.push("z");
+  else if (z === 2) parts.push("z2");
+  else if (z === 3) parts.push("z'");
+  return parts.join(" ");
+}
+
 function isWideTurnFace(face) {
   if (!face) return false;
   if (face.endsWith("w") || face.endsWith("W")) return true;
@@ -3081,13 +3113,30 @@ async function getCfopContext() {
   return contextPromise;
 }
 
-// Builds the ZBLS key: TC (positions+ori) | TE (positions+ori) | FC (positions+ori) | FE (positions+ori)
+// Builds the ZBLS key: BL pair piece positions + LL edge orientations (EO).
+//
+// Only WHERE the BL pair pieces are (position + orientation) and the LL EO pattern
+// determine which formula to use. The identities of wrong pieces currently sitting in
+// BL slot positions (6 and 11) are irrelevant — the formula swaps them out as a
+// side effect. Including those wrong-piece identities in the key prevents matching
+// library cases that have different wrong pieces in those slots.
 function buildZblsKey(data, ctx) {
-  const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
-  const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
-  const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
-  const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-  return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
+  const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true); // LL EO only
+  const pairDefs = ctx.f2lPairDefs;
+  const blDef = pairDefs && pairDefs.length > 0 ? pairDefs[pairDefs.length - 1] : null;
+  if (!blDef) return `TE:${topE}`;
+  const blCornerPiece = blDef.cornerPieceId;
+  const blEdgePiece = blDef.edgePieceId;
+  let cPos = -1, cOri = 0, ePos = -1, eOri = 0;
+  const corners = data.CORNERS;
+  for (let i = 0; i < corners.pieces.length; i++) {
+    if (corners.pieces[i] === blCornerPiece) { cPos = i; cOri = corners.orientation[i]; break; }
+  }
+  const edges = data.EDGES;
+  for (let i = 0; i < edges.pieces.length; i++) {
+    if (edges.pieces[i] === blEdgePiece) { ePos = i; eOri = edges.orientation[i]; break; }
+  }
+  return `BL:c${cPos},o${cOri},e${ePos},o${eOri}|TE:${topE}`;
 }
 
 // Returns the ZBLS case-library (hit cache on repeated calls).
@@ -3213,19 +3262,11 @@ function _warmOllPllLibraries(ctx) {
     formulaKeys: ["ZBLS"],
     maxDepth: 22,
     formulaPreAufList: FORMULA_AUF,
-    key(data) {
-      // ZBLS inserts last F2L pair while orienting LL corners; need full top-layer info
-      // (position + orientation) to uniquely identify each of the 302 ZBLS cases.
-      const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
-      const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
-      const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
-      const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-      return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
-    },
+    key(data) { return buildZblsKey(data, ctx); },
   };
   const zbllStage = {
     name: "ZBLL",
-    formulaKeys: ["ZBLL"],
+    formulaKeys: ["ZBLL", "PLL"],
     maxDepth: 22,
     formulaPreAufList: FORMULA_AUF,
     formulaPostAufList: FORMULA_AUF,
@@ -3249,7 +3290,7 @@ function _warmOllPllLibraries(ctx) {
   }
   if (zbllFormulas.length) {
     getSingleStageFormulaCaseLibrary(
-      zbllStage, ctx, zbllFormulas, FORMULA_AUF, FORMULA_AUF, ["ZBLL"], buildFormulaKeyLookup(["ZBLL"]),
+      zbllStage, ctx, zbllFormulas, FORMULA_AUF, FORMULA_AUF, ["ZBLL", "PLL"], buildFormulaKeyLookup(["ZBLL", "PLL"]),
     );
   }
 }
@@ -3472,11 +3513,12 @@ function isOLLSolved(data, ctx) {
 
 function isZBLSSolved(data, ctx) {
   if (!isF2LSolved(data, ctx)) return false;
-  // ZBLS orients LL corners (not edges); goal = F2L complete + LL corners oriented
+  // ZBLS inserts the last F2L pair while orienting all LL edges.
+  // Goal: F2L complete + all LL edges oriented (orientation = 0).
   return orbitMatches(
-    data.CORNERS,
-    ctx.solvedData.CORNERS,
-    ctx.topCornerPositions,
+    data.EDGES,
+    ctx.solvedData.EDGES,
+    ctx.topEdgePositions,
     false,
     true,
   );
@@ -3594,7 +3636,7 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
   const stage3Name = useZbStages ? "ZBLS" : "OLL";
   const stage3FormulaKeys = useZbStages ? ["ZBLS"] : ["OLL"];
   const stage4Name = useZbLL ? "ZBLL" : "PLL";
-  const stage4FormulaKeys = useZbLL ? ["ZBLL"] : ["PLL"];
+  const stage4FormulaKeys = useZbLL ? ["ZBLL", "PLL"] : ["PLL"];
   const llFamilyPreferenceCache = new Map();
   const llFamilySelectionCache = new Map();
 
@@ -3965,8 +4007,8 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         useZbStages ? 11 : profile.ollMaxDepth,
       ),
       nodeLimit: normalizeDepth(options.zblsNodeLimit, useZbStages ? 280000 : 0),
-      // Pure ZB: ZBLS must match the case library; missing case fails fast.
-      disableSearchFallback: useZbStages,
+      // IDA* fallback enabled: covers library gaps for the ~4 missing ZBLS cases.
+      disableSearchFallback: false,
       moveIndices: ctx.noDMoveIndices,
       isSolved: useZbStages ? isZBLSSolved : isOLLSolved,
       mismatch(data) {
@@ -4015,14 +4057,13 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         };
       },
       key(data) {
+        if (useZbStages) {
+          // Delegate to buildZblsKey: F2L state + LL edge EO (orientation only);
+          // LL corner orientations are excluded (irrelevant to ZBLS case selection).
+          return buildZblsKey(data, ctx);
+        }
         const f2lC = buildKeyForOrbit(data.CORNERS, ctx.f2lCornerPositions, true, true);
         const f2lE = buildKeyForOrbit(data.EDGES, ctx.f2lEdgePositions, true, true);
-        if (useZbStages) {
-          // ZBLS needs full top-layer info to distinguish last-slot position variants.
-          const topC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, true, true);
-          const topE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, true, true);
-          return `TC:${topC}|TE:${topE}|FC:${f2lC}|FE:${f2lE}`;
-        }
         const ollC = buildKeyForOrbit(data.CORNERS, ctx.topCornerPositions, false, true);
         const ollE = buildKeyForOrbit(data.EDGES, ctx.topEdgePositions, false, true);
         return `FC:${f2lC}|FE:${f2lE}|OC:${ollC}|OE:${ollE}`;
@@ -4052,7 +4093,7 @@ function getStageDefinitions(options, ctx, profile, solveMode) {
         return result?.formulaKey === "ZBLL" ? "ZBLL" : "PLL";
       },
       getFormulaKeys(startPattern) {
-        if (useZbLL) return ["ZBLL"];
+        if (useZbLL) return ["ZBLL", "PLL"];
         const selection = getLlFamilySelection(startPattern, "stage4");
         if (mixedCfopStages && selection?.selectedFamily === "ZBLL") {
           return ["ZBLL"];
@@ -4479,7 +4520,8 @@ function getSingleStageFormulaCaseLibrary(
   const builtAt = Date.now();
 
   const useZbllKey = typeof stage.zbllKey === "function" &&
-    Array.isArray(formulaKeys) && formulaKeys.length === 1 && formulaKeys[0] === "ZBLL";
+    Array.isArray(formulaKeys) && formulaKeys.length > 0 &&
+    formulaKeys.every(k => k === "ZBLL" || k === "PLL");
   const getKeyFn = useZbllKey ? (data) => stage.zbllKey(data) : (data) => stage.key(data);
 
   for (let r = 0; r < FORMULA_ROTATIONS.length; r++) {
@@ -4497,6 +4539,15 @@ function getSingleStageFormulaCaseLibrary(
           const candidateMoves = splitMoves(candidate);
           if (!candidateMoves.length) continue;
           if (candidateMoves.length > stage.maxDepth) continue;
+          // If the candidate has a net cube-frame rotation (embedded y/x/z moves
+          // that are not cancelled by conjugation), the pattern produced by
+          // applying the inverse ends up in a rotated frame.  Apply the net
+          // forward rotation to normalize it back to the standard frame so the
+          // library key matches what the runtime key function computes.
+          const netRot = computeNetCubeRotationMoves(candidate);
+          const normalizedCasePattern = netRot
+            ? (tryApplyAlg(casePattern, netRot) ?? casePattern)
+            : casePattern;
           const normalizedCandidate = normalizeFormulaMatchText(candidate);
           // Look up by full candidate first; fall back to base formula (without AUF/rotation)
           // so that AUF-prefixed candidates still get the correct formulaKey
@@ -4504,7 +4555,7 @@ function getSingleStageFormulaCaseLibrary(
           const formulaKey = formulaKeyLookup?.get(normalizedCandidate)
             ?? formulaKeyLookup?.get(normalizedAlg)
             ?? null;
-          const caseKey = getKeyFn(casePattern.patternData);
+          const caseKey = getKeyFn(normalizedCasePattern.patternData);
           const caseCandidates = caseMap.get(caseKey) || [];
           const dedupeKey = `${String(formulaKey || "")}::${normalizedCandidate}`;
           const existingIndex = caseCandidates.findIndex(
@@ -4593,22 +4644,22 @@ function solveWithFormulaDbSingleStage(startPattern, stage, ctx) {
     const startKey = library.useZbllKey && typeof stage.zbllKey === "function"
       ? stage.zbllKey(startPattern.patternData)
       : stage.key(startPattern.patternData);
-    const direct = selectPreferredSingleStageCaseCandidate(
-      library.caseMap.get(startKey),
-      formulaPreferenceMap,
-      formulaCanonicalLookup,
-    );
-    if (direct && Array.isArray(direct.moves) && direct.moves.length <= stage.maxDepth) {
-      const nextPattern = tryApplyMoves(startPattern, direct.moves);
-      if (nextPattern && acceptsFormulaResult(nextPattern, direct.formulaKey || null)) {
-        return {
-          ok: true,
-          moves: direct.moves.slice(),
-          depth: direct.moves.length,
-          nodes: 1,
-          bound: direct.moves.length,
-          formulaKey: direct.formulaKey || null,
-        };
+    const candidates = library.caseMap.get(startKey);
+    if (candidates?.length) {
+      // Try all candidates for this key (multiple formulas may map to same BL+LL-EO key).
+      for (const cand of candidates) {
+        if (!Array.isArray(cand.moves) || cand.moves.length > stage.maxDepth) continue;
+        const nextPattern = tryApplyMoves(startPattern, cand.moves);
+        if (nextPattern && acceptsFormulaResult(nextPattern, cand.formulaKey || null)) {
+          return {
+            ok: true,
+            moves: cand.moves.slice(),
+            depth: cand.moves.length,
+            nodes: candidates.length,
+            bound: cand.moves.length,
+            formulaKey: cand.formulaKey || null,
+          };
+        }
       }
     }
     // Library is comprehensive — state not in map means no formula applies
