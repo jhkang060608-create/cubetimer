@@ -1,4 +1,4 @@
-# CubeTimer — Version 2 (Algorithmic Rewrite)
+# CubeTimer — Version 2 (2026 Algorithmic Rewrite)
 
 이 릴리스(Version 2)는 UI나 파라미터 튜닝보다 '알고리즘적 구조의 재설계'에 초점을 둔 메이저 업데이트입니다. 목표는 "같은 탐색량을 유지하면서도 후보 당 비용을 획기적으로 줄여 전체 대기시간을 낮추는 것"입니다.
 
