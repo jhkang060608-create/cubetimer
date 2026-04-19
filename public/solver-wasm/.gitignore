@@ -1,0 +1,11 @@
+*
+# Allow WASM glue and essential bundles (minmove .bin files are too large for git)
+!.gitignore
+!solver_wasm.js
+!solver_wasm_bg.wasm
+!solver_wasm_bg.wasm.d.ts
+!solver_wasm.d.ts
+!package.json
+!README.md
+!twophase/
+!twophase/*.bin
