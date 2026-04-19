@@ -9,6 +9,24 @@ const NOT_SET = 255;
 const OPPOSITE_FACE = [3, 4, 5, 0, 1, 2];
 const SLICE_EDGE_IDS = new Set([8, 9, 10, 11]);
 const FAIL_CACHE_LIMIT = 220000;
+
+// DR reverse frontier constants
+// CO*SLICE state key: co * SLICE_SIZE + sl
+// Pack move index into 5 bits per depth slot (≤18 moves, fits in 5 bits)
+const DR_REVERSE_DEPTH = 5;
+const DR_REVERSE_MAX_STATES = 200_000;
+// Inverse map for DR_EO_MOVE_INDICES:
+// U=0↔U'=1, U2=2 self, R=3↔R'=4, R2=5 self, F2=8 self,
+// D=9↔D'=10, D2=11 self, L=12↔L'=13, L2=14 self, B2=17 self
+// In terms of DR_EO_MOVE_INDICES array positions (0..13 → actual MOVE_NAMES indices):
+// [0,1,2,3,4,5,8,9,10,11,12,13,14,17] → positions 0..13
+// Inverse by move: MOVE_NAMES index: 0↔1, 2 self, 3↔4, 5 self, 8 self, 9↔10, 11 self, 12↔13, 14 self, 17 self
+const DR_EO_INVERSE_BY_FULL_INDEX = new Array(18).fill(0).map((_, i) => i);
+// U(0)↔U'(1), R(3)↔R'(4), D(9)↔D'(10), L(12)↔L'(13)
+(function() {
+  const pairs = [[0,1],[3,4],[9,10],[12,13]];
+  for (const [a,b] of pairs) { DR_EO_INVERSE_BY_FULL_INDEX[a]=b; DR_EO_INVERSE_BY_FULL_INDEX[b]=a; }
+})();
 const SOLVED_SLICE_OCC = (() => {
   const occ = new Uint8Array(12);
   occ[8] = 1;
@@ -41,6 +59,11 @@ let drAllowedMovesByLastFace = null;
 let drEoAllowedMovesByLastFace = null;
 let moveFace = null;
 let coSliceDist = null;
+let coSliceFirstMove = null; // BFS first-move table: instant optimal DR lookup
+// DR reverse frontier: Map<coSliceKey, {depth, pathCode}>
+let drReverseFrontier = null;
+let drReverseDepth = 0;
+let drReverseComplete = false;
 
 const combMemo = new Map();
 function comb(n, k) {
@@ -199,6 +222,7 @@ async function ensurePhase1Tables() {
     // BFS backwards from the solved DR state.
     const CO_SLICE_SIZE = CO_SIZE * SLICE_SIZE;
     coSliceDist = new Uint8Array(CO_SLICE_SIZE).fill(255);
+    coSliceFirstMove = new Uint8Array(CO_SLICE_SIZE).fill(255);
     const drEoMoves = DR_EO_MOVE_INDICES;
     const startKey = 0 * SLICE_SIZE + solvedSliceIdx;
     coSliceDist[startKey] = 0;
@@ -216,6 +240,7 @@ async function ensurePhase1Tables() {
           const nkey = nco * SLICE_SIZE + nsl;
           if (coSliceDist[nkey] === 255) {
             coSliceDist[nkey] = depth;
+            coSliceFirstMove[nkey] = DR_EO_INVERSE_BY_FULL_INDEX[m];
             next.push(nkey);
           }
         }
@@ -266,6 +291,38 @@ async function ensurePhase1Tables() {
         drEoAllowedMovesByLastFace[last].push(m);
       }
     }
+
+    // Build DR reverse frontier: BFS from solved DR state (co=0, sl=solvedSliceIdx)
+    // using DR_EO_MOVE_INDICES moves, storing all states within DR_REVERSE_DEPTH steps.
+    drReverseFrontier = new Map();
+    drReverseFrontier.set(0 * SLICE_SIZE + solvedSliceIdx, { depth: 0, pathCode: 0 });
+    let drFrontierLayer = [{ co: 0, sl: solvedSliceIdx, pathCode: 0 }];
+    let drCompletedDepth = 0;
+    for (let d = 1; d <= DR_REVERSE_DEPTH; d++) {
+      const pending = new Map();
+      for (let li = 0; li < drFrontierLayer.length; li++) {
+        const { co, sl, pathCode } = drFrontierLayer[li];
+        for (let di = 0; di < DR_EO_MOVE_INDICES.length; di++) {
+          const m = DR_EO_MOVE_INDICES[di];
+          const nco = coMove[co * MOVE_COUNT + m];
+          const nsl = sliceMove[sl * MOVE_COUNT + m];
+          const key = nco * SLICE_SIZE + nsl;
+          if (drReverseFrontier.has(key) || pending.has(key)) continue;
+          pending.set(key, { co: nco, sl: nsl, pathCode: pathCode | (m << ((d - 1) * 5)) });
+        }
+      }
+      if (pending.size === 0) { drCompletedDepth = DR_REVERSE_DEPTH; break; }
+      if (drReverseFrontier.size + pending.size > DR_REVERSE_MAX_STATES) break;
+      const nextLayer = [];
+      for (const [key, entry] of pending) {
+        drReverseFrontier.set(key, { depth: d, pathCode: entry.pathCode });
+        nextLayer.push({ co: entry.co, sl: entry.sl, pathCode: entry.pathCode });
+      }
+      drFrontierLayer = nextLayer;
+      drCompletedDepth = d;
+    }
+    drReverseDepth = drCompletedDepth;
+    drReverseComplete = drCompletedDepth >= DR_REVERSE_DEPTH;
   })();
   return initPromise;
 }
@@ -525,6 +582,27 @@ export async function solvePhase1Multi(input, maxCount = 4) {
   return { solutions, minDepth, nodes };
 }
 
+// MOVE_NAMES index face and quarter-turn for DR_EO_MOVE_INDICES moves:
+// Face: U=0, R=1, F=2, D=3, L=4, B=5 (index / 3 within MOVE_NAMES)
+// Quarter: 1=CW, 2=half, 3=CCW (index % 3 + 1)
+function simplifyDrSlots(slots) {
+  const out = [];
+  for (let i = 0; i < slots.length; i++) {
+    const m = slots[i];
+    const face = (m / 3) | 0; // MOVE_NAMES index: 0-2=U,3-5=R,6-8=F,9-11=D,12-14=L,15-17=B
+    if (out.length > 0 && ((out[out.length - 1] / 3) | 0) === face) {
+      const qt = (m % 3) + 1; // 1=cw, 2=half, 3=ccw
+      const prevQt = (out[out.length - 1] % 3) + 1;
+      const combined = (prevQt + qt) & 3; // mod 4 (0 = cancel)
+      out.pop();
+      if (combined !== 0) out.push(face * 3 + combined - 1);
+    } else {
+      out.push(m);
+    }
+  }
+  return out;
+}
+
 /**
  * Domino Reduction (DR) solver: given a state where EO is already solved,
  * find a sequence of domino moves (U,U',U2, D,D',D2, R2,L2,F2,B2) that achieves
@@ -548,6 +626,24 @@ export async function solveDomino(coords, options = {}) {
     return { ok: true, moves: [], depth: 0, nodes: 0 };
   }
 
+  // Fast path: follow BFS first-move table for instant optimal DR solution (O(depth), no search)
+  if (coSliceFirstMove !== null) {
+    const fastPath = [];
+    let fco = coIdx, fsl = sliceIdx;
+    while (fco !== 0 || fsl !== solvedSliceIdx) {
+      const fkey = fco * SLICE_SIZE + fsl;
+      const fm = coSliceFirstMove[fkey];
+      if (fm === 255 || fastPath.length > 20) break;
+      fastPath.push(fm);
+      fco = coMove[fco * MOVE_COUNT + fm];
+      fsl = sliceMove[fsl * MOVE_COUNT + fm];
+    }
+    if (fco === 0 && fsl === solvedSliceIdx) {
+      return { ok: true, moves: fastPath.map(m => MOVE_NAMES[m]), depth: fastPath.length, nodes: 0 };
+    }
+  }
+
+  // Fallback: IDA* search (only if first-move table unavailable or state unreachable)
   const maxDepth = options.maxDepth ?? 14;
   const nodeLimit = Number.isFinite(options.nodeLimit) ? options.nodeLimit : 2000000;
   const deadlineTs = options.deadlineTs;
@@ -566,6 +662,26 @@ export async function solveDomino(coords, options = {}) {
     const hBound = h === 255 ? Math.max(coDist[co], sliceDist[sl]) : h;
     const f = depth + hBound;
     if (f > currentBound) return f;
+
+    const remaining = currentBound - depth;
+
+    // Bidirectional meet-in-the-middle: check DR reverse frontier
+    const rfKey = co * SLICE_SIZE + sl;
+    const rfEntry = drReverseFrontier !== null ? drReverseFrontier.get(rfKey) : undefined;
+    if (rfEntry !== undefined && rfEntry.depth <= remaining) {
+      // Append inverse of reverse path (frontier stores BFS from solved → this state)
+      for (let i = 0; i < rfEntry.depth; i++) {
+        const slot = (rfEntry.pathCode >> (i * 5)) & 0x1f;
+        path.push(DR_EO_INVERSE_BY_FULL_INDEX[slot]);
+      }
+      return true;
+    }
+    // If frontier is complete and remaining ≤ reverseDepth, any state not in frontier
+    // is further than reverseDepth from solved → prune
+    if (drReverseComplete && remaining <= drReverseDepth) {
+      return Infinity;
+    }
+
     if (co === 0 && sl === solvedSliceIdx) return true;
 
     let minNext = Infinity;
@@ -602,7 +718,9 @@ export async function solveDomino(coords, options = {}) {
     const res = dfs(coIdx, sliceIdx, 0, bound, 6);
     if (res === true) {
       path.reverse();
-      return { ok: true, moves: path.map((m) => MOVE_NAMES[m]), depth: path.length, nodes };
+      // Simplify: bidirectional junction may have cancellable moves
+      const simplified = simplifyDrSlots(path);
+      return { ok: true, moves: simplified.map((m) => MOVE_NAMES[m]), depth: simplified.length, nodes };
     }
     if (!Number.isFinite(res)) break;
     bound = res;

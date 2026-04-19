@@ -21,8 +21,48 @@
       }
     </script>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      .protocol-warning[hidden] {
+        display: none !important;
+      }
+
+      .protocol-warning {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        padding: 14px 18px;
+        background: #fff4d6;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        color: #5f370e;
+        font: 600 14px/1.5 'Pretendard', system-ui, sans-serif;
+      }
+
+      .protocol-warning span {
+        font-weight: 500;
+      }
+
+      .protocol-warning code {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: rgba(95, 55, 14, 0.08);
+        font-family: 'D2Coding', monospace;
+      }
+
+      .protocol-warning a {
+        color: inherit;
+        text-decoration: underline;
+      }
+    </style>
   </head>
   <body>
+    <div id="protocolWarning" class="protocol-warning" role="alert" hidden>
+      <strong>file://로는 실행되지 않습니다.</strong>
+      <span>이 앱은 ES 모듈, 워커, WASM을 사용하므로 정적 서버가 필요합니다. <code>python3 -m http.server 5173</code> 실행 후 <a href="http://127.0.0.1:5173/">http://127.0.0.1:5173/</a> 로 여세요.</span>
+    </div>
     <main class="app">
       <div class="layout">
         <div class="dashboard-header glass">
@@ -203,6 +243,8 @@
                 탐색 모드
                 <select id="solverModeSelect">
                   <option value="strict">CFOP 단계형 (빠름)</option>
+                  <option value="minmove">minmove HTM 최적 (실험)</option>
+                  <option value="twophase">Two-Phase 실용해 (실험)</option>
                   <option value="zb">ZB Hybrid (실험)</option>
                   <option value="roux">Roux 단계형 (실험)</option>
                   <option value="fmc">FMC 스타일 (짧은 해 우선)</option>
@@ -212,10 +254,6 @@
                 F2L 스타일
                 <select id="f2lMethodSelect">
                   <option value="legacy">기본 (기존)</option>
-                  <option value="balanced">균형형</option>
-                  <option value="rotationless">회전 최소</option>
-                  <option value="low-auf">AUF 최소</option>
-                  <option value="speed">속도 우선 (전체 학습)</option>
                   <option value="mixed" selected>조건부 CFOP (XCross/ZBLL)</option>
                 </select>
               </label>
@@ -449,6 +487,12 @@
         </footer>
       </div>
     </div>
+    <script>
+      if (location.protocol === "file:") {
+        const protocolWarning = document.getElementById("protocolWarning");
+        if (protocolWarning) protocolWarning.hidden = false;
+      }
+    </script>
     <script type="module" src="main.js"></script>
   </body>
 </html>

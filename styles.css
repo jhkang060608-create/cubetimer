@@ -1577,6 +1577,18 @@ body.theme-dark .timer-display.inspect-danger {
   word-break: break-all;
 }
 
+.solver-stage-list .stage-notes {
+  font-size: 0.78rem;
+  color: var(--ink-muted, #888);
+  font-weight: normal;
+}
+
+.solver-stage-list li:has(strong .stage-notes:only-child) {
+  border-left-color: var(--border, #ccc);
+  background: var(--surface, #f5f5f5);
+  opacity: 0.85;
+}
+
 /* Responsive Tweaks */
 @media (max-width: 900px) {
   .layout { flex-direction: column; overflow-y: auto; }

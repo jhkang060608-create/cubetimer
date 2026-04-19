@@ -111,6 +111,8 @@ let solverApi = null;
 let solverReady = false;
 let solverError = "";
 let solverProgressRunId = 0;
+let solverProfileWarmupInFlightKey = "";
+const solverProfileWarmedKeys = new Set();
 let solverTwistyPlayer = null;
 let solverPlaybackScramble = "";
 let solverPlaybackMoves = [];
@@ -167,8 +169,14 @@ const INSPECTION_KEY = "cubeTimerInspection";
 const HIDE_LIVE_KEY = "cubeTimerHideLiveTime";
 const AO5_KEY = "cubeTimerShowAo5";
 const AO12_KEY = "cubeTimerShowAo12";
-const VALID_SOLVER_MODES = new Set(["strict", "zb", "roux", "fmc"]);
-const VALID_F2L_METHODS = new Set(["legacy", "balanced", "rotationless", "low-auf", "speed", "mixed"]);
+const VALID_SOLVER_MODES = new Set(["strict", "minmove", "twophase", "zb", "roux", "fmc"]);
+const VALID_F2L_METHODS = new Set(["legacy", "mixed"]);
+function filterF2lMethodOptions() {
+  if (!window.f2lMethodSelect) return;
+  Array.from(f2lMethodSelect.options).forEach(opt => {
+    if (opt.value !== "legacy" && opt.value !== "mixed") opt.remove();
+  });
+}
 const DEFAULT_F2L_METHOD = "legacy";
 const DEFAULT_F2L_METHOD_SOURCE = "default";
 const DEFAULT_OLL_PLL_PREDICTION_WEIGHT = 0.35;
@@ -332,6 +340,10 @@ function loadState() {
     if (!parsed.settings.eventId) parsed.settings.eventId = "333";
     if (!parsed.settings.crossColor) parsed.settings.crossColor = "D";
     if (!parsed.settings.solverMode) parsed.settings.solverMode = "strict";
+    if (parsed.settings.solverMode === "optimal") parsed.settings.solverMode = "minmove";
+    if (parsed.settings.solverMode === "phase" || parsed.settings.solverMode === "two-phase") {
+      parsed.settings.solverMode = "twophase";
+    }
     if (!parsed.settings.f2lMethod) parsed.settings.f2lMethod = DEFAULT_F2L_METHOD;
     if (typeof parsed.settings.f2lMethodSource !== "string") parsed.settings.f2lMethodSource = "";
     if (typeof parsed.settings.stylePlayer !== "string") parsed.settings.stylePlayer = "";
@@ -1490,7 +1502,28 @@ function renderSolverStages(stages, fallbackSolution = "") {
     const title = document.createElement("strong");
     const stageName = stage?.name || `Stage ${i + 1}`;
     const stageMoves = splitAlgTokens(stage?.solution || "");
-    title.textContent = `${stageName} (${stageMoves.length}수)`;
+    const explicitMoveCount = Number.isFinite(stage?.moveCount) ? stage.moveCount : null;
+    const displayMoveCount = explicitMoveCount !== null ? explicitMoveCount : stageMoves.length;
+    const isSummary = stage?.isSummary === true;
+    const notes = typeof stage?.notes === "string" && stage.notes ? stage.notes : "";
+    // Skip summary stages that have no moves (e.g., "Insertion: no insertion")
+    if (isSummary && stageMoves.length === 0) continue;
+    if (isSummary) {
+      const mcPart = displayMoveCount > 0 ? ` (${displayMoveCount}수)` : "";
+      title.textContent = notes
+        ? `${stageName}${mcPart}: ${notes}`
+        : `${stageName}${mcPart}`;
+    } else {
+      title.textContent = displayMoveCount > 0
+        ? `${stageName} (${displayMoveCount}수)`
+        : stageName;
+    }
+    if (notes && !isSummary) {
+      const noteSpan = document.createElement("span");
+      noteSpan.className = "stage-notes";
+      noteSpan.textContent = ` [${notes}]`;
+      title.appendChild(noteSpan);
+    }
     item.appendChild(title);
     item.style.cursor = "pointer";
     item.addEventListener("click", () => {
@@ -1502,12 +1535,14 @@ function renderSolverStages(stages, fallbackSolution = "") {
       const code = document.createElement("code");
       code.textContent = joinAlgTokens(stageMoves);
       line.appendChild(code);
-    } else {
+    } else if (!isSummary) {
       line.textContent = "-";
     }
     item.appendChild(line);
     solverStageList.appendChild(item);
-    cumulativeMoves += stageMoves.length;
+    if (!isSummary) {
+      cumulativeMoves += stageMoves.length;
+    }
   }
 }
 
@@ -1570,6 +1605,76 @@ function showSolverVisualResult(scramble, solution, stages) {
   renderSolverStages(stages, solution);
   solverVisualPanel.hidden = false;
   updateSolverTwistyFrame();
+}
+
+function buildSolverTimingLines(result, stageElapsedTimes, stageNames) {
+  const lines = [];
+  const seenStageIndices = new Set();
+  const resolvedStageNames = new Map(stageNames);
+  const addLine = (label, ms) => {
+    const normalizedMs = Math.max(1, Math.round(Number(ms)));
+    if (!Number.isFinite(normalizedMs)) return;
+    lines.push(`${label}: ${normalizedMs}ms`);
+  };
+
+  if (Array.isArray(result?.stageDiagnostics) && result.stageDiagnostics.length > 0) {
+    result.stageDiagnostics.forEach((entry) => {
+      const index = Number.isFinite(entry?.stageIndex) ? entry.stageIndex + 1 : null;
+      if (index && entry.stageName && !resolvedStageNames.has(index)) {
+        resolvedStageNames.set(index, entry.stageName);
+      }
+    });
+  }
+
+  if (stageElapsedTimes instanceof Map && stageElapsedTimes.size > 0) {
+    Array.from(stageElapsedTimes.entries())
+      .sort((a, b) => a[0] - b[0])
+      .forEach(([idx, ms]) => {
+        const label = resolvedStageNames.get(idx) || `Stage ${idx}`;
+        addLine(label, ms);
+        seenStageIndices.add(idx);
+      });
+  }
+
+  if (Array.isArray(result?.stageDiagnostics) && result.stageDiagnostics.length > 0) {
+    const diagnostics = result.stageDiagnostics
+      .filter((entry) => entry && Number.isFinite(entry.elapsedMs))
+      .sort((a, b) => {
+        const left = Number.isFinite(a.stageIndex) ? a.stageIndex : Number.POSITIVE_INFINITY;
+        const right = Number.isFinite(b.stageIndex) ? b.stageIndex : Number.POSITIVE_INFINITY;
+        return left - right;
+      });
+    diagnostics.forEach((entry, fallbackIndex) => {
+      const index = Number.isFinite(entry.stageIndex) ? entry.stageIndex + 1 : fallbackIndex + 1;
+      if (seenStageIndices.has(index)) return;
+      const label = entry.stageName || resolvedStageNames.get(index) || `Stage ${index}`;
+      addLine(label, entry.elapsedMs);
+      seenStageIndices.add(index);
+    });
+  }
+
+  if (lines.length > 0) {
+    return lines;
+  }
+
+  const phaseTimings = result?.performanceDiagnostics?.phaseTimingsMs;
+  if (phaseTimings && typeof phaseTimings === "object") {
+    const phaseLabels = {
+      direct: "Direct",
+      niss: "NISS",
+      premoveSweep: "Premove Sweep",
+      scout: "Scout",
+      insertion: "Insertion",
+      verification: "Verification",
+    };
+    Object.entries(phaseTimings).forEach(([key, ms]) => {
+      if (Number.isFinite(ms) && ms > 0) {
+        addLine(phaseLabels[key] || key, ms);
+      }
+    });
+  }
+
+  return lines;
 }
 
 function clearSolverVisualResult() {
@@ -2118,6 +2223,91 @@ function getPlayerStyleProfile(playerName, methodHint = "") {
   return undefined;
 }
 
+function buildSolverProfileWarmupKey(payload) {
+  if (!payload || typeof payload !== "object") return "";
+  const styleProfile = payload.styleProfile && typeof payload.styleProfile === "object"
+    ? payload.styleProfile
+    : null;
+  const styleSignature = styleProfile
+    ? [
+        String(styleProfile.preset || ""),
+        Number(styleProfile.rotationWeight || 0),
+        Number(styleProfile.aufWeight || 0),
+        Number(styleProfile.wideTurnWeight || 0),
+        Number(styleProfile.xcrossWeight || styleProfile.caseBias?.xcrossWeight || 0),
+        Number(styleProfile.xxcrossWeight || styleProfile.caseBias?.xxcrossWeight || 0),
+        Number(styleProfile.zbllWeight || styleProfile.caseBias?.zbllWeight || 0),
+        Number(styleProfile.zblsWeight || styleProfile.caseBias?.zblsWeight || 0),
+      ].join(":")
+    : "";
+  return [
+    String(payload.transitionProfileSolver || "").trim(),
+    String(payload.mode || "strict").trim(),
+    String(payload.f2lMethod || DEFAULT_F2L_METHOD).trim(),
+    payload.enableOllPllPrediction === false ? "pred:off" : "pred:on",
+    Number(payload.ollPllPredictionWeight || DEFAULT_OLL_PLL_PREDICTION_WEIGHT),
+    styleSignature,
+  ].join("|");
+}
+
+function rememberSolverProfileWarmupKey(key) {
+  if (!key) return;
+  solverProfileWarmedKeys.add(key);
+  while (solverProfileWarmedKeys.size > 32) {
+    const oldest = solverProfileWarmedKeys.values().next().value;
+    if (oldest === undefined) break;
+    solverProfileWarmedKeys.delete(oldest);
+  }
+}
+
+function buildSelectedPlayerProfileWarmupPayload() {
+  const solverMode = appState.settings.solverMode || "strict";
+  if (solverMode === "minmove" || solverMode === "twophase") return null;
+  const playerName = String(appState.settings.stylePlayer || "").trim();
+  if (!playerName || !styleProfilesLoaded) return null;
+  const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
+  const styleProfile = getPlayerStyleProfile(playerName, f2lMethod);
+  if (!styleProfile) return null;
+  return {
+    mode: solverMode,
+    f2lMethod,
+    styleProfile,
+    transitionProfileSolver: playerName,
+    enableOllPllPrediction: appState.settings.enableOllPllPrediction !== false,
+    ollPllPredictionWeight: Number.isFinite(Number(appState.settings.ollPllPredictionWeight))
+      ? Math.max(0, Number(appState.settings.ollPllPredictionWeight))
+      : DEFAULT_OLL_PLL_PREDICTION_WEIGHT,
+  };
+}
+
+async function prewarmSelectedPlayerProfileInBackground() {
+  const payload = buildSelectedPlayerProfileWarmupPayload();
+  if (!payload) return;
+  const warmupKey = buildSolverProfileWarmupKey(payload);
+  if (!warmupKey || solverProfileWarmedKeys.has(warmupKey) || solverProfileWarmupInFlightKey === warmupKey) {
+    return;
+  }
+  solverProfileWarmupInFlightKey = warmupKey;
+  try {
+    await ensureSolverWorker();
+    if (!solverApi || typeof solverApi.prewarmProfile !== "function") return;
+    const result = await solverApi.prewarmProfile(payload);
+    if (result?.ok) {
+      rememberSolverProfileWarmupKey(warmupKey);
+    }
+  } catch (_) {
+    // Background warmup is best-effort and must never block interaction.
+  } finally {
+    if (solverProfileWarmupInFlightKey === warmupKey) {
+      solverProfileWarmupInFlightKey = "";
+    }
+  }
+}
+
+function scheduleSelectedPlayerProfileWarmup() {
+  void prewarmSelectedPlayerProfileInBackground();
+}
+
 function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}) {
   const playerName = String(appState.settings.stylePlayer || "").trim();
   if (!playerName) {
@@ -2144,7 +2334,9 @@ function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}
     if (f2lMethodSelect) {
       f2lMethodSelect.disabled = false;
       f2lMethodSelect.title = "";
+      filterF2lMethodOptions();
     }
+    scheduleSelectedPlayerProfileWarmup();
     if (saveStateAfter) saveState();
     return;
   }
@@ -2155,7 +2347,9 @@ function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}
     if (f2lMethodSelect) {
       f2lMethodSelect.disabled = false;
       f2lMethodSelect.title = "";
+      filterF2lMethodOptions();
     }
+    scheduleSelectedPlayerProfileWarmup();
     if (saveStateAfter) saveState();
     return;
   }
@@ -2165,6 +2359,7 @@ function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}
   appState.settings.f2lMethodSource = "player";
   if (f2lMethodSelect) {
     f2lMethodSelect.value = recommended;
+    filterF2lMethodOptions();
   }
 
   setStyleProfileMeta(formatPlayerStyleMeta(profile, recommended));
@@ -2172,17 +2367,24 @@ function applySelectedPlayerStyle({ saveStateAfter = true, notify = false } = {}
   if (f2lMethodSelect) {
     f2lMethodSelect.disabled = true;
     f2lMethodSelect.title = "선수 스타일 적용 중에는 F2L 프리셋이 잠깁니다. '선수 스타일 미적용'으로 바꾸면 수동 변경할 수 있습니다.";
+    filterF2lMethodOptions();
   }
 
   if (notify && solverStatus) {
     solverStatus.textContent = `${playerName} 스타일 적용: ${recommended}`;
   }
 
+  scheduleSelectedPlayerProfileWarmup();
+
   if (saveStateAfter) saveState();
 }
 
 async function loadStyleProfiles({ force = false } = {}) {
   if (styleProfilesLoaded && !force) return;
+  if (force) {
+    solverProfileWarmupInFlightKey = "";
+    solverProfileWarmedKeys.clear();
+  }
   setStyleProfileMeta("3x3 스타일 프로파일 로딩 중...");
   try {
     const url = `${STYLE_PROFILE_DATA_URL}?t=${Date.now()}`;
@@ -2378,6 +2580,8 @@ async function loadStyleProfiles({ force = false } = {}) {
     styleProfilesLoaded = false;
     styleProfilePlayers = [];
     styleProfilePlayerMap = new Map();
+    solverProfileWarmupInFlightKey = "";
+    solverProfileWarmedKeys.clear();
     renderStylePlayerOptions();
     setStyleProfileMeta(`선수 스타일 프로파일 로드 실패: ${error?.message || error}`);
   }
@@ -2399,10 +2603,14 @@ async function solveCurrentScramble() {
     if (isThreeByThreeFamilyEvent(appState.settings.eventId)) {
       solverStatus.textContent =
         solverMode === "fmc"
-            ? "계산 중... (3x3 FMC 스타일 탐색: Direct + NISS + Premove)"
+          ? "계산 중... (3x3 FMC 스타일 탐색: Direct + NISS + Premove)"
+          : solverMode === "minmove"
+            ? "계산 중... (3x3 HTM 최적해 탐색, 스타일 설정 무시)"
+            : solverMode === "twophase"
+              ? "계산 중... (3x3 Two-Phase 실용해 탐색, 스타일 설정 무시)"
             : solverMode === "roux"
               ? "계산 중... (3x3 Roux 4단계: FB → SB → CMLL → LSE)"
-            : `계산 중... (3x3 CFOP 4단계, ${solverMode}, F2L: ${f2lMethod})`;
+              : `계산 중... (3x3 CFOP 4단계, ${solverMode}, F2L: ${f2lMethod})`;
     } else if (appState.settings.eventId === "222") {
       solverStatus.textContent =
         solverMode === "fmc"
@@ -2443,7 +2651,9 @@ async function solveCurrentScramble() {
             }
             if (progress.type === "stage_done" && index) {
               const stageStart = stageStartTimes.get(index);
-              if (typeof stageStart === "number") {
+              if (Number.isFinite(progress.elapsedMs)) {
+                stageElapsedTimes.set(index, Math.max(1, Math.round(progress.elapsedMs)));
+              } else if (typeof stageStart === "number") {
                 const elapsed = Math.max(1, Math.round(performance.now() - stageStart));
                 stageElapsedTimes.set(index, elapsed);
               }
@@ -2460,6 +2670,47 @@ async function solveCurrentScramble() {
               const target = progress.stageName ? ` ${progress.stageName}` : "";
               const reason = progress.reason ? ` (${progress.reason})` : "";
               solverStatus.textContent = `복구 탐색 시작${target}...${reason}`;
+              return;
+            }
+            if (progress.type === "upper_bound_start") {
+              solverStatus.textContent = "HTM exact 탐색 준비 중... (seed upper bound 계산)";
+              return;
+            }
+            if (progress.type === "upper_bound_done") {
+              const source = progress.upperBoundSource ? `, ${progress.upperBoundSource}` : "";
+              const lengthText = Number.isFinite(progress.upperBoundLength)
+                ? ` ${progress.upperBoundLength}수`
+                : "";
+              solverStatus.textContent = `seed upper bound 확보:${lengthText}${source}`;
+              return;
+            }
+            if (progress.type === "exact_search_start") {
+              const lower = Number.isFinite(progress.lowerBound) ? progress.lowerBound : "?";
+              const upper = Number.isFinite(progress.upperBoundLength) ? progress.upperBoundLength : "?";
+              solverStatus.textContent = `HTM exact 탐색 시작... (하한 ${lower}, seed ${upper})`;
+              return;
+            }
+            if (progress.type === "bound_update") {
+              const bound = Number.isFinite(progress.bound) ? progress.bound : "?";
+              const nodes = Number.isFinite(progress.nodes) ? `, ${progress.nodes.toLocaleString()} 노드` : "";
+              solverStatus.textContent = `HTM exact 탐색 중... depth ${bound}${nodes}`;
+              return;
+            }
+            if (progress.type === "optimality_proven") {
+              const moveCount = Number.isFinite(progress.moveCount) ? ` (${progress.moveCount}수)` : "";
+              solverStatus.textContent = `HTM 최적해 증명 완료${moveCount}`;
+              return;
+            }
+            if (progress.type === "exact_search_fallback") {
+              const moveCount = Number.isFinite(progress.moveCount) ? ` (${progress.moveCount}수)` : "";
+              const reason = progress.reason === "budget_exceeded"
+                ? "노드 예산 초과"
+                : progress.reason === "timeout"
+                  ? "시간 제한"
+                  : progress.reason === "gap_too_large"
+                    ? "gap 초과, tightening 중단"
+                    : "exact 중단";
+              solverStatus.textContent = `HTM exact 중단 (${reason}), phase fallback 반환${moveCount}`;
               return;
             }
             if (progress.type === "fallback_done") {
@@ -2481,13 +2732,15 @@ async function solveCurrentScramble() {
     // CN is only activated when the user selects "CN" from the dropdown.
     const crossColor = crossColorSetting;
     const selectedPlayerStyleProfile =
-      f2lMethod === "speed" && !selectedPlayerName
-        ? getGlobalSpeedStyleProfile()
-        : f2lMethod === "mixed" && !selectedPlayerName
-          ? getGlobalMixedCfopStyleProfile()
-        : selectedPlayerName
-          ? getPlayerStyleProfile(selectedPlayerName, f2lMethod)
-          : undefined;
+      solverMode === "minmove" || solverMode === "twophase"
+        ? undefined
+        : f2lMethod === "speed" && !selectedPlayerName
+          ? getGlobalSpeedStyleProfile()
+          : f2lMethod === "mixed" && !selectedPlayerName
+            ? getGlobalMixedCfopStyleProfile()
+            : selectedPlayerName
+              ? getPlayerStyleProfile(selectedPlayerName, f2lMethod)
+              : undefined;
     const enableStyleFallback = appState.settings.enableStyleFallback !== false;
     const enableOllPllPrediction = appState.settings.enableOllPllPrediction !== false;
     const ollPllPredictionWeight = Number.isFinite(Number(appState.settings.ollPllPredictionWeight))
@@ -2514,6 +2767,7 @@ async function solveCurrentScramble() {
         normalizeDisplayText(result.solution?.trim()) ||
         (Array.isArray(result.stages)
           ? result.stages
+              .filter((stage) => !stage?.isSummary)
               .map((stage) => (typeof stage?.solution === "string" ? normalizeDisplayText(stage.solution.trim()) : ""))
               .filter(Boolean)
               .join(" ")
@@ -2521,22 +2775,56 @@ async function solveCurrentScramble() {
           : "");
       const stageLines =
         Array.isArray(result.stages) && result.stages.length
-          ? result.stages.map((stage) => `${stage.name}: ${normalizeDisplayText(stage.solution || "-")}`)
+          ? result.stages.map((stage) => {
+              const sol = normalizeDisplayText(stage.solution || "");
+              const notes = typeof stage.notes === "string" && stage.notes ? ` [${stage.notes}]` : "";
+              const mc = Number.isFinite(stage.moveCount) && stage.moveCount > 0 ? ` (${stage.moveCount}수)` : "";
+              if (stage.isSummary) {
+                return `${stage.name}${mc}${notes}${sol ? ": " + sol : ""}`;
+              }
+              return `${stage.name}${mc}${notes}: ${sol || "-"}`;
+            })
           : null;
       const solutionDisplayText = normalizeDisplayText(result.solutionDisplay?.trim() || "");
-      const timingLines =
-        stageElapsedTimes.size > 0
-          ? Array.from(stageElapsedTimes.entries())
-              .sort((a, b) => a[0] - b[0])
-              .map(([idx, ms]) => {
-                const label = stageNames.get(idx) || `Stage ${idx}`;
-                return `${label}: ${ms}ms`;
-              })
-          : null;
+      const timingLines = buildSolverTimingLines(result, stageElapsedTimes, stageNames);
       const sections = [];
-      if (stageLines?.length) sections.push(stageLines.join("\n"));
-      else if (solutionDisplayText) sections.push(solutionDisplayText);
-      else if (rawSolutionText) sections.push(rawSolutionText);
+      if (result.proofSource === "two_phase_practical") {
+        const detailParts = [];
+        if (Number.isFinite(result.phase1Depth)) detailParts.push(`phase1 ${result.phase1Depth}수`);
+        if (Number.isFinite(result.phase2Depth)) detailParts.push(`phase2 ${result.phase2Depth}수`);
+        if (Number.isFinite(result.moveCount)) detailParts.push(`반환 해 ${result.moveCount}수`);
+        sections.push(["2-phase 실용해", detailParts.join(", ")].filter(Boolean).join("\n"));
+      } else if (result.metric === "HTM" && result.optimalityProven === true) {
+        const detailText =
+          Number.isFinite(result.lowerBound) && Number.isFinite(result.upperBoundLength)
+            ? `하한 ${result.lowerBound}수, seed ${result.upperBoundLength}수`
+            : "";
+        sections.push(["HTM 최적해", detailText].filter(Boolean).join("\n"));
+      } else if (result.metric === "HTM" && result.optimalityProven === false) {
+        const header =
+          result.proofSource === "phase_fallback_timeout"
+            ? "HTM exact 시간 제한으로 phase fallback 반환"
+            : result.proofSource === "phase_fallback_budget_exceeded"
+              ? "HTM exact 노드 예산 초과로 phase fallback 반환"
+              : result.proofSource === "phase_fallback_gap_too_large"
+                ? "HTM tightening 미개선 (gap 초과), 최선 해 반환"
+                : "HTM exact 미증명 상태에서 phase fallback 반환";
+        const detailParts = [];
+        if (Number.isFinite(result.lowerBound)) detailParts.push(`하한 ${result.lowerBound}수`);
+        if (Number.isFinite(result.moveCount)) detailParts.push(`반환 해 ${result.moveCount}수`);
+        sections.push([header, detailParts.join(", ")].filter(Boolean).join("\n"));
+      }
+      if (stageLines?.length) {
+        sections.push(stageLines.join("\n"));
+        // For FMC results, also append solutionDisplay (contains Top Candidates list)
+        if (solutionDisplayText && typeof result.source === "string" && result.source.startsWith("FMC_")) {
+          sections.push(solutionDisplayText);
+        }
+      } else if (solutionDisplayText) {
+        sections.push(solutionDisplayText);
+      } else if (rawSolutionText) {
+        sections.push(rawSolutionText);
+      }
       if (timingLines?.length) {
         sections.push(["시간", ...timingLines].join("\n"));
       }
@@ -2570,12 +2858,18 @@ async function solveCurrentScramble() {
           fallbackText = ", 최소수 탐색";
         } else if (result.source === "EXTERNAL_CUBING_SEARCH_FALLBACK") {
           fallbackText = ", 외부 복구";
+        } else if (result.proofSource === "two_phase_practical") {
+          fallbackText = ", 2-phase 실용";
         } else if (result.fallbackFrom) {
           fallbackText = ", 내부 복구";
+        } else if (result.metric === "HTM" && result.optimalityProven === true) {
+          fallbackText = ", HTM 최적";
+        } else if (result.metric === "HTM" && result.optimalityProven === false) {
+          fallbackText = ", HTM phase fallback";
         }
-        const styleAppliedText = selectedPlayerStyleProfile
+        const styleAppliedText = solverMode !== "minmove" && solverMode !== "twophase" && selectedPlayerStyleProfile
           ? `, 스타일 ${selectedPlayerName}(${formatStyleWeightSummary(selectedPlayerStyleProfile)})`
-          : f2lMethod !== "legacy"
+          : solverMode !== "minmove" && solverMode !== "twophase" && f2lMethod !== "legacy"
             ? `, 스타일 ${f2lMethod}`
             : "";
         const styleFallbackUsed =
@@ -2603,15 +2897,20 @@ async function solveCurrentScramble() {
       lastSolutionDisplay = "";
       clearSolverVisualResult();
       const rawReason = result?.reason || "";
-      const reason = rawReason.startsWith("ROUX_") || rawReason.includes("SB_FAILED") || rawReason.includes("CMLL_FAILED") || rawReason.includes("LSE_FAILED") || rawReason.includes("FB_FAILED") || rawReason.includes("FINAL_NOT_SOLVED")
-        ? "Roux 해법으로 풀 수 없는 스크램블입니다. 다른 스크램블을 시도해주세요."
-        : rawReason || "해를 찾지 못했습니다.";
+      const reason = rawReason === "MINMOVE_UNAVAILABLE"
+        ? "minmove HTM bundle 또는 WASM 모듈을 찾지 못했습니다."
+        : rawReason === "MINMOVE_TIMEOUT"
+          ? "minmove exact 탐색이 시간 제한 안에 끝나지 않았습니다."
+          : rawReason.startsWith("ROUX_") || rawReason.includes("SB_FAILED") || rawReason.includes("CMLL_FAILED") || rawReason.includes("LSE_FAILED") || rawReason.includes("FB_FAILED") || rawReason.includes("FINAL_NOT_SOLVED")
+            ? "Roux 해법으로 풀 수 없는 스크램블입니다. 다른 스크램블을 시도해주세요."
+            : rawReason || "해를 찾지 못했습니다.";
       if (solverStatus) solverStatus.textContent = reason;
       if (solverSolution) solverSolution.textContent = "-";
       if (solverMoveCount) solverMoveCount.textContent = "0 수";
       if (solverCopyBtn) solverCopyBtn.disabled = true;
       const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
       f2lMethodSelect.value = VALID_F2L_METHODS.has(f2lMethod) ? f2lMethod : DEFAULT_F2L_METHOD;
+      filterF2lMethodOptions();
     }
   } catch (error) {
     console.error("해 찾기 실패", error);
@@ -3569,6 +3868,7 @@ async function initApp() {
     if (f2lMethodSelect) {
       const f2lMethod = appState.settings.f2lMethod || DEFAULT_F2L_METHOD;
       f2lMethodSelect.value = VALID_F2L_METHODS.has(f2lMethod) ? f2lMethod : DEFAULT_F2L_METHOD;
+      filterF2lMethodOptions();
     }
     if (stylePlayerSelect) {
       stylePlayerSelect.value = appState.settings.stylePlayer || "";
@@ -3597,9 +3897,11 @@ async function ensureSolverWorker() {
     solverError = "";
     solverReady = false;
     updateSolverControls();
+    if (window.location?.protocol === "file:") {
+      throw new Error("file://에서는 solver worker를 로드할 수 없습니다. 정적 서버로 여세요. 예: python3 -m http.server 5173");
+    }
     const worker = new Worker(new URL("./solver/solverWorker.js", import.meta.url), { type: "module" });
     solverWorker = worker;
-    solverApi = wrap(worker);
     const workerInitError = new Promise((_, reject) => {
       const cleanup = () => {
         worker.removeEventListener("error", onError);
@@ -3620,6 +3922,7 @@ async function ensureSolverWorker() {
       worker.addEventListener("error", onError, { once: true });
       worker.addEventListener("messageerror", onMessageError, { once: true });
     });
+    solverApi = wrap(worker);
     // Prefer ping() to trigger solver warmup; fallback keeps compatibility with stale cached workers.
     const ping = solverApi
       .ping()
