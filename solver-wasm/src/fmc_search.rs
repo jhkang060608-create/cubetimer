@@ -329,6 +329,42 @@ struct DrRoute {
     rzp_defect: Option<RzpDefect>,
 }
 
+fn rzp_defect_from_state(state: &CubeState) -> RzpDefect {
+    let bad_c = state.co.iter().filter(|&&ori| ori != 0).count() as u8;
+
+    let bad_e_ud_positions = (0..8)
+        .filter(|&pos| state.ep[pos] >= 8)
+        .count() as u8;
+
+    let bad_e_slice_positions = (8..EDGE_COUNT)
+        .filter(|&pos| state.ep[pos] < 8)
+        .count() as u8;
+
+    RzpDefect {
+        bad_c,
+        bad_e: bad_e_ud_positions + bad_e_slice_positions,
+    }
+}
+
+fn rzp_priority(defect: RzpDefect) -> Option<u8> {
+    match (defect.bad_c, defect.bad_e) {
+        (0, 0) => Some(0),
+        (3, 2) => Some(1),
+        (4, 2) => Some(1),
+        (4, 4) => Some(2),
+        (7, 8) => Some(3),
+        (8, 8) => Some(3),
+        _ => None,
+    }
+}
+
+fn last_face_of_moves(moves: &[u8], tables: &TwophaseTables) -> u8 {
+    moves
+        .last()
+        .map(|&m| tables.move_data.move_face[m as usize])
+        .unwrap_or(LAST_FACE_FREE)
+}
+
 // --- P2 Input Building ---
 
 fn encode_perm4(perm: &[u8; 4]) -> usize {
