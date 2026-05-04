@@ -728,62 +728,69 @@ fn solve_fmc_single_axis(
         let co_after = encode_co(&state_after_eo.co);
         let slice_after = encode_slice_from_ep(&state_after_eo.ep);
 
-        // Solve DR
+        // Solve DR routes via RZP
         let dr_cap = (*current_best - eo_seq.len()).min(max_dr_depth as usize) as u8;
-        let dr_moves = match solve_dr(co_after, slice_after, fmc_tables, tables, dr_cap) {
-            Some(m) => m,
-            None => continue,
-        };
+        let last_face_before_dr = last_face_of_moves(eo_seq, tables);
 
-        let partial_len = eo_seq.len() + dr_moves.len();
-        if partial_len >= *current_best {
+        let dr_routes = solve_dr_routes_via_rzp(
+            &state_after_eo,
+            fmc_tables,
+            tables,
+            dr_cap,
+            last_face_before_dr,
+        );
+
+        if dr_routes.is_empty() {
             continue;
         }
 
-        // Apply DR moves to state
-        let state_after_dr = state_after_eo.apply_moves(&dr_moves, &tables.move_data);
+        for dr_route in dr_routes {
+            let dr_moves = &dr_route.moves;
 
-        // Build P2 input
-        let p2_input = match build_p2_input(&state_after_dr) {
-            Some(input) => input,
-            None => continue,
-        };
+            let partial_len = eo_seq.len() + dr_moves.len();
+            if partial_len >= *current_best {
+                continue;
+            }
 
-        // Solve P2
-        let p2_cap = (*current_best - partial_len).min(max_p2_depth as usize) as u8;
-        let p2_result = solve_phase2(&p2_input, tables, p2_cap, p2_node_limit);
-        if !p2_result.ok {
-            continue;
+            let state_after_dr = state_after_eo.apply_moves(dr_moves, &tables.move_data);
+
+            let p2_input = match build_p2_input(&state_after_dr) {
+                Some(input) => input,
+                None => continue,
+            };
+
+            let p2_cap = (*current_best - partial_len).min(max_p2_depth as usize) as u8;
+            let p2_result = solve_phase2(&p2_input, tables, p2_cap, p2_node_limit);
+            if !p2_result.ok {
+                continue;
+            }
+            let p2_global: Vec<u8> = p2_result
+                .moves
+                .iter()
+                .map(|&local| tables.phase2_move_indices[local as usize])
+                .collect();
+
+            let mut all_moves = Vec::with_capacity(eo_seq.len() + dr_moves.len() + p2_global.len());
+            all_moves.extend_from_slice(eo_seq);
+            all_moves.extend_from_slice(dr_moves);
+            all_moves.extend_from_slice(&p2_global);
+
+            let simplified = simplify_moves(&all_moves);
+            if simplified.is_empty() {
+                continue;
+            }
+
+            if simplified.len() < *current_best {
+                *current_best = simplified.len();
+            }
+
+            results.push((
+                simplified,
+                eo_seq.clone(),
+                dr_moves.clone(),
+                p2_global.clone(),
+            ));
         }
-
-        // Convert P2 local indices to global move indices
-        let p2_global: Vec<u8> = p2_result
-            .moves
-            .iter()
-            .map(|&local| tables.phase2_move_indices[local as usize])
-            .collect();
-
-        // Combine all moves
-        let mut all_moves = Vec::with_capacity(eo_seq.len() + dr_moves.len() + p2_global.len());
-        all_moves.extend_from_slice(eo_seq);
-        all_moves.extend_from_slice(&dr_moves);
-        all_moves.extend_from_slice(&p2_global);
-
-        let simplified = simplify_moves(&all_moves);
-        if simplified.is_empty() {
-            continue;
-        }
-
-        if simplified.len() < *current_best {
-            *current_best = simplified.len();
-        }
-
-        results.push((
-            simplified,
-            eo_seq.clone(),
-            dr_moves,
-            p2_global,
-        ));
     }
 
     results
