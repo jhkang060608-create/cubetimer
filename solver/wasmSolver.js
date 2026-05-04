@@ -41,12 +41,24 @@ async function loadWasmCandidate(specifier) {
   }
   if (!mod) return null;
 
-  const init = typeof mod.default === "function" ? mod.default : typeof mod.init === "function" ? mod.init : null;
-  if (init) {
+  if (typeof mod.initSync === "function") {
     try {
-      await init();
+      const { fileURLToPath } = await import("url");
+      const fs = await import("fs");
+      const wasmUrl = new URL("solver_wasm_bg.wasm", specifier);
+      const wasmBytes = fs.readFileSync(fileURLToPath(wasmUrl));
+      mod.initSync({ module: wasmBytes });
     } catch (_) {
       return null;
+    }
+  } else {
+    const init = typeof mod.default === "function" ? mod.default : typeof mod.init === "function" ? mod.init : null;
+    if (init) {
+      try {
+        await init();
+      } catch (_) {
+        return null;
+      }
     }
   }
   if (typeof mod.solve_json !== "function") return null;
@@ -128,6 +140,16 @@ async function loadWasmCandidate(specifier) {
 }
 
 async function loadBinaryCandidate(url) {
+  if (url.startsWith("file://")) {
+    try {
+      const { fileURLToPath } = await import("url");
+      const fs = await import("fs");
+      const filePath = fileURLToPath(url);
+      return new Uint8Array(fs.readFileSync(filePath));
+    } catch (_) {
+      return null;
+    }
+  }
   let response;
   try {
     response = await fetch(url, { cache: "force-cache" });
@@ -367,6 +389,7 @@ export async function solveFmcWasm(scramble, options = {}) {
   try {
     const optionsJson = JSON.stringify({
       maxPremoveSets: options.maxPremoveSets ?? 120,
+      forceRzp: options.forceRzp ?? false,
     });
     const raw = api.solveFmcWasm(scramble, optionsJson);
     if (!raw) return null;

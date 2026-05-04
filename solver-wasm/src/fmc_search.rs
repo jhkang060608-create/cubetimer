@@ -371,6 +371,7 @@ fn solve_dr_routes_via_rzp(
     tables: &TwophaseTables,
     max_depth: u8,
     last_face_before_dr: u8,
+    force_rzp: bool,
 ) -> Vec<DrRoute> {
     let mut routes: Vec<DrRoute> = Vec::new();
     let mut seen = std::collections::HashSet::<Vec<u8>>::new();
@@ -380,9 +381,14 @@ fn solve_dr_routes_via_rzp(
 
     let direct = solve_dr(co0, sl0, fmc_tables, tables, max_depth);
     let direct_len = direct.as_ref().map(|m| m.len()).unwrap_or(usize::MAX);
+    let direct_found = direct.is_some();
+
+    if !FMC_RZP_ENABLED || max_depth == 0 {
+        return routes;
+    }
 
     if let Some(moves) = direct {
-        if seen.insert(moves.clone()) {
+        if !force_rzp && seen.insert(moves.clone()) {
             routes.push(DrRoute {
                 moves,
                 rzp_setup_len: 0,
@@ -391,9 +397,7 @@ fn solve_dr_routes_via_rzp(
         }
     }
 
-    if !FMC_RZP_ENABLED || max_depth == 0 {
-        return routes;
-    }
+    let slack_limit = if force_rzp { usize::MAX } else { direct_len.saturating_add(FMC_DR_SLACK) };
 
     fn dfs(
         state: CubeState,
@@ -403,7 +407,7 @@ fn solve_dr_routes_via_rzp(
         fmc_tables: &FmcTables,
         tables: &TwophaseTables,
         max_depth: u8,
-        direct_len: usize,
+        slack_limit: usize,
         depth_left: u8,
         last_face: u8,
     ) {
@@ -423,8 +427,7 @@ fn solve_dr_routes_via_rzp(
                 full.extend_from_slice(&tail);
 
                 let within_cap = full.len() <= max_depth as usize;
-                let within_slack = direct_len == usize::MAX
-                    || full.len() <= direct_len.saturating_add(FMC_DR_SLACK);
+                let within_slack = slack_limit == usize::MAX || full.len() <= slack_limit;
 
                 if within_cap && within_slack && seen.insert(full.clone()) {
                     routes.push(DrRoute {
@@ -453,7 +456,7 @@ fn solve_dr_routes_via_rzp(
                 fmc_tables,
                 tables,
                 max_depth,
-                direct_len,
+                slack_limit,
                 depth_left - 1,
                 face,
             );
@@ -474,7 +477,7 @@ fn solve_dr_routes_via_rzp(
         fmc_tables,
         tables,
         max_depth,
-        direct_len,
+        slack_limit,
         FMC_RZP_SETUP_DEPTH,
         last_face_before_dr,
     );
@@ -689,6 +692,8 @@ pub struct FmcCandidate {
     /// 0=direct, 1=niss, 2=premove_direct, 3=premove_niss
     pub source_tag: u8,
     pub premove_moves: Vec<u8>,
+    /// Whether this candidate used RZP for DR (vs direct solve)
+    pub rzp_used: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -700,7 +705,7 @@ pub struct FmcResult {
 // --- Single-Axis EO→DR→P2 Pipeline ---
 
 /// Runs the EO→DR→P2 pipeline for a single cube state (already conjugated to axis frame).
-/// Returns a list of (simplified_moves, eo_len, dr_len, p2_len).
+/// Returns a list of (simplified_moves, eo_moves_raw, dr_moves_raw, p2_moves_raw, rzp_used).
 fn solve_fmc_single_axis(
     state: &CubeState,
     tables: &TwophaseTables,
@@ -711,8 +716,8 @@ fn solve_fmc_single_axis(
     max_p2_depth: u8,
     p2_node_limit: u64,
     current_best: &mut usize,
-) -> Vec<(Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>)> {
-    // Returns: (combined_simplified, eo_moves_raw, dr_moves_raw, p2_moves_raw)
+    force_rzp: bool,
+) -> Vec<(Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>, bool)> {
     let mut results = Vec::new();
 
     let eo_idx = encode_eo(&state.eo);
@@ -738,6 +743,7 @@ fn solve_fmc_single_axis(
             tables,
             dr_cap,
             last_face_before_dr,
+            force_rzp,
         );
 
         if dr_routes.is_empty() {
@@ -789,6 +795,7 @@ fn solve_fmc_single_axis(
                 eo_seq.clone(),
                 dr_moves.clone(),
                 p2_global.clone(),
+                dr_route.rzp_setup_len > 0,
             ));
         }
     }
@@ -803,6 +810,7 @@ pub fn solve_fmc(
     tables: &TwophaseTables,
     fmc_tables: &FmcTables,
     max_premove_sets: usize,
+    force_rzp: bool,
 ) -> FmcResult {
     // Parse scramble
     let scramble_moves = match parse_scramble(scramble, &tables.move_data) {
@@ -836,9 +844,10 @@ pub fn solve_fmc(
             FMC_MAX_P2_DEPTH,
             FMC_P2_NODE_LIMIT,
             &mut best_count,
+            force_rzp,
         );
 
-        for (moves_in_axis_frame, eo_raw, dr_raw, p2_raw) in results {
+        for (moves_in_axis_frame, eo_raw, dr_raw, p2_raw, rzp_used) in results {
             let cvt = |v: &Vec<u8>| -> Vec<u8> {
                 v.iter().map(|&m| fmc_tables.axis_solution_move_map[axis as usize][m as usize]).collect()
             };
@@ -857,6 +866,7 @@ pub fn solve_fmc(
                     axis,
                     source_tag: 0,
                     premove_moves: vec![],
+                    rzp_used,
                 });
             }
         }
@@ -881,9 +891,10 @@ pub fn solve_fmc(
             FMC_MAX_P2_DEPTH,
             FMC_P2_NODE_LIMIT,
             &mut best_count,
+            force_rzp,
         );
 
-        for (moves_in_axis_frame, eo_raw, dr_raw, p2_raw) in results {
+        for (moves_in_axis_frame, eo_raw, dr_raw, p2_raw, rzp_used) in results {
             let cvt = |v: &Vec<u8>| -> Vec<u8> {
                 v.iter().map(|&m| fmc_tables.axis_solution_move_map[axis as usize][m as usize]).collect()
             };
@@ -905,6 +916,7 @@ pub fn solve_fmc(
                     axis,
                     source_tag: 1,
                     premove_moves: vec![],
+                    rzp_used,
                 });
             }
         }
@@ -942,9 +954,10 @@ pub fn solve_fmc(
                     FMC_MAX_P2_DEPTH,
                     FMC_PM_P2_NODE_LIMIT,
                     &mut best_count,
+                    force_rzp,
                 );
 
-                for (moves_in_axis, eo_raw, dr_raw, p2_raw) in results {
+                for (moves_in_axis, eo_raw, dr_raw, p2_raw, rzp_used) in results {
                     let cvt = |v: &Vec<u8>| -> Vec<u8> {
                         v.iter().map(|&m| fmc_tables.axis_solution_move_map[axis as usize][m as usize]).collect()
                     };
@@ -966,6 +979,7 @@ pub fn solve_fmc(
                             axis,
                             source_tag: 2,
                             premove_moves: pm_set.clone(),
+                            rzp_used,
                         });
                     }
                 }
@@ -994,9 +1008,10 @@ pub fn solve_fmc(
                     FMC_MAX_P2_DEPTH,
                     FMC_PM_P2_NODE_LIMIT,
                     &mut best_count,
+                    force_rzp,
                 );
 
-                for (moves_in_axis, eo_raw, dr_raw, p2_raw) in results {
+                for (moves_in_axis, eo_raw, dr_raw, p2_raw, rzp_used) in results {
                     let cvt = |v: &Vec<u8>| -> Vec<u8> {
                         v.iter().map(|&m| fmc_tables.axis_solution_move_map[axis as usize][m as usize]).collect()
                     };
@@ -1019,6 +1034,7 @@ pub fn solve_fmc(
                             axis,
                             source_tag: 3,
                             premove_moves: pm_set.clone(),
+                            rzp_used,
                         });
                     }
                 }
@@ -1085,5 +1101,6 @@ pub fn candidate_to_json(
         "source": source,
         "premoves": premove_str,
         "moves": solution.split_whitespace().collect::<Vec<_>>(),
+        "rzpUsed": candidate.rzp_used,
     })
 }

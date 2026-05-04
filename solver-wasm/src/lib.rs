@@ -8,6 +8,12 @@ pub mod twophase_bundle;
 pub mod twophase_search;
 pub mod fmc_search;
 pub mod fmc_insertion;
+pub mod htr_classifier;
+pub mod htr_pruning;
+pub mod htr_rewrite;
+pub mod htr_search;
+pub mod htr_ml;
+pub mod htr_lookup;
 mod parser;
 mod permutation;
 mod state;
@@ -577,6 +583,8 @@ pub fn build_fmc_tables_wasm() -> String {
 struct FmcOptionsJson {
     #[serde(rename = "maxPremoveSets", default = "default_max_premove_sets")]
     max_premove_sets: usize,
+    #[serde(rename = "forceRzp", default)]
+    force_rzp: bool,
 }
 fn default_max_premove_sets() -> usize { 120 }
 
@@ -596,7 +604,7 @@ pub fn solve_fmc_wasm(scramble: &str, options_json: &str) -> String {
         Err(e) => return serde_json::json!({"ok": false, "reason": format!("BAD_OPTIONS: {e}")}).to_string(),
     };
 
-    let result = solve_fmc(scramble, tables, fmc_tables, options.max_premove_sets);
+    let result = solve_fmc(scramble, tables, fmc_tables, options.max_premove_sets, options.force_rzp);
 
     if !result.ok {
         return serde_json::json!({"ok": false, "reason": "FMC_NO_SOLUTION"}).to_string();

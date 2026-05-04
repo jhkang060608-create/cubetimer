@@ -1092,6 +1092,9 @@ async function solveFmcEO(scrambleText, options = {}) {
         const convertedDrMoves = Array.isArray(axisItem.drMoves)
           ? (axisConfig.identity ? axisItem.drMoves : conjugateMoves(axisItem.drMoves, axisConfig.solution_map))
           : null;
+        const convertedTriggerMoves = Array.isArray(axisItem.triggerMoves)
+          ? (axisConfig.identity ? axisItem.triggerMoves : conjugateMoves(axisItem.triggerMoves, axisConfig.solution_map))
+          : null;
         const convertedFinishMoves = Array.isArray(axisItem.finishMoves)
           ? (axisConfig.identity ? axisItem.finishMoves : conjugateMoves(axisItem.finishMoves, axisConfig.solution_map))
           : null;
@@ -1105,6 +1108,7 @@ async function solveFmcEO(scrambleText, options = {}) {
           p2Length: axisItem.p2Length,
           eoMoves: convertedEoMoves,
           drMoves: convertedDrMoves,
+          triggerMoves: convertedTriggerMoves,
           finishMoves: convertedFinishMoves,
           moves: simplified,
           solution: joinMoves(simplified),
@@ -1156,6 +1160,7 @@ function buildFmcParts(candidate) {
     : "";
   const axisNote = candidate.axisName ? `axis ${candidate.axisName}` : "";
   const nissNote = isNiss ? "NISS" : "";
+  const rzpNote = candidate.rzpUsed ? "RZP" : "";
 
   // For non-NISS: premove comes BEFORE EO/DR/Finish in execution order.
   // For NISS: premoveMoves is a post-move; it is appended AFTER EO/DR/Finish (see below).
@@ -1192,14 +1197,14 @@ function buildFmcParts(candidate) {
         name: "DR",
         solution: joinMoves(candidate.drMoves),
         moveCount: candidate.drMoves.length,
-        notes: nissNote,
+        notes: [nissNote, rzpNote].filter(Boolean).join(", "),
       });
     } else if (hasSegments && Number.isFinite(candidate.drLength) && candidate.drLength > 0) {
       parts.push({
         name: "DR",
         solution: "",
         moveCount: candidate.drLength,
-        notes: [`${candidate.drLength}수`, nissNote].filter(Boolean).join(", "),
+        notes: [`${candidate.drLength}수`, nissNote, rzpNote].filter(Boolean).join(", "),
       });
     }
     if (hasEo) {
@@ -1274,34 +1279,6 @@ function buildFmcParts(candidate) {
     }
   }
 
-  // Skeleton: segment concatenation in execution order
-  if (hasSegments) {
-    const skeletonParts = [];
-    if (isNiss) {
-      // NISS execution order: Finish → DR → EO → Postmove(if any)
-      if (hasFinish) skeletonParts.push(...candidate.finishMoves);
-      if (hasDr) skeletonParts.push(...candidate.drMoves);
-      if (hasEo) skeletonParts.push(...candidate.eoMoves);
-      if (hasPremove) skeletonParts.push(...candidate.premoveMoves); // post-move at end for NISS
-    } else {
-      // non-NISS execution order: Premove → EO → DR → Finish
-      if (hasPremove) skeletonParts.push(...candidate.premoveMoves);
-      if (hasEo) skeletonParts.push(...candidate.eoMoves);
-      if (hasDr) skeletonParts.push(...candidate.drMoves);
-      if (hasFinish) skeletonParts.push(...candidate.finishMoves);
-    }
-    const skeletonSimplified = simplifyMoves(skeletonParts);
-    if (skeletonSimplified.length) {
-      parts.push({
-        name: "Skeleton",
-        solution: joinMoves(skeletonSimplified),
-        moveCount: skeletonSimplified.length,
-        notes: sourceNote,
-        isSummary: true,
-      });
-    }
-  }
-
   // Insertion info (only show when insertion actually happened)
   if (isInsertion && hasInsertionBase) {
     const baseMoveCount = candidate.insertionBaseMoves.length;
@@ -1332,6 +1309,7 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
   const maxPremoveSets = Number.isFinite(options.maxPremoveSets)
     ? Math.max(0, Math.floor(options.maxPremoveSets))
     : 4;
+  const forceRzp = options.forceRzp === true;
   const timeBudgetMs = Number.isFinite(options.timeBudgetMs)
     ? Math.max(1000, Math.floor(options.timeBudgetMs))
     : 30000;
@@ -1542,6 +1520,7 @@ export async function solveWithFMCSearch(scramble, onProgress, options = {}) {
       const solveStartedAt = Date.now();
       const wasmResult = await solveFmcWasm(scramble, {
         maxPremoveSets: maxPremoveSets > 0 ? Math.min(maxPremoveSets * 20, 180) : 0,
+        forceRzp,
       });
       console.warn(`[FMC WASM] solveFmcWasm: ok=${wasmResult?.ok}, moveCount=${wasmResult?.moveCount}, elapsed=${Date.now() - solveStartedAt}ms`);
       if (wasmResult && wasmResult.ok && Array.isArray(wasmResult.candidates)) {
