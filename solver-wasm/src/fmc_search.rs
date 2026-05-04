@@ -45,6 +45,18 @@ const FMC_EO_LIMIT: usize = 6;
 /// EO sequence limit per axis for premove sweep.
 const FMC_PM_EO_LIMIT: usize = 3;
 
+/// Enable RZP-assisted DR candidate expansion.
+const FMC_RZP_ENABLED: bool = true;
+
+/// Maximum EO-preserving setup depth before attempting a DR tail.
+const FMC_RZP_SETUP_DEPTH: u8 = 2;
+
+/// Maximum number of DR routes to evaluate per EO sequence.
+const FMC_DR_ROUTE_LIMIT: usize = 8;
+
+/// Allow RZP-derived DR routes up to this many moves longer than the direct shortest DR route.
+const FMC_DR_SLACK: usize = 3;
+
 // --- Axis conjugation ---
 // JS convention: U=0,D=1,R=2,L=3,F=4,B=5
 // Move convention: U=0,R=1,F=2,D=3,L=4,B=5
@@ -302,6 +314,19 @@ fn solve_dr(
         sl = tables.slice_move.get(sl, fm as usize) as usize;
     }
     Some(path)
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct RzpDefect {
+    bad_c: u8,
+    bad_e: u8,
+}
+
+#[derive(Clone, Debug)]
+struct DrRoute {
+    moves: Vec<u8>,
+    rzp_setup_len: u8,
+    rzp_defect: Option<RzpDefect>,
 }
 
 // --- P2 Input Building ---
